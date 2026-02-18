@@ -1,72 +1,288 @@
-// @ts-nocheck
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+interface ProxyRequest {
+  serviceUrl: string;
+  serviceMethod: string;
+  serviceHeaders?: Record<string, unknown>;
+  body?: unknown;
+}
 
-// 1. SSL KONTROLÜNÜ GLOBAL OLARAK KAPAT (Mermiye kafa atma modu)
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+const ALLOWED_METHODS = new Set([
+  "GET",
+  "POST",
+  "PUT",
+  "PATCH",
+  "DELETE",
+  "HEAD",
+  "OPTIONS",
+]);
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,PUT,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', '*');
+const HOP_BY_HOP_HEADERS = new Set([
+  "connection",
+  "keep-alive",
+  "proxy-authenticate",
+  "proxy-authorization",
+  "te",
+  "trailer",
+  "transfer-encoding",
+  "upgrade",
+  "host",
+  "content-length",
+]);
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
+const RESPONSE_HEADERS_TO_FORWARD = [
+  "content-type",
+  "cache-control",
+  "etag",
+  "last-modified",
+  "content-disposition",
+  "retry-after",
+];
+
+const RETRY_DELAY_MS = 1000;
+const RETRY_COUNT = 1;
+const DEFAULT_TIMEOUT_MS = 15000;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const getHeader = (headers: any, key: string): string | undefined => {
+  const value = headers?.[key] ?? headers?.[key.toLowerCase()];
+  if (Array.isArray(value)) return value[0];
+  return typeof value === "string" ? value : undefined;
+};
+
+const parseCsv = (value: string | undefined): string[] =>
+  (value ?? "")
+    .split(",")
+    .map((v) => v.trim())
+    .filter(Boolean);
+
+const getAllowedOrigins = (): string[] => {
+  return parseCsv(process.env.CORS_ALLOWED_ORIGINS || process.env.CORS_ALLOWLIST);
+};
+
+const isOriginAllowed = (origin: string | undefined, req: any): boolean => {
+  if (!origin) return true;
+
+  const configured = getAllowedOrigins();
+  if (configured.length > 0) {
+    return configured.includes(origin);
+  }
+
+  // strict fallback: same-host only when no env allowlist is set
+  const reqHost = getHeader(req.headers, "host");
+  if (!reqHost) return false;
 
   try {
-    const { serviceUrl, serviceMethod = 'GET', serviceHeaders = {}, body } = req.body || {};
+    return new URL(origin).host === reqHost;
+  } catch {
+    return false;
+  }
+};
 
-    if (!serviceUrl) return res.status(400).json({ error: 'URL eksik' });
+const setCorsHeaders = (res: any, origin: string | undefined, req: any): void => {
+  const requestHeaders =
+    getHeader(req.headers, "access-control-request-headers") ||
+    "content-type, authorization";
 
-    const targetUrl = new URL(serviceUrl);
+  res.setHeader("Vary", "Origin");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", requestHeaders);
+  res.setHeader("Access-Control-Max-Age", "600");
 
-    // 2. Header Hazırlığı
-    const headers = new Headers();
-    // Frontend'den gelenleri ekle
-    Object.entries(serviceHeaders).forEach(([k, v]) => {
-        if (!['host', 'content-length', 'connection'].includes(k.toLowerCase())) {
-            headers.set(k, String(v));
-        }
-    });
+  if (origin) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+};
 
-    // Stealth Headerlar
-    headers.set('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
-    headers.set('Host', targetUrl.host);
-    headers.set('Origin', targetUrl.origin);
-    headers.set('Referer', targetUrl.origin + '/');
-    
-    if (body && !headers.has('Content-Type')) {
-        headers.set('Content-Type', 'application/json');
+const parseBody = (raw: unknown): Partial<ProxyRequest> => {
+  if (!raw) return {};
+  if (typeof raw === "string") {
+    try {
+      return JSON.parse(raw) as Partial<ProxyRequest>;
+    } catch {
+      return {};
+    }
+  }
+  if (typeof raw === "object") return raw as Partial<ProxyRequest>;
+  return {};
+};
+
+const headerValueToString = (value: unknown): string | undefined => {
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (Array.isArray(value)) {
+    const parts = value
+      .map((v) =>
+        typeof v === "string" || typeof v === "number" || typeof v === "boolean"
+          ? String(v)
+          : ""
+      )
+      .filter(Boolean);
+    return parts.length > 0 ? parts.join(", ") : undefined;
+  }
+  return undefined;
+};
+
+const sanitizeHeaders = (input: unknown): Record<string, string> => {
+  const output: Record<string, string> = {};
+  if (!input || typeof input !== "object") return output;
+
+  for (const [rawKey, rawValue] of Object.entries(input as Record<string, unknown>)) {
+    const key = rawKey.toLowerCase().trim();
+    if (!key || HOP_BY_HOP_HEADERS.has(key)) continue;
+
+    const value = headerValueToString(rawValue);
+    if (!value) continue;
+
+    output[key] = value;
+  }
+
+  if (!output.accept) {
+    output.accept = "application/json, text/plain;q=0.9, */*;q=0.8";
+  }
+
+  if (!output["user-agent"]) {
+    output["user-agent"] = "VercelProxy/1.0";
+  }
+
+  return output;
+};
+
+const buildUpstreamBody = (
+  method: string,
+  body: unknown,
+  headers: Record<string, string>
+): BodyInit | undefined => {
+  if (method === "GET" || method === "HEAD") return undefined;
+  if (body === undefined || body === null) return undefined;
+
+  if (typeof body === "string") {
+    if (!headers["content-type"]) {
+      headers["content-type"] = "text/plain; charset=utf-8";
+    }
+    return body;
+  }
+
+  if (body instanceof Uint8Array || body instanceof ArrayBuffer) {
+    if (!headers["content-type"]) {
+      headers["content-type"] = "application/octet-stream";
+    }
+    return body as BodyInit;
+  }
+
+  if (!headers["content-type"]) {
+    headers["content-type"] = "application/json";
+  }
+  return JSON.stringify(body);
+};
+
+const forwardResponseHeaders = (upstream: Response, res: any): void => {
+  for (const name of RESPONSE_HEADERS_TO_FORWARD) {
+    const value = upstream.headers.get(name);
+    if (value) res.setHeader(name, value);
+  }
+};
+
+export default async function handler(req: any, res: any) {
+  try {
+    const origin = getHeader(req.headers, "origin");
+    const originAllowed = isOriginAllowed(origin, req);
+
+    if (origin && !originAllowed) {
+      return res.status(403).json({ error: "CORS origin not allowed" });
     }
 
-    // 3. Body Hazırlığı
-    const fetchBody = (serviceMethod !== 'GET' && serviceMethod !== 'HEAD') 
-        ? (typeof body === 'string' ? body : JSON.stringify(body)) 
-        : undefined;
+    setCorsHeaders(res, origin, req);
 
-    // 4. Native Fetch (Vercel Node 18 Runtime)
-    const response = await fetch(serviceUrl, {
-        method: serviceMethod,
-        headers: headers,
-        body: fetchBody,
-        redirect: 'follow'
-    });
+    if (req.method === "OPTIONS") {
+      return res.status(204).end();
+    }
 
-    // 5. Yanıtı Döndür
-    const responseText = await response.text();
-    
-    // Vercel'e Content-Type bilgisini ver
-    const cType = response.headers.get('content-type');
-    if (cType) res.setHeader('Content-Type', cType);
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
 
-    // Upstream hatası olsa bile (403, 500) crash ettirme, yanıtı dön
-    return res.status(response.status).send(responseText);
+    const payload = parseBody(req.body);
+    const serviceUrl =
+      typeof payload.serviceUrl === "string" ? payload.serviceUrl.trim() : "";
+    const serviceMethod =
+      typeof payload.serviceMethod === "string"
+        ? payload.serviceMethod.toUpperCase().trim()
+        : "";
 
-  } catch (error: any) {
-    console.error('Proxy Hatası:', error);
-    // Crash olursa JSON dön
-    return res.status(500).json({ 
-        error: 'Proxy Internal Error', 
-        message: error.message 
+    if (!serviceUrl) {
+      return res.status(400).json({ error: "Missing serviceUrl" });
+    }
+
+    if (!ALLOWED_METHODS.has(serviceMethod)) {
+      return res.status(400).json({ error: "Invalid serviceMethod" });
+    }
+
+    let target: URL;
+    try {
+      target = new URL(serviceUrl);
+    } catch {
+      return res.status(400).json({ error: "Invalid serviceUrl" });
+    }
+
+    if (target.protocol !== "https:") {
+      return res.status(400).json({ error: "Only https URLs are allowed" });
+    }
+
+    const upstreamHeaders = sanitizeHeaders(payload.serviceHeaders);
+    const upstreamBody = buildUpstreamBody(serviceMethod, payload.body, upstreamHeaders);
+
+    const timeoutMs = Number(process.env.PROXY_TIMEOUT_MS || DEFAULT_TIMEOUT_MS);
+
+    let upstream: Response | null = null;
+    let lastError: unknown = null;
+
+    for (let attempt = 0; attempt <= RETRY_COUNT; attempt++) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+      try {
+        upstream = await fetch(target.toString(), {
+          method: serviceMethod,
+          headers: upstreamHeaders,
+          body: upstreamBody,
+          redirect: "follow",
+          signal: controller.signal,
+        });
+
+        if (upstream.status >= 500 && attempt < RETRY_COUNT) {
+          await sleep(RETRY_DELAY_MS);
+          continue;
+        }
+
+        break;
+      } catch (err) {
+        lastError = err;
+        if (attempt < RETRY_COUNT) {
+          await sleep(RETRY_DELAY_MS);
+          continue;
+        }
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    if (!upstream) {
+      const details =
+        lastError instanceof Error ? lastError.message : "Unknown upstream error";
+      return res.status(502).json({
+        error: "Upstream connection failed",
+        details,
+      });
+    }
+
+    forwardResponseHeaders(upstream, res);
+
+    const data = Buffer.from(await upstream.arrayBuffer());
+    return res.status(upstream.status).send(data);
+  } catch (err: any) {
+    return res.status(500).json({
+      error: "Proxy execution error",
+      message: err?.message || "Unknown error",
     });
   }
 }
