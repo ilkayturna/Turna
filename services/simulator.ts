@@ -1,48 +1,5 @@
 import { ServiceDefinition, RequestStatus, LogEntry } from '../types';
 
-const formatPhone = (phone: string, formatType: 'raw' | 'zero' | '90' | 'plus90' | 'space'): string => {
-  const p = phone.replace(/\D/g, ''); 
-  switch (formatType) {
-    case 'zero': return `0${p}`;
-    case '90': return `90${p}`;
-    case 'plus90': return `+90${p}`;
-    case 'space': return `0 (${p.substring(0,3)}) ${p.substring(3,6)} ${p.substring(6,8)} ${p.substring(8)}`;
-    case 'raw': default: return p;
-  }
-};
-
-const buildRequestParams = (serviceId: string, phone: string, mail: string) => {
-  const cleanMail = mail || "memati.bas@example.com";
-  // In no-cors mode, we can't strictly enforce application/json content-type in a way that preflight checks like.
-  // But we send it anyway.
-  const commonHeaders = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json, text/plain, */*',
-  };
-
-  switch (serviceId) {
-    case 'kahve_dunyasi':
-      return {
-        url: 'https://api.kahvedunyasi.com/api/v1/auth/account/register/phone-number',
-        options: {
-          method: 'POST',
-          headers: commonHeaders,
-          body: JSON.stringify({ countryCode: "90", phoneNumber: formatPhone(phone, 'raw') })
-        }
-      };
-    // ... (logic remains same for builder)
-    default:
-      return {
-        url: `https://${serviceId}`,
-        options: {
-          method: 'POST',
-          headers: commonHeaders,
-          body: JSON.stringify({ phone: formatPhone(phone, 'raw') })
-        }
-      };
-  }
-};
-
 /**
  * Executes the network call.
  */
@@ -80,7 +37,6 @@ export const simulateNetworkCall = async (
   }
 
   // --- LIVE MODE (SERVER-SIDE PROXY THROUGH VERCEL FUNCTION) ---
-  const { url, options } = buildRequestParams(service.id, targetPhone, email || "");
 
   try {
       const controller = new AbortController();
@@ -91,7 +47,11 @@ export const simulateNetworkCall = async (
           headers: {
               'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ url, options }),
+          body: JSON.stringify({
+            serviceId: service.id,
+            targetPhone,
+            email: email || '',
+          }),
           signal: controller.signal,
       });
 

@@ -1,31 +1,66 @@
+import { MOCK_SERVICES } from '../constants';
+
 type ProxyRequestBody = {
-  url?: string;
-  options?: {
-    method?: string;
-    headers?: Record<string, string>;
-    body?: string;
+  serviceId?: string;
+  targetPhone?: string;
+  email?: string;
+};
+
+const formatPhone = (phone: string, formatType: 'raw' | 'zero' | '90' | 'plus90' | 'space'): string => {
+  const p = phone.replace(/\D/g, '');
+  switch (formatType) {
+    case 'zero':
+      return `0${p}`;
+    case '90':
+      return `90${p}`;
+    case 'plus90':
+      return `+90${p}`;
+    case 'space':
+      return `0 (${p.substring(0, 3)}) ${p.substring(3, 6)} ${p.substring(6, 8)} ${p.substring(8)}`;
+    case 'raw':
+    default:
+      return p;
+  }
+};
+
+const withHttps = (url: string): string => {
+  if (url.startsWith('https://') || url.startsWith('http://')) {
+    return url.replace(/^http:\/\//, 'https://');
+  }
+  return `https://${url}`;
+};
+
+const buildRequestParams = (serviceId: string, phone: string, mail: string) => {
+  const cleanMail = mail || 'memati.bas@example.com';
+  const commonHeaders: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json, text/plain, */*',
   };
-};
 
-const getAllowlist = (): string[] => {
-  const raw = process.env.PROXY_ALLOWLIST || '';
-  return raw
-    .split(',')
-    .map((item) => item.trim().toLowerCase())
-    .filter(Boolean);
-};
+  const service = MOCK_SERVICES.find((item) => item.id === serviceId);
+  const method = service?.method || 'POST';
+  const serviceHeaders = service?.headers || {};
 
-const pickForwardHeaders = (headers: Record<string, string> | undefined): Record<string, string> => {
-  const safeHeaders: Record<string, string> = {};
-  if (!headers) return safeHeaders;
-
-  const contentType = headers['Content-Type'] || headers['content-type'];
-  const accept = headers['Accept'] || headers['accept'];
-
-  if (typeof contentType === 'string') safeHeaders['Content-Type'] = contentType;
-  if (typeof accept === 'string') safeHeaders['Accept'] = accept;
-
-  return safeHeaders;
+  switch (serviceId) {
+    case 'kahve_dunyasi':
+      return {
+        url: withHttps(service?.url || 'api.kahvedunyasi.com/api/v1/auth/account/register/phone-number'),
+        options: {
+          method,
+          headers: { ...commonHeaders, ...serviceHeaders },
+          body: JSON.stringify({ countryCode: '90', phoneNumber: formatPhone(phone, 'raw') }),
+        },
+      };
+    default:
+      return {
+        url: withHttps(service?.url || serviceId),
+        options: {
+          method,
+          headers: { ...commonHeaders, ...serviceHeaders },
+          body: JSON.stringify({ phone: formatPhone(phone, 'raw'), email: cleanMail }),
+        },
+      };
+  }
 };
 
 export default async function handler(req: any, res: any) {
@@ -34,52 +69,47 @@ export default async function handler(req: any, res: any) {
   }
 
   const body = (req.body || {}) as ProxyRequestBody;
-  if (!body.url || typeof body.url !== 'string') {
-    return res.status(400).json({ error: 'Missing url' });
+  if (!body.serviceId || typeof body.serviceId !== 'string') {
+    return res.status(400).json({ error: 'Missing serviceId' });
   }
 
-  let target: URL;
-  try {
-    target = new URL(body.url);
-  } catch {
-    return res.status(400).json({ error: 'Invalid url' });
+  if (!body.targetPhone || typeof body.targetPhone !== 'string') {
+    return res.status(400).json({ error: 'Missing targetPhone' });
   }
 
-  if (target.protocol !== 'https:') {
-    return res.status(400).json({ error: 'Only https URLs are allowed' });
+  const service = MOCK_SERVICES.find((item) => item.id === body.serviceId);
+  if (!service) {
+    return res.status(404).json({ error: 'Unknown serviceId' });
   }
 
-  const allowlist = getAllowlist();
-  if (allowlist.length === 0) {
-    return res.status(500).json({ error: 'PROXY_ALLOWLIST is not configured' });
-  }
-
-  if (!allowlist.includes(target.hostname.toLowerCase())) {
-    return res.status(403).json({ error: 'Host is not allowed' });
-  }
-
-  const method = (body.options?.method || 'POST').toUpperCase();
-  const allowedMethods = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
-  if (!allowedMethods.has(method)) {
-    return res.status(400).json({ error: 'Method is not allowed for proxying' });
-  }
+  const { url, options } = buildRequestParams(body.serviceId, body.targetPhone, body.email || '');
 
   try {
-    const upstream = await fetch(target.toString(), {
-      method,
-      headers: pickForwardHeaders(body.options?.headers),
-      body: typeof body.options?.body === 'string' ? body.options.body : undefined,
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    const upstream = await fetch(url, {
+      method: options.method,
+      headers: options.headers,
+      body: options.body,
+      signal: controller.signal,
     });
 
+    clearTimeout(timeoutId);
+
     const responseText = await upstream.text();
-    const contentType = upstream.headers.get('content-type');
-
-    if (contentType) {
-      res.setHeader('content-type', contentType);
-    }
-
-    return res.status(upstream.status).send(responseText);
+    return res.status(upstream.status).json({
+      ok: upstream.ok,
+      status: upstream.status,
+      serviceId: body.serviceId,
+      hasBody: responseText.length > 0,
+    });
   } catch {
-    return res.status(502).json({ error: 'Upstream request failed' });
+    return res.status(502).json({
+      ok: false,
+      status: 502,
+      error: 'Upstream request failed',
+      serviceId: body.serviceId,
+    });
   }
 }
