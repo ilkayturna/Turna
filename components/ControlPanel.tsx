@@ -56,9 +56,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       
       <div className="space-y-5">
         
-        {/* Architecture Toggle */}
+        {/* Mode Toggle */}
         <div>
-          <label className="block text-zinc-400 text-xs font-medium mb-2">Network Architecture</label>
+          <label className="block text-zinc-400 text-xs font-medium mb-2">Execution Mode</label>
           <div className="grid grid-cols-2 gap-1 bg-zinc-900 p-1 rounded-lg border border-zinc-800">
               <button
                   onClick={() => setUseSimulation(true)}
@@ -69,7 +69,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                       : 'text-zinc-500 hover:text-zinc-300'
                   }`}
               >
-                  <Server size={14} /> Proxy Gateway
+                  <Server size={14} /> Safe Simulation
               </button>
               <button
                   onClick={() => setUseSimulation(false)}
@@ -80,7 +80,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                       : 'text-zinc-500 hover:text-zinc-300'
                   }`}
               >
-                  <Globe size={14} /> Direct Browser
+                  <Globe size={14} /> Live Backend
               </button>
           </div>
         </div>

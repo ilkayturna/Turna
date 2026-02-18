@@ -147,7 +147,7 @@ const App: React.FC = () => {
               : 'bg-red-950/30 border-red-900 text-red-400'
           }`}>
               <div className={`w-1.5 h-1.5 rounded-full ${useSimulation ? 'bg-emerald-500' : 'bg-red-500'}`} />
-              {useSimulation ? "Gateway Mode: Secure Proxy" : "Browser Mode: Direct Connection"}
+              {useSimulation ? "Mode: Safe Simulation" : "Mode: Live Backend Proxy"}
           </div>
         </header>
 
