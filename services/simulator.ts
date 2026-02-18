@@ -51,6 +51,9 @@ export const simulateNetworkCall = async (
           },
           body: JSON.stringify({
               serviceId: service.id,
+              serviceUrl: service.url,
+              serviceMethod: service.method,
+              serviceHeaders: service.headers || {},
               targetPhone,
               email: email || '',
           }),

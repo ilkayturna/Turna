@@ -1,7 +1,8 @@
-import { TARGET_ENDPOINTS } from '../constants';
-
 type ProxyRequestBody = {
   serviceId?: string;
+  serviceUrl?: string;
+  serviceMethod?: string;
+  serviceHeaders?: Record<string, string>;
   targetPhone?: string;
   email?: string;
 };
@@ -30,35 +31,79 @@ const withHttps = (url: string): string => {
   return `https://${url}`;
 };
 
-const buildRequestParams = (serviceId: string, phone: string, mail: string) => {
-  const cleanMail = mail || 'memati.bas@example.com';
-  const service = TARGET_ENDPOINTS.find((item) => item.id === serviceId);
+const pickHeaders = (headers: Record<string, string> | undefined): Record<string, string> => {
+  if (!headers) return {};
+  const result: Record<string, string> = {};
+  for (const [k, v] of Object.entries(headers)) {
+    if (typeof v !== 'string') continue;
+    if (!/^[a-z0-9-]+$/i.test(k)) continue;
+    result[k] = v;
+  }
+  return result;
+};
+
+const parseBody = (req: any): ProxyRequestBody => {
+  const raw = req?.body;
+  if (!raw) return {};
+  if (typeof raw === 'string') {
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return {};
+    }
+  }
+  return raw as ProxyRequestBody;
+};
+
+const buildRequestParams = (body: ProxyRequestBody) => {
+  const serviceId = body.serviceId || '';
+  const serviceUrl = body.serviceUrl || '';
+  const targetPhone = body.targetPhone || '';
+  const methodRaw = (body.serviceMethod || 'POST').toUpperCase();
+  const method = methodRaw === 'GET' ? 'GET' : 'POST';
+
+  if (!serviceUrl || typeof serviceUrl !== 'string') {
+    throw new Error('Missing serviceUrl');
+  }
+
+  const targetUrl = withHttps(serviceUrl);
+  let parsed: URL;
+  try {
+    parsed = new URL(targetUrl);
+  } catch {
+    throw new Error('Invalid serviceUrl');
+  }
+
+  if (parsed.protocol !== 'https:') {
+    throw new Error('Only https serviceUrl is allowed');
+  }
+
+  const serviceHeaders = pickHeaders(body.serviceHeaders);
+  const cleanMail = body.email || 'memati.bas@example.com';
 
   const commonHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
     Accept: 'application/json, text/plain, */*',
-    ...(service?.headers || {}),
+    ...serviceHeaders,
   };
-
-  const method = service?.method || 'POST';
 
   switch (serviceId) {
     case 'kahve_dunyasi':
       return {
-        url: withHttps(service?.url || 'api.kahvedunyasi.com/api/v1/auth/account/register/phone-number'),
+        url: targetUrl,
         options: {
           method,
           headers: commonHeaders,
-          body: JSON.stringify({ countryCode: '90', phoneNumber: formatPhone(phone, 'raw') }),
+          body: JSON.stringify({ countryCode: '90', phoneNumber: formatPhone(targetPhone, 'raw') }),
         },
       };
     default:
       return {
-        url: withHttps(service?.url || serviceId),
+        url: targetUrl,
         options: {
           method,
           headers: commonHeaders,
-          body: JSON.stringify({ phone: formatPhone(phone, 'raw'), email: cleanMail }),
+          body: method === 'GET' ? undefined : JSON.stringify({ phone: formatPhone(targetPhone, 'raw'), email: cleanMail }),
         },
       };
   }
@@ -70,7 +115,7 @@ export default async function handler(req: any, res: any) {
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const body = (req.body || {}) as ProxyRequestBody;
+    const body = parseBody(req);
     if (!body.serviceId || typeof body.serviceId !== 'string') {
       return res.status(400).json({ error: 'Missing serviceId' });
     }
@@ -79,12 +124,7 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: 'Missing targetPhone' });
     }
 
-    const service = TARGET_ENDPOINTS.find((item) => item.id === body.serviceId);
-    if (!service) {
-      return res.status(404).json({ error: 'Unknown serviceId' });
-    }
-
-    const { url, options } = buildRequestParams(body.serviceId, body.targetPhone, body.email || '');
+    const { url, options } = buildRequestParams(body);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);
@@ -107,12 +147,12 @@ export default async function handler(req: any, res: any) {
       serviceId: body.serviceId,
       hasBody: responseText.length > 0,
     });
-  } catch {
-    return res.status(502).json({
+  } catch (error: any) {
+    return res.status(200).json({
       reachable: false,
       ok: false,
-      status: 502,
-      error: 'Upstream request failed',
+      status: 500,
+      error: error?.message || 'Proxy internal error',
     });
   }
 }
