@@ -1,11 +1,5 @@
 import { ServiceDefinition, RequestStatus, LogEntry } from '../types';
 
-// List of proxies to try in order. If one fails, we try the next.
-const PROXY_LIST = [
-  "https://api.codetabs.com/v1/proxy?quest=",
-  "https://corsproxy.io/?",
-];
-
 const formatPhone = (phone: string, formatType: 'raw' | 'zero' | '90' | 'plus90' | 'space'): string => {
   const p = phone.replace(/\D/g, ''); 
   switch (formatType) {
@@ -85,65 +79,50 @@ export const simulateNetworkCall = async (
       };
   }
 
-  // --- LIVE MODE (REAL TRAFFIC) ---
+  // --- LIVE MODE (SERVER-SIDE PROXY THROUGH VERCEL FUNCTION) ---
   const { url, options } = buildRequestParams(service.id, targetPhone, email || "");
 
-  // STRATEGY 1: Try Proxies First
-  for (const proxyBase of PROXY_LIST) {
-      try {
-        const proxyTarget = `${proxyBase}${encodeURIComponent(url)}`;
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000);
-
-        const response = await fetch(proxyTarget, {
-            ...options,
-            signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-
-        if (response.ok) {
-            return {
-                id: Math.random().toString(36).substr(2, 9),
-                timestamp: new Date().toLocaleTimeString(),
-                serviceName: service.name,
-                status: RequestStatus.SUCCESS,
-                message: `200 OK | Proxy: ${new URL(proxyBase).hostname}`,
-                latency: Math.round(performance.now() - startTime),
-            };
-        } 
-      } catch (error) {
-        continue; // Try next proxy
-      }
-  }
-
-  // STRATEGY 2: FIRE AND FORGET (NO-CORS)
-  // If proxies fail, we send the request directly with no-cors. 
-  // We won't know if it succeeded, but we know we sent it.
   try {
-      await fetch(url, {
-          method: options.method,
-          body: options.body,
-          mode: 'no-cors', // <--- THE MAGIC FIX
-          // Note: headers are restricted in no-cors, but some APIs might still parse the body
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+      const response = await fetch('/api/proxy', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url, options }),
+          signal: controller.signal,
       });
 
-      return {
-          id: Math.random().toString(36).substr(2, 9),
-          timestamp: new Date().toLocaleTimeString(),
-          serviceName: service.name,
-          status: RequestStatus.SENT, // "Yellow" status
-          message: `Request Transmitted (Opaque Response)`,
-          latency: Math.round(performance.now() - startTime),
-      };
-  } catch (e) {
-      // If even that fails (rare)
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+          return {
+              id: Math.random().toString(36).substr(2, 9),
+              timestamp: new Date().toLocaleTimeString(),
+              serviceName: service.name,
+              status: RequestStatus.SUCCESS,
+              message: `200 OK | via server proxy`,
+              latency: Math.round(performance.now() - startTime),
+          };
+      }
+
       return {
           id: Math.random().toString(36).substr(2, 9),
           timestamp: new Date().toLocaleTimeString(),
           serviceName: service.name,
           status: RequestStatus.FAILED,
-          message: "Connection Refused",
+          message: `Proxy Error (${response.status})`,
+          latency: Math.round(performance.now() - startTime),
+      };
+  } catch (e) {
+      return {
+          id: Math.random().toString(36).substr(2, 9),
+          timestamp: new Date().toLocaleTimeString(),
+          serviceName: service.name,
+          status: RequestStatus.FAILED,
+          message: "Proxy connection failed",
           latency: Math.round(performance.now() - startTime),
       };
   }
