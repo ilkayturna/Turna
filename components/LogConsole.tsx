@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { LogEntry, RequestStatus } from '../types';
-import { Terminal, Trash2 } from 'lucide-react';
+import { Terminal, Trash2, Activity } from 'lucide-react';
 
 interface LogConsoleProps {
   logs: LogEntry[];
@@ -18,48 +18,58 @@ export const LogConsole: React.FC<LogConsoleProps> = ({ logs, onClear }) => {
 
   const getStatusColor = (status: RequestStatus) => {
     switch (status) {
-      case RequestStatus.SUCCESS: return 'text-green-400';
-      case RequestStatus.FAILED: return 'text-red-400';
-      case RequestStatus.RATE_LIMITED: return 'text-orange-400';
-      case RequestStatus.SENT: return 'text-yellow-300'; // New color for Fire-and-Forget
-      default: return 'text-slate-400';
+      case RequestStatus.SUCCESS: return 'text-emerald-500';
+      case RequestStatus.FAILED: return 'text-rose-500';
+      case RequestStatus.RATE_LIMITED: return 'text-amber-500';
+      case RequestStatus.SENT: return 'text-blue-500'; 
+      default: return 'text-zinc-500';
     }
   };
 
   return (
-    <div className="bg-black border border-slate-700 rounded-lg flex flex-col h-[500px] shadow-xl overflow-hidden font-mono text-sm">
-      <div className="bg-slate-900 p-3 border-b border-slate-800 flex justify-between items-center">
-        <div className="flex items-center gap-2 text-slate-300">
-          <Terminal size={16} />
-          <span className="font-bold">Execution Logs</span>
+    <div className="bg-zinc-900/30 border border-zinc-800 rounded-xl flex flex-col h-full overflow-hidden">
+      
+      {/* Top Bar */}
+      <div className="bg-zinc-900/80 px-4 py-2 border-b border-zinc-800 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <Terminal size={14} className="text-zinc-400" />
+          <span className="font-mono text-xs text-zinc-400">output.log</span>
         </div>
+        
         <button 
           onClick={onClear}
-          className="text-slate-500 hover:text-red-400 transition-colors"
-          title="Clear Logs"
+          className="text-zinc-500 hover:text-white transition-colors p-1 rounded hover:bg-zinc-800"
+          title="Clear Buffer"
         >
-          <Trash2 size={16} />
+          <Trash2 size={14} />
         </button>
       </div>
       
+      {/* Console Body */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent"
+        className="flex-1 overflow-y-auto p-4 font-mono text-xs space-y-1 bg-[#0c0c0e]"
       >
         {logs.length === 0 && (
-          <div className="text-slate-600 italic text-center mt-20">
-            Waiting for process initiation...
+          <div className="flex flex-col items-center justify-center h-full text-zinc-700 gap-3">
+            <Activity size={24} className="opacity-20" />
+            <span className="text-zinc-600">Waiting for requests...</span>
           </div>
         )}
-        {logs.map((log) => (
-          <div key={log.id} className="flex gap-3 hover:bg-slate-900/50 p-1 rounded transition-colors">
-            <span className="text-slate-500 w-20 shrink-0">[{log.timestamp}]</span>
-            <span className="text-blue-400 font-bold w-40 shrink-0 truncate">{log.serviceName}</span>
-            <span className={`${getStatusColor(log.status)} w-24 shrink-0 font-bold`}>{log.status}</span>
-            <span className="text-slate-300 truncate flex-1">{log.message}</span>
-            <span className="text-slate-600 text-xs w-16 text-right">{log.latency}ms</span>
-          </div>
-        ))}
+        
+        <table className="w-full text-left border-collapse">
+            <tbody>
+            {logs.map((log) => (
+            <tr key={log.id} className="hover:bg-zinc-800/30 transition-colors group">
+                <td className="py-1 pr-4 text-zinc-600 w-24 align-top whitespace-nowrap border-r border-zinc-800/50">{log.timestamp}</td>
+                <td className="py-1 px-4 text-zinc-300 font-semibold w-40 align-top whitespace-nowrap">{log.serviceName}</td>
+                <td className={`py-1 px-4 w-24 align-top whitespace-nowrap font-medium ${getStatusColor(log.status)}`}>{log.status}</td>
+                <td className="py-1 px-4 text-zinc-500 align-top break-all">{log.message}</td>
+                <td className="py-1 pl-4 text-zinc-600 text-right w-16 align-top">{log.latency}ms</td>
+            </tr>
+            ))}
+            </tbody>
+        </table>
       </div>
     </div>
   );

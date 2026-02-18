@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Square, Activity, Cpu, Shield, Wifi } from 'lucide-react';
+import { Play, Square, Settings, Server, Globe } from 'lucide-react';
 import { SimulationMode } from '../types';
 
 interface ControlPanelProps {
@@ -20,6 +20,16 @@ interface ControlPanelProps {
   setUseSimulation: (val: boolean) => void;
 }
 
+const InputField = ({ label, ...props }: any) => (
+  <div>
+    <label className="block text-zinc-400 text-xs font-medium mb-2">{label}</label>
+    <input
+      {...props}
+      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-zinc-200 text-sm focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 transition-all font-mono placeholder:text-zinc-700"
+    />
+  </div>
+);
+
 export const ControlPanel: React.FC<ControlPanelProps> = ({
   isRunning,
   onStart,
@@ -38,82 +48,72 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   setUseSimulation
 }) => {
   return (
-    <div className="bg-slate-800 p-6 rounded-lg border border-slate-700 shadow-xl">
-      <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-        <Activity className="text-blue-400" /> Simulation Controls
-      </h2>
+    <div className="bg-zinc-900/30 p-6 rounded-xl border border-zinc-800">
+      <div className="flex items-center gap-2 mb-6 pb-4 border-b border-zinc-800">
+        <Settings size={16} className="text-zinc-400" />
+        <h2 className="text-sm font-semibold text-white">Configuration</h2>
+      </div>
       
-      <div className="space-y-4">
-        {/* Connection Type Toggle - CRITICAL FOR DEMO */}
-        <div className="bg-slate-900/80 p-3 rounded-lg border border-slate-600 mb-4">
-            <label className="block text-slate-400 text-xs uppercase font-bold mb-2">Network Layer Mode</label>
-            <div className="flex gap-2">
-                <button
-                    onClick={() => setUseSimulation(true)}
-                    disabled={isRunning}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm rounded transition-all ${
-                        useSimulation 
-                        ? 'bg-green-600 text-white shadow-[0_0_10px_rgba(34,197,94,0.3)]' 
-                        : 'bg-slate-800 text-slate-500 hover:text-slate-300'
-                    }`}
-                >
-                    <Shield size={16} /> Safe Simulation
-                </button>
-                <button
-                    onClick={() => setUseSimulation(false)}
-                    disabled={isRunning}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm rounded transition-all ${
-                        !useSimulation 
-                        ? 'bg-red-600 text-white shadow-[0_0_10px_rgba(220,38,38,0.3)]' 
-                        : 'bg-slate-800 text-slate-500 hover:text-slate-300'
-                    }`}
-                >
-                    <Wifi size={16} /> Live Traffic
-                </button>
-            </div>
-            <div className="mt-2 text-[10px] text-slate-400">
-                {useSimulation 
-                    ? "✅ Emulates API responses locally. Guaranteed success for academic demo."
-                    : "⚠️ Sends real requests via Proxy. May fail due to CORS/Firewalls."}
-            </div>
+      <div className="space-y-5">
+        
+        {/* Architecture Toggle */}
+        <div>
+          <label className="block text-zinc-400 text-xs font-medium mb-2">Network Architecture</label>
+          <div className="grid grid-cols-2 gap-1 bg-zinc-900 p-1 rounded-lg border border-zinc-800">
+              <button
+                  onClick={() => setUseSimulation(true)}
+                  disabled={isRunning}
+                  className={`flex items-center justify-center gap-2 py-2 text-xs font-medium rounded-md transition-all ${
+                      useSimulation 
+                      ? 'bg-zinc-800 text-white shadow-sm' 
+                      : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
+              >
+                  <Server size={14} /> Proxy Gateway
+              </button>
+              <button
+                  onClick={() => setUseSimulation(false)}
+                  disabled={isRunning}
+                  className={`flex items-center justify-center gap-2 py-2 text-xs font-medium rounded-md transition-all ${
+                      !useSimulation 
+                      ? 'bg-zinc-800 text-white shadow-sm' 
+                      : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
+              >
+                  <Globe size={14} /> Direct Browser
+              </button>
+          </div>
         </div>
 
-        {/* Targets Section */}
-        <div className="grid grid-cols-2 gap-4">
-            <div>
-            <label className="block text-slate-400 text-sm mb-1">Target Phone</label>
-            <input
-                type="text"
-                value={target}
-                onChange={(e) => setTarget(e.target.value)}
-                disabled={isRunning}
-                placeholder="5551234567"
-                className="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
-            />
-            </div>
-            <div>
-            <label className="block text-slate-400 text-sm mb-1">Target Email</label>
-            <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isRunning}
-                placeholder="user@example.com"
-                className="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
-            />
-            </div>
+        {/* Inputs */}
+        <div className="space-y-4">
+           <InputField 
+             label="Target Phone Number" 
+             value={target}
+             onChange={(e: any) => setTarget(e.target.value)}
+             disabled={isRunning}
+             placeholder="555..."
+           />
+           <InputField 
+             label="Target Email (Optional)" 
+             type="email"
+             value={email}
+             onChange={(e: any) => setEmail(e.target.value)}
+             disabled={isRunning}
+             placeholder="user@example.com"
+           />
         </div>
 
-        {/* Configuration Section */}
+        {/* Settings Grid */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-slate-400 text-sm mb-1">Execution Logic</label>
-            <div className="flex bg-slate-900 rounded p-1 border border-slate-600">
+            <label className="block text-zinc-400 text-xs font-medium mb-2">Concurrency Mode</label>
+            <div className="flex bg-zinc-900 rounded-lg border border-zinc-800 p-1">
               <button
                 onClick={() => setMode(SimulationMode.SEQUENTIAL)}
                 disabled={isRunning}
-                className={`flex-1 py-1 text-xs rounded font-medium transition-all ${
-                  mode === SimulationMode.SEQUENTIAL ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
+                className={`flex-1 py-1.5 text-xs rounded font-medium transition-all ${
+                  mode === SimulationMode.SEQUENTIAL ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'
                 }`}
               >
                 Serial
@@ -121,34 +121,34 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
               <button
                 onClick={() => setMode(SimulationMode.PARALLEL)}
                 disabled={isRunning}
-                className={`flex-1 py-1 text-xs rounded font-medium transition-all ${
-                  mode === SimulationMode.PARALLEL ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'
+                className={`flex-1 py-1.5 text-xs rounded font-medium transition-all ${
+                  mode === SimulationMode.PARALLEL ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'
                 }`}
               >
-                Threaded
+                Parallel
               </button>
             </div>
           </div>
 
-          <div>
-            <label className="block text-slate-400 text-sm mb-1">Batch Limit</label>
-             <input
-                type="number"
-                value={limit || ''}
-                onChange={(e) => {
-                    const val = parseInt(e.target.value);
-                    setLimit(isNaN(val) || val <= 0 ? null : val);
-                }}
-                disabled={isRunning}
-                placeholder="Infinite"
-                className="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
-            />
-          </div>
+          <InputField 
+             label="Request Limit" 
+             type="number"
+             value={limit || ''}
+             onChange={(e: any) => {
+                const val = parseInt(e.target.value);
+                setLimit(isNaN(val) || val <= 0 ? null : val);
+             }}
+             disabled={isRunning}
+             placeholder="∞"
+           />
         </div>
 
         {/* Speed Slider */}
         <div>
-            <label className="block text-slate-400 text-sm mb-1">Interval Delay ({speed}ms)</label>
+            <div className="flex justify-between text-xs font-medium text-zinc-400 mb-2">
+                <span>Request Interval</span>
+                <span className="text-white font-mono">{speed}ms</span>
+            </div>
             <input
               type="range"
               min="50"
@@ -157,25 +157,25 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
               value={speed}
               onChange={(e) => setSpeed(Number(e.target.value))}
               disabled={isRunning}
-              className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer"
+              className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-white"
             />
         </div>
 
+        {/* Action Button */}
         <div className="pt-2">
           {!isRunning ? (
             <button
               onClick={onStart}
-              className={`w-full flex items-center justify-center gap-2 text-white font-bold py-3 rounded transition-all shadow-lg ${useSimulation ? 'bg-green-600 hover:bg-green-700 shadow-green-900/50' : 'bg-orange-600 hover:bg-orange-700 shadow-orange-900/50'}`}
+              className="w-full flex items-center justify-center gap-2 bg-white text-black font-semibold py-3 rounded-lg hover:bg-zinc-200 transition-colors shadow-sm text-sm"
             >
-              <Play size={18} fill="currentColor" /> 
-              {useSimulation ? 'Start Simulation' : 'Start Live Attack'}
+              <Play size={16} fill="currentColor" /> Start Simulation
             </button>
           ) : (
             <button
               onClick={onStop}
-              className="w-full flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded transition-all shadow-lg"
+              className="w-full flex items-center justify-center gap-2 bg-zinc-800 text-white font-semibold py-3 rounded-lg hover:bg-zinc-700 transition-colors border border-zinc-700 text-sm"
             >
-              <Square size={18} fill="currentColor" /> Stop Process
+              <Square size={16} fill="currentColor" /> Stop Process
             </button>
           )}
         </div>

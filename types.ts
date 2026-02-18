@@ -1,6 +1,6 @@
 export enum SimulationMode {
-  SEQUENTIAL = 'SEQUENTIAL', // Like the Python normal loop
-  PARALLEL = 'PARALLEL',     // Like the Python threading logic
+  SEQUENTIAL = 'SEQUENTIAL', // Serial Execution
+  PARALLEL = 'PARALLEL',     // Concurrent Threading
 }
 
 export enum RequestStatus {
@@ -8,7 +8,7 @@ export enum RequestStatus {
   SUCCESS = 'SUCCESS',
   FAILED = 'FAILED',
   RATE_LIMITED = 'RATE_LIMITED',
-  SENT = 'SENT', // New status for Fire-and-Forget (No-CORS)
+  SENT = 'SENT', // Fire-and-Forget
 }
 
 export interface ServiceDefinition {
@@ -16,9 +16,9 @@ export interface ServiceDefinition {
   name: string;
   url: string;
   method: 'POST' | 'GET';
-  failureRate: number; // 0-1 probability of simulated failure
-  headers?: Record<string, string>; // For academic display of auth headers
-  payloadInfo?: string; // Description of the JSON/Form data structure
+  // Removed failureRate - We are doing live requests now
+  headers?: Record<string, string>; 
+  payloadInfo?: string; 
 }
 
 export interface LogEntry {
@@ -35,5 +35,5 @@ export interface SimulationStats {
   success: number;
   failed: number;
   rateLimited: number;
-  sentOpaque: number; // New stat tracker
+  sentOpaque: number; 
 }

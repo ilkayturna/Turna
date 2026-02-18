@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { SimulationMode, LogEntry, SimulationStats, RequestStatus } from './types';
-import { MOCK_SERVICES, INITIAL_STATS } from './constants';
+import { TARGET_ENDPOINTS, INITIAL_STATS } from './constants';
 import { simulateNetworkCall } from './services/simulator';
 import { ControlPanel } from './components/ControlPanel';
 import { LogConsole } from './components/LogConsole';
 import { StatsBoard } from './components/StatsBoard';
 import { NetworkVisualizer } from './components/NetworkVisualizer';
-import { Zap, Info, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { Activity, Zap, Server, Globe } from 'lucide-react';
 
 const App: React.FC = () => {
   const [isRunning, setIsRunning] = useState(false);
@@ -16,7 +16,6 @@ const App: React.FC = () => {
   const [mode, setMode] = useState<SimulationMode>(SimulationMode.SEQUENTIAL);
   const [speed, setSpeed] = useState(500); 
   
-  // Toggle between Fake (Safe) and Real (Live)
   const [useSimulation, setUseSimulation] = useState(true);
 
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -38,7 +37,7 @@ const App: React.FC = () => {
       if (log.status === RequestStatus.SUCCESS) newStats.success++;
       if (log.status === RequestStatus.FAILED) newStats.failed++;
       if (log.status === RequestStatus.RATE_LIMITED) newStats.rateLimited++;
-      if (log.status === RequestStatus.SENT) newStats.sentOpaque++; // Track Opaque Sent
+      if (log.status === RequestStatus.SENT) newStats.sentOpaque++; 
       return newStats;
     });
 
@@ -66,10 +65,9 @@ const App: React.FC = () => {
   const runSequentialStep = useCallback(async () => {
     if (limit !== null && stats.totalSent >= limit) return;
 
-    const service = MOCK_SERVICES[sequenceIndexRef.current];
-    sequenceIndexRef.current = (sequenceIndexRef.current + 1) % MOCK_SERVICES.length;
+    const service = TARGET_ENDPOINTS[sequenceIndexRef.current];
+    sequenceIndexRef.current = (sequenceIndexRef.current + 1) % TARGET_ENDPOINTS.length;
     
-    // Pass the useSimulation flag
     const result = await simulateNetworkCall(service, target, email, useSimulation);
     
     if (isRunning) { 
@@ -80,7 +78,7 @@ const App: React.FC = () => {
   const runParallelStep = useCallback(() => {
     if (limit !== null && stats.totalSent >= limit) return;
 
-    MOCK_SERVICES.forEach(async (service) => {
+    TARGET_ENDPOINTS.forEach(async (service) => {
       await new Promise(r => setTimeout(r, Math.random() * 500)); 
       if (!isRunning) return;
       const result = await simulateNetworkCall(service, target, email, useSimulation);
@@ -123,67 +121,74 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans p-4 md:p-8">
-      <header className="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500 flex items-center gap-3">
-            <Zap className="text-indigo-500" />
-            API Stress Simulator v2.0
-          </h1>
-          <p className="text-slate-500 text-sm mt-1">
-            Academic SMS API Analysis & Concurrency Testing Dashboard
-          </p>
-        </div>
+    <div className="min-h-screen bg-[#09090b] text-zinc-100 font-sans selection:bg-zinc-800 selection:text-white">
+      
+      <div className="max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8">
         
-        <div className={`px-4 py-2 rounded-md text-sm flex items-center gap-2 border animate-pulse ${useSimulation ? 'bg-green-900/20 border-green-800 text-green-300' : 'bg-red-900/20 border-red-800 text-red-300'}`}>
-            {useSimulation ? <ShieldCheck size={18} /> : <AlertTriangle size={18} />}
-            <span>Environment: {useSimulation ? "Safe Simulation Mode" : "Live Network Mode"}</span>
-        </div>
-      </header>
+        {/* Header Section */}
+        <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-zinc-800 pb-6">
+          <div>
+            <div className="flex items-center gap-3">
+               <div className="p-2 bg-zinc-100 rounded text-black">
+                 <Zap size={20} fill="currentColor" />
+               </div>
+               <h1 className="text-2xl font-semibold tracking-tight text-white">
+                 SMS API Simulator
+               </h1>
+            </div>
+            <p className="text-zinc-500 text-sm mt-2 ml-1">
+              Analyze request mechanics, concurrency patterns, and response handling.
+            </p>
+          </div>
+          
+          <div className={`px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2 border transition-all ${
+            useSimulation 
+              ? 'bg-zinc-900 border-zinc-700 text-zinc-300' 
+              : 'bg-red-950/30 border-red-900 text-red-400'
+          }`}>
+              <div className={`w-1.5 h-1.5 rounded-full ${useSimulation ? 'bg-emerald-500' : 'bg-red-500'}`} />
+              {useSimulation ? "Gateway Mode: Secure Proxy" : "Browser Mode: Direct Connection"}
+          </div>
+        </header>
 
-      <main className="max-w-7xl mx-auto">
-        <StatsBoard stats={stats} />
+        <main className="space-y-6">
+          <StatsBoard stats={stats} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-4 space-y-6">
-            <ControlPanel
-              isRunning={isRunning}
-              onStart={handleStart}
-              onStop={handleStop}
-              target={target}
-              setTarget={setTarget}
-              email={email}
-              setEmail={setEmail}
-              limit={limit}
-              setLimit={setLimit}
-              mode={mode}
-              setMode={setMode}
-              speed={speed}
-              setSpeed={setSpeed}
-              useSimulation={useSimulation}
-              setUseSimulation={setUseSimulation}
-            />
+          {/* Grid Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
-            <div className="h-[350px]">
-              <NetworkVisualizer activeServices={activeServices} />
+            {/* Left Column: Controls & Visualization */}
+            <div className="lg:col-span-4 flex flex-col gap-6">
+              <ControlPanel
+                isRunning={isRunning}
+                onStart={handleStart}
+                onStop={handleStop}
+                target={target}
+                setTarget={setTarget}
+                email={email}
+                setEmail={setEmail}
+                limit={limit}
+                setLimit={setLimit}
+                mode={mode}
+                setMode={setMode}
+                speed={speed}
+                setSpeed={setSpeed}
+                useSimulation={useSimulation}
+                setUseSimulation={setUseSimulation}
+              />
+              
+              <div className="h-[400px] lg:h-[450px] bg-zinc-900/50 rounded-xl border border-zinc-800 overflow-hidden">
+                 <NetworkVisualizer activeServices={activeServices} />
+              </div>
             </div>
 
-             <div className="bg-slate-900 p-4 rounded-lg border border-slate-700">
-                <h3 className="text-white font-bold mb-2 flex items-center gap-2">
-                  <Info size={16} className="text-blue-400" /> Academic Notice
-                </h3>
-                <p className="text-xs text-slate-400">
-                  <strong>Simulation Mode:</strong> Emulates 200 OK responses.<br/>
-                  <strong>Live Mode:</strong> Uses "Fire-and-Forget" strategy. Requests are sent blindly to avoid browser CORS blocks. Status "SENT" confirms transmission, not receipt.
-                </p>
+            {/* Right Column: Logs */}
+            <div className="lg:col-span-8 h-[600px] lg:h-[calc(100vh-280px)] lg:min-h-[600px]">
+              <LogConsole logs={logs} onClear={handleClearLogs} />
             </div>
           </div>
-
-          <div className="lg:col-span-8">
-            <LogConsole logs={logs} onClear={handleClearLogs} />
-          </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };

@@ -1,14 +1,12 @@
 import { ServiceDefinition } from './types';
 
-// Real service definitions extracted from the Python script for academic analysis.
-// Note: Failure rates are simulated based on typical API stability.
-export const MOCK_SERVICES: ServiceDefinition[] = [
+// Live Endpoint Definitions extracted for analysis.
+export const TARGET_ENDPOINTS: ServiceDefinition[] = [
   { 
     id: 'kahve_dunyasi', 
     name: 'Kahve Dunyasi', 
     url: 'api.kahvedunyasi.com/api/v1/auth/account/register/phone-number', 
     method: 'POST', 
-    failureRate: 0.1,
     payloadInfo: '{"countryCode": "90", "phoneNumber": "..."}'
   },
   { 
@@ -16,7 +14,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'WMF', 
     url: 'www.wmf.com.tr/users/register/', 
     method: 'POST', 
-    failureRate: 0.15,
     payloadInfo: 'Multipart Form: confirm=true, phone=...'
   },
   { 
@@ -24,7 +21,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Bim Market', 
     url: 'bim.veesk.net/service/v1.0/account/login', 
     method: 'POST', 
-    failureRate: 0.05,
     payloadInfo: '{"phone": "..."}'
   },
   { 
@@ -32,7 +28,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'English Home', 
     url: 'www.englishhome.com/api/member/sendOtp', 
     method: 'POST', 
-    failureRate: 0.1,
     payloadInfo: '{"Phone": "...", "XID": ""}'
   },
   { 
@@ -40,7 +35,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Suiste', 
     url: 'suiste.com/api/auth/code', 
     method: 'POST', 
-    failureRate: 0.2,
     headers: { "X-Mobillium-Device-Brand": "Apple" },
     payloadInfo: 'Form: action=register, gsm=...'
   },
@@ -49,7 +43,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Kim GB Ister', 
     url: '3uptzlakwi.execute-api.eu-west-1.amazonaws.com/api/auth/send-otp', 
     method: 'POST', 
-    failureRate: 0.05,
     payloadInfo: '{"msisdn": "90..."}'
   },
   { 
@@ -57,7 +50,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Evidea', 
     url: 'www.evidea.com/users/register/', 
     method: 'POST', 
-    failureRate: 0.1,
     payloadInfo: 'Multipart: sms_allowed=true, phone=...'
   },
   { 
@@ -65,7 +57,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: '345 Dijital', 
     url: 'api.345dijital.com/api/users/register', 
     method: 'POST', 
-    failureRate: 0.0,
     payloadInfo: '{"phoneNumber": "+90...", "name": "Memati"}'
   },
   { 
@@ -73,7 +64,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Tikla Gelsin', 
     url: 'svc.apps.tiklagelsin.com/user/graphql', 
     method: 'POST', 
-    failureRate: 0.1,
     payloadInfo: 'GraphQL Mutation: GENERATE_OTP'
   },
   { 
@@ -81,7 +71,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Naosstars', 
     url: 'api.naosstars.com/api/smsSend/...', 
     method: 'POST', 
-    failureRate: 0.2,
     payloadInfo: '{"telephone": "+90...", "type": "register"}'
   },
   { 
@@ -89,7 +78,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Koton', 
     url: 'www.koton.com/users/register/', 
     method: 'POST', 
-    failureRate: 0.1,
     payloadInfo: 'Multipart Form: sms_allowed=true, phone=...'
   },
   { 
@@ -97,7 +85,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Hayat Su', 
     url: 'api.hayatsu.com.tr/api/SignUp/SendOtp', 
     method: 'POST', 
-    failureRate: 0.15,
     headers: { "Authorization": "Bearer eyJhbGci..." },
     payloadInfo: 'Form: mobilePhoneNumber=...'
   },
@@ -106,7 +93,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Metro Market', 
     url: 'mobile.metro-tr.com/api/mobileAuth/validateSmsSend', 
     method: 'POST', 
-    failureRate: 0.1,
     payloadInfo: '{"methodType": "2", "mobilePhoneNumber": "..."}'
   },
   { 
@@ -114,7 +100,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'File Market', 
     url: 'api.filemarket.com.tr/v1/otp/send', 
     method: 'POST', 
-    failureRate: 0.05,
     payloadInfo: '{"mobilePhoneNumber": "90..."}'
   },
   { 
@@ -122,7 +107,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Akasya AVM', 
     url: 'akasyaapi.poilabs.com/v1/en/sms', 
     method: 'POST', 
-    failureRate: 0.2,
     headers: { "X-Platform-Token": "..." },
     payloadInfo: '{"phone": "..."}'
   },
@@ -131,7 +115,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Komagene', 
     url: 'gateway.komagene.com.tr/auth/auth/smskodugonder', 
     method: 'POST', 
-    failureRate: 0.3, // Custom auth often fails
     headers: { "Anonymousclientid": "..." },
     payloadInfo: '{"FirmaId": 32, "Telefon": "..."}'
   },
@@ -140,7 +123,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Porty', 
     url: 'panel.porty.tech/api.php', 
     method: 'POST', 
-    failureRate: 0.1,
     payloadInfo: '{"job": "start_login", "phone": "..."}'
   },
   { 
@@ -148,7 +130,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Yapp', 
     url: 'yapp.com.tr/api/mobile/v1/register', 
     method: 'POST', 
-    failureRate: 0.1,
     payloadInfo: '{"device_name": "Memati", "phone_number": "..."}'
   },
   { 
@@ -156,7 +137,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Beefull', 
     url: 'app.beefull.io/api/inavitas-access-management/sms-login', 
     method: 'POST', 
-    failureRate: 0.1,
     payloadInfo: '{"phoneCode": "90", "tenant": "beefull"}'
   },
   { 
@@ -164,7 +144,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Dominos', 
     url: 'frontend.dominos.com.tr/api/customer/sendOtpCode', 
     method: 'POST', 
-    failureRate: 0.15,
     payloadInfo: '{"isSure": false, "mobilePhone": "..."}'
   },
   { 
@@ -172,7 +151,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Baydoner', 
     url: 'crmmobil.baydoner.com:7004/Api/Customers/AddCustomerTemp', 
     method: 'POST', 
-    failureRate: 0.2,
     payloadInfo: '{"Name": "Memati", "Surname": "Bas"}'
   },
   { 
@@ -180,7 +158,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Kofteci Yusuf', 
     url: 'gateway.poskofteciyusuf.com:1283/auth/auth/smskodugonder', 
     method: 'POST', 
-    failureRate: 0.1,
     payloadInfo: '{"FirmaId": 82, "Telefon": "..."}'
   },
   { 
@@ -188,7 +165,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Little Caesars', 
     url: 'api.littlecaesars.com.tr/api/web/Member/Register', 
     method: 'POST', 
-    failureRate: 0.1,
     headers: { "Authorization": "Bearer ..." },
     payloadInfo: '{"SmsInform": true, "NameSurname": "Memati Bas"}'
   },
@@ -197,7 +173,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Coffy', 
     url: 'user-api-gw.coffy.com.tr/user/signup', 
     method: 'POST', 
-    failureRate: 0.1,
     payloadInfo: '{"countryCode": "90", "isKVKKAgreementApproved": true}'
   },
   { 
@@ -205,7 +180,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'Money Club', 
     url: 'www.money.com.tr/Account/ValidateAndSendOTP', 
     method: 'POST', 
-    failureRate: 0.1,
     payloadInfo: 'Form: phone=...'
   },
   { 
@@ -213,7 +187,6 @@ export const MOCK_SERVICES: ServiceDefinition[] = [
     name: 'IDO', 
     url: 'api.ido.com.tr/idows/v2/register', 
     method: 'POST', 
-    failureRate: 0.2,
     payloadInfo: '{"firstName": "MEMATI", "tckn": "generated"}'
   }
 ];

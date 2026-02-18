@@ -1,7 +1,7 @@
 import React from 'react';
-import { MOCK_SERVICES } from '../constants';
+import { TARGET_ENDPOINTS } from '../constants';
 import { ServiceDefinition } from '../types';
-import { Server, Globe, ShieldAlert, Wifi } from 'lucide-react';
+import { Globe, ArrowUpRight } from 'lucide-react';
 
 interface NetworkVisualizerProps {
   activeServices: string[];
@@ -9,46 +9,48 @@ interface NetworkVisualizerProps {
 
 export const NetworkVisualizer: React.FC<NetworkVisualizerProps> = ({ activeServices }) => {
   return (
-    <div className="bg-slate-900 p-6 rounded-lg border border-slate-700 h-full flex flex-col overflow-hidden">
-      <h3 className="text-slate-300 font-bold mb-4 flex items-center gap-2">
-        <Globe size={18} className="text-blue-500" /> Network Endpoints
-      </h3>
+    <div className="h-full flex flex-col bg-zinc-900/30">
+      <div className="px-4 py-3 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
+        <h3 className="text-zinc-300 font-medium text-xs flex items-center gap-2">
+          <Globe size={14} className="text-zinc-500" /> 
+          Endpoints
+        </h3>
+        <span className="text-[10px] text-zinc-500 font-mono">
+            {TARGET_ENDPOINTS.length} Total
+        </span>
+      </div>
       
-      <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-700">
-        <div className="space-y-2">
-          {MOCK_SERVICES.map((service: ServiceDefinition) => {
+      <div className="flex-1 overflow-y-auto">
+        <div className="divide-y divide-zinc-800/50">
+          {TARGET_ENDPOINTS.map((service: ServiceDefinition) => {
             const isActive = activeServices.includes(service.name);
             return (
               <div 
                 key={service.id} 
-                className={`flex items-center gap-3 p-2 rounded transition-all duration-300 border ${
-                  isActive 
-                    ? 'bg-slate-800 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.1)]' 
-                    : 'bg-transparent border-transparent hover:bg-slate-800/50'
+                className={`flex items-center gap-3 px-4 py-3 transition-colors ${
+                  isActive ? 'bg-zinc-800/50' : 'hover:bg-zinc-900/30'
                 }`}
               >
-                {/* Status Indicator */}
-                <div className={`shrink-0 transition-colors duration-300 ${isActive ? 'text-blue-400' : 'text-slate-600'}`}>
-                   {isActive ? <Wifi size={16} className="animate-pulse" /> : <Server size={16} />}
-                </div>
+                {/* Status Dot */}
+                <div className={`w-2 h-2 rounded-full shrink-0 transition-colors ${
+                    isActive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]' : 'bg-zinc-800'
+                }`} />
 
-                {/* Service Details */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-baseline mb-0.5">
-                    <span className={`text-xs font-bold font-mono truncate ${isActive ? 'text-blue-200' : 'text-slate-400'}`}>
+                  <div className="flex justify-between items-center mb-0.5">
+                    <span className={`text-xs font-medium truncate ${isActive ? 'text-white' : 'text-zinc-400'}`}>
                       {service.name}
                     </span>
-                    <span className="text-[10px] text-slate-600 uppercase">{service.method}</span>
+                    <span className="text-[9px] uppercase tracking-wider text-zinc-600 font-mono">
+                        {service.method}
+                    </span>
                   </div>
-                  <div className="text-[10px] text-slate-500 truncate font-mono">
+                  <div className="text-[10px] text-zinc-600 truncate font-mono">
                     {service.url}
                   </div>
                 </div>
-
-                {/* Activity Bar */}
-                 <div className="w-1.5 h-8 bg-slate-800 rounded-full overflow-hidden relative shrink-0">
-                    <div className={`absolute bottom-0 left-0 w-full bg-blue-500 transition-all duration-300 ${isActive ? 'h-full opacity-100' : 'h-0 opacity-0'}`} />
-                 </div>
+                
+                {isActive && <ArrowUpRight size={14} className="text-zinc-500" />}
               </div>
             );
           })}
