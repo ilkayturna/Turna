@@ -274,10 +274,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: "Only https URLs are allowed" });
     }
 
-    if (!assertAllowlistedHost(target)) {
-      return res.status(403).json({ error: "Target host is not allowlisted" });
-    }
-
     const baseHeaders = sanitizeHeaders(input.serviceHeaders);
     if (!baseHeaders["user-agent"]) baseHeaders["user-agent"] = "UnifiedNotificationProxy/1.0";
     if (!baseHeaders.origin) baseHeaders.origin = target.origin;
