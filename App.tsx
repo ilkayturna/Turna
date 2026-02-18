@@ -16,7 +16,7 @@ const App: React.FC = () => {
   const [mode, setMode] = useState<SimulationMode>(SimulationMode.SEQUENTIAL);
   const [speed, setSpeed] = useState(500); 
   
-  const [useSimulation, setUseSimulation] = useState(true);
+  const [useSimulation, setUseSimulation] = useState(false);
 
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [stats, setStats] = useState<SimulationStats>(INITIAL_STATS);

@@ -34,7 +34,7 @@ export const simulateNetworkCall = async (
         timestamp: new Date().toLocaleTimeString(),
         serviceName: service.name,
         status: RequestStatus.SUCCESS,
-        message: `200 OK | Simulated response`,
+        message: `200 OK | Simulated response (no live API call)`,
         latency: Math.round(performance.now() - startTime),
       };
   }
@@ -59,7 +59,11 @@ export const simulateNetworkCall = async (
 
       clearTimeout(timeoutId);
 
-      const payload = await response.json().catch(() => null) as { status?: number; ok?: boolean } | null;
+      const payload = await response.json().catch(() => null) as {
+          status?: number;
+          ok?: boolean;
+          error?: string;
+      } | null;
       const upstreamStatus = typeof payload?.status === 'number' ? payload.status : response.status;
 
       if (response.ok && payload?.ok !== false) {
@@ -73,12 +77,24 @@ export const simulateNetworkCall = async (
         };
       }
 
+      if (response.status === 404) {
+        return {
+            id: Math.random().toString(36).substr(2, 9),
+            timestamp: new Date().toLocaleTimeString(),
+            serviceName: service.name,
+            status: RequestStatus.FAILED,
+            message: 'Proxy endpoint missing (404): deploy project root, not only dist',
+            latency: Math.round(performance.now() - startTime),
+        };
+      }
+
+      const details = payload?.error ? ` - ${payload.error}` : '';
       return {
           id: Math.random().toString(36).substr(2, 9),
           timestamp: new Date().toLocaleTimeString(),
           serviceName: service.name,
           status: RequestStatus.FAILED,
-          message: `Proxy Error (${upstreamStatus})`,
+          message: `Proxy Error (${upstreamStatus})${details}`,
           latency: Math.round(performance.now() - startTime),
       };
   } catch (error) {
