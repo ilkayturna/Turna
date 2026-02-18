@@ -1,135 +1,99 @@
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+// @ts-nocheck
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-interface ProxyRequest {
-  serviceUrl: string;
-  serviceMethod: string;
-  serviceHeaders?: Record<string, unknown>;
-  body?: unknown;
-}
+// SSL Korumasını Kapat (Mermiye Kafa Atma Modu)
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-const CHROME_UA =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36";
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // 1. CORS Headers - Kapıları Sonuna Kadar Aç
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
 
-const BLOCKED_HEADERS = new Set([
-  "host",
-  "connection",
-  "content-length",
-  "transfer-encoding",
-  "keep-alive",
-  "proxy-authenticate",
-  "proxy-authorization",
-  "te",
-  "trailer",
-  "upgrade",
-]);
-
-const firstHeader = (value: unknown): string | undefined => {
-  if (typeof value === "string") return value;
-  if (Array.isArray(value) && typeof value[0] === "string") return value[0];
-  return undefined;
-};
-
-const parseProxyBody = (raw: unknown): Partial<ProxyRequest> => {
-  if (!raw) return {};
-  if (typeof raw === "string") {
-    try {
-      return JSON.parse(raw) as Partial<ProxyRequest>;
-    } catch {
-      return {};
-    }
-  }
-  if (typeof raw === "object") return raw as Partial<ProxyRequest>;
-  return {};
-};
-
-const normalizeHeaders = (input: unknown): Record<string, string> => {
-  const out: Record<string, string> = {};
-  if (!input || typeof input !== "object") return out;
-
-  for (const [rawKey, rawValue] of Object.entries(input as Record<string, unknown>)) {
-    const key = rawKey.toLowerCase().trim();
-    if (!key || BLOCKED_HEADERS.has(key)) continue;
-
-    if (typeof rawValue === "string") out[key] = rawValue;
-    else if (typeof rawValue === "number" || typeof rawValue === "boolean") out[key] = String(rawValue);
+  // Pre-flight isteği ise hemen dön
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
 
-  return out;
-};
-
-export default async function handler(req: any, res: any) {
   try {
-    const requestOrigin = firstHeader(req.headers?.origin);
-    res.setHeader("Vary", "Origin");
-    res.setHeader("Access-Control-Allow-Origin", requestOrigin || "*");
-    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      firstHeader(req.headers?.["access-control-request-headers"]) || "Content-Type, Authorization"
-    );
-
-    if (req.method === "OPTIONS") {
-      return res.status(204).end();
-    }
-
-    if (req.method !== "POST") {
-      return res.status(405).json({ error: "Method not allowed" });
-    }
-
-    const payload = parseProxyBody(req.body);
-    const serviceUrl = typeof payload.serviceUrl === "string" ? payload.serviceUrl.trim() : "";
-    const serviceMethod = typeof payload.serviceMethod === "string" ? payload.serviceMethod.toUpperCase().trim() : "";
-
-    if (!serviceUrl || !serviceMethod) {
-      return res.status(400).json({ error: "Missing serviceUrl or serviceMethod" });
-    }
-
-    let target: URL;
-    try {
-      target = new URL(serviceUrl);
-    } catch {
-      return res.status(400).json({ error: "Invalid serviceUrl" });
-    }
-
-    const headers = normalizeHeaders(payload.serviceHeaders);
-    delete headers.host;
-
-    headers["user-agent"] = CHROME_UA;
-    headers["origin"] = target.origin;
-    headers["referer"] = `${target.origin}/`;
-
-    let upstreamBody: string | undefined;
-    if (payload.body !== undefined && payload.body !== null && serviceMethod !== "GET" && serviceMethod !== "HEAD") {
-      upstreamBody = typeof payload.body === "string" ? payload.body : JSON.stringify(payload.body);
-      headers["content-type"] = "application/json";
+    // 2. BULLETPROOF BODY PARSING (Sorunu Çözen Kısım Burası)
+    let payload;
+    
+    // Eğer body string ise parse et, object ise direkt kullan
+    if (typeof req.body === 'string') {
+        try {
+            payload = JSON.parse(req.body);
+        } catch (e) {
+            console.error("JSON Parse Hatası:", e);
+            return res.status(400).json({ error: 'Body valid bir JSON değil', received: req.body });
+        }
     } else {
-      delete headers["content-type"];
+        payload = req.body;
     }
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20000);
+    // Payload'dan verileri çek
+    const { serviceUrl, serviceMethod = 'GET', serviceHeaders = {}, body: targetBody } = payload || {};
 
-    let upstreamResponse: Response;
-    try {
-      upstreamResponse = await fetch(target.toString(), {
+    // Kontrol et: URL var mı?
+    if (!serviceUrl) {
+        console.error("Hata: serviceUrl bulunamadı. Gelen Payload:", payload);
+        return res.status(400).json({ 
+            error: 'Invalid serviceUrl', 
+            details: 'Frontend serviceUrl göndermiyor veya JSON parse edilemedi.',
+            receivedPayload: payload 
+        });
+    }
+
+    // 3. Hedef URL ve Header Hazırlığı
+    const targetUrl = new URL(serviceUrl);
+    const headers = new Headers();
+
+    // Frontend'den gelen headerları ekle
+    Object.entries(serviceHeaders).forEach(([k, v]) => {
+        if (!['host', 'content-length'].includes(k.toLowerCase())) {
+            headers.set(k, String(v));
+        }
+    });
+
+    // Stealth Headerlar (Tarayıcı Taklidi)
+    headers.set('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
+    headers.set('Host', targetUrl.host);
+    headers.set('Origin', targetUrl.origin);
+    headers.set('Referer', targetUrl.origin + '/');
+    
+    // Eğer targetBody varsa ve Content-Type yoksa JSON olarak işaretle
+    if (targetBody && !headers.has('Content-Type')) {
+        headers.set('Content-Type', 'application/json');
+    }
+
+    // 4. Hedef Body Hazırlığı
+    const fetchBody = (serviceMethod !== 'GET' && serviceMethod !== 'HEAD') 
+        ? (typeof targetBody === 'string' ? targetBody : JSON.stringify(targetBody)) 
+        : undefined;
+
+    // 5. Native Fetch ile İsteği At
+    const response = await fetch(serviceUrl, {
         method: serviceMethod,
-        headers,
-        body: upstreamBody,
-        redirect: "follow",
-        signal: controller.signal,
-      });
-    } finally {
-      clearTimeout(timeout);
-    }
+        headers: headers,
+        body: fetchBody,
+        redirect: 'follow'
+    });
 
-    const rawText = await upstreamResponse.text();
-    const contentType = upstreamResponse.headers.get("content-type") || "text/plain; charset=utf-8";
-    res.setHeader("Content-Type", contentType);
+    // 6. Yanıtı Oku ve Dön
+    const responseText = await response.text();
+    const contentType = response.headers.get('content-type');
+    
+    if (contentType) res.setHeader('Content-Type', contentType);
+    
+    // Status ne olursa olsun (200, 400, 403, 500) olduğu gibi dön
+    return res.status(response.status).send(responseText);
 
-    return res.status(upstreamResponse.status).send(rawText);
   } catch (error: any) {
-    return res.status(500).json({
-      error: String(error?.message || error || "Unknown proxy error"),
+    console.error('Proxy İç Hatası:', error);
+    // Köfteci Yusuf gibi SSL hatası verenler buraya düşer
+    return res.status(500).json({ 
+        error: 'fetch failed', 
+        message: error.message 
     });
   }
 }
