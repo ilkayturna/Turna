@@ -1,0 +1,5 @@
+{
+  "name": "API Mechanics Simulator",
+  "description": "An educational simulation dashboard to analyze SMS API request mechanics, concurrency patterns, and response handling without sending real network traffic.",
+  "requestFramePermissions": []
+}
