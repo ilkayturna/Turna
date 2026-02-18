@@ -1,158 +1,90 @@
-type ProxyRequestBody = {
-  serviceId?: string;
-  serviceUrl?: string;
-  serviceMethod?: string;
-  serviceHeaders?: Record<string, string>;
-  targetPhone?: string;
-  email?: string;
-};
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import axios from 'axios';
+import { wrapper } from 'axios-cookiejar-support';
+import { CookieJar } from 'tough-cookie';
+import https from 'https';
 
-const formatPhone = (phone: string, formatType: 'raw' | 'zero' | '90' | 'plus90' | 'space'): string => {
-  const p = phone.replace(/\D/g, '');
-  switch (formatType) {
-    case 'zero':
-      return `0${p}`;
-    case '90':
-      return `90${p}`;
-    case 'plus90':
-      return `+90${p}`;
-    case 'space':
-      return `0 (${p.substring(0, 3)}) ${p.substring(3, 6)} ${p.substring(6, 8)} ${p.substring(8)}`;
-    case 'raw':
-    default:
-      return p;
-  }
-};
+// 1. Her site için ayrı bir Çerez Kavanozu (Cookie Jar) oluşturuyoruz
+// Not: Globalde tutmak Vercel'in "warm start" durumlarında session'ı korumasını sağlar
+const cookieJar = new CookieJar();
+const client = wrapper(axios.create({ 
+  jar: cookieJar,
+  withCredentials: true 
+}));
 
-const withHttps = (url: string): string => {
-  if (url.startsWith('https://') || url.startsWith('http://')) {
-    return url.replace(/^http:\/\//, 'https://');
-  }
-  return `https://${url}`;
-};
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // CORS Ayarları
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', '*');
 
-const pickHeaders = (headers: Record<string, string> | undefined): Record<string, string> => {
-  if (!headers) return {};
-  const result: Record<string, string> = {};
-  for (const [k, v] of Object.entries(headers)) {
-    if (typeof v !== 'string') continue;
-    if (!/^[a-z0-9-]+$/i.test(k)) continue;
-    result[k] = v;
-  }
-  return result;
-};
+  if (req.method === 'OPTIONS') return res.status(200).end();
 
-const parseBody = (req: any): ProxyRequestBody => {
-  const raw = req?.body;
-  if (!raw) return {};
-  if (typeof raw === 'string') {
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return {};
-    }
-  }
-  return raw as ProxyRequestBody;
-};
-
-const buildRequestParams = (body: ProxyRequestBody) => {
-  const serviceId = body.serviceId || '';
-  const serviceUrl = body.serviceUrl || '';
-  const targetPhone = body.targetPhone || '';
-  const methodRaw = (body.serviceMethod || 'POST').toUpperCase();
-  const method = methodRaw === 'GET' ? 'GET' : 'POST';
-
-  if (!serviceUrl || typeof serviceUrl !== 'string') {
-    throw new Error('Missing serviceUrl');
-  }
-
-  const targetUrl = withHttps(serviceUrl);
-  let parsed: URL;
   try {
-    parsed = new URL(targetUrl);
-  } catch {
-    throw new Error('Invalid serviceUrl');
-  }
+    const { serviceUrl, serviceMethod, serviceHeaders, body } = req.body;
 
-  if (parsed.protocol !== 'https:') {
-    throw new Error('Only https serviceUrl is allowed');
-  }
+    if (!serviceUrl) return res.status(400).json({ error: 'serviceUrl eksik.' });
 
-  const serviceHeaders = pickHeaders(body.serviceHeaders);
-  const cleanMail = body.email || 'memati.bas@example.com';
+    const targetUrl = new URL(serviceUrl);
 
-  const commonHeaders: Record<string, string> = {
-    'Content-Type': 'application/json',
-    Accept: 'application/json, text/plain, */*',
-    ...serviceHeaders,
-  };
-
-  switch (serviceId) {
-    case 'kahve_dunyasi':
-      return {
-        url: targetUrl,
-        options: {
-          method,
-          headers: commonHeaders,
-          body: JSON.stringify({ countryCode: '90', phoneNumber: formatPhone(targetPhone, 'raw') }),
-        },
-      };
-    default:
-      return {
-        url: targetUrl,
-        options: {
-          method,
-          headers: commonHeaders,
-          body: method === 'GET' ? undefined : JSON.stringify({ phone: formatPhone(targetPhone, 'raw'), email: cleanMail }),
-        },
-      };
-  }
-};
-
-export default async function handler(req: any, res: any) {
-  try {
-    if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'Method not allowed' });
-    }
-
-    const body = parseBody(req);
-    if (!body.serviceId || typeof body.serviceId !== 'string') {
-      return res.status(400).json({ error: 'Missing serviceId' });
-    }
-
-    if (!body.targetPhone || typeof body.targetPhone !== 'string') {
-      return res.status(400).json({ error: 'Missing targetPhone' });
-    }
-
-    const { url, options } = buildRequestParams(body);
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
-
-    const upstream = await fetch(url, {
-      method: options.method,
-      headers: options.headers,
-      body: options.body,
-      signal: controller.signal,
+    // 2. SSL/TLS Bypass & Fingerprint Optimization
+    const agent = new https.Agent({
+      rejectUnauthorized: false, // SSL Sertifika kontrollerini tamamen kapatır
+      ciphers: 'TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256', // Modern Chrome Ciphers
+      minVersion: 'TLSv1.2'
     });
 
-    clearTimeout(timeoutId);
+    // 3. Header Spoofing (Sadece UA değil, tüm tarayıcı setini taklit eder)
+    const finalHeaders = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+      'Accept': 'application/json, text/plain, */*',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache',
+      'Sec-Ch-Ua': '"Not A(A:Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+      'Sec-Ch-Ua-Mobile': '?0',
+      'Sec-Ch-Ua-Platform': '"Windows"',
+      'Sec-Fetch-Dest': 'empty',
+      'Sec-Fetch-Mode': 'cors',
+      'Sec-Fetch-Site': 'same-site',
+      'Host': targetUrl.host,
+      'Origin': targetUrl.origin,
+      'Referer': targetUrl.origin + '/',
+      ...serviceHeaders // Frontend'den gelen özel Token/Auth bilgilerini ekler
+    };
 
-    const responseText = await upstream.text();
-    return res.status(200).json({
-      reachable: true,
-      ok: upstream.ok,
-      status: 200,
-      upstreamStatus: upstream.status,
-      serviceId: body.serviceId,
-      hasBody: responseText.length > 0,
+    // 4. İsteği Yürütme
+    const response = await client({
+      url: serviceUrl,
+      method: serviceMethod || 'GET',
+      data: body,
+      headers: finalHeaders,
+      httpsAgent: agent,
+      validateStatus: () => true, // Tüm HTTP kodlarını (400, 500 vb.) hata fırlatmadan kabul et
+      timeout: 20000,
+      maxRedirects: 5,
+      responseType: 'text' // Ham veriyi bozmamak için
     });
+
+    // 5. Karşı taraftan gelen çerezleri frontend'e veya sonraki isteğe pasla
+    // Axios-cookiejar-support bunu arka planda 'cookieJar' içine kaydeder.
+
+    // Content-Type koruması
+    if (response.headers['content-type']) {
+      res.setHeader('Content-Type', response.headers['content-type']);
+    }
+
+    console.log(`[Bypass Success] ${serviceMethod} -> ${serviceUrl} Status: ${response.status}`);
+    
+    return res.status(response.status).send(response.data);
+
   } catch (error: any) {
-    return res.status(200).json({
-      reachable: false,
-      ok: false,
-      status: 500,
-      error: error?.message || 'Proxy internal error',
+    console.error(`[Critical Bypass Error]`, error.message);
+    return res.status(502).json({
+      error: 'Proxy Bypass Failed',
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 }
