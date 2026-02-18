@@ -61,18 +61,33 @@ export const simulateNetworkCall = async (
 
       const payload = await response.json().catch(() => null) as {
           status?: number;
+          upstreamStatus?: number;
+          reachable?: boolean;
           ok?: boolean;
           error?: string;
       } | null;
-      const upstreamStatus = typeof payload?.status === 'number' ? payload.status : response.status;
+      const upstreamStatus = typeof payload?.upstreamStatus === 'number'
+        ? payload.upstreamStatus
+        : (typeof payload?.status === 'number' ? payload.status : response.status);
 
-      if (response.ok && payload?.ok !== false) {
+      if (response.ok && payload?.reachable) {
+        if (payload.ok) {
+          return {
+              id: Math.random().toString(36).substr(2, 9),
+              timestamp: new Date().toLocaleTimeString(),
+              serviceName: service.name,
+              status: RequestStatus.SUCCESS,
+              message: `200 OK | Backend proxy (upstream ${upstreamStatus})`,
+              latency: Math.round(performance.now() - startTime),
+          };
+        }
+
         return {
             id: Math.random().toString(36).substr(2, 9),
             timestamp: new Date().toLocaleTimeString(),
             serviceName: service.name,
-            status: RequestStatus.SUCCESS,
-            message: `200 OK | Backend proxy (upstream ${upstreamStatus})`,
+            status: RequestStatus.SENT,
+            message: `Request reached upstream (${upstreamStatus})`,
             latency: Math.round(performance.now() - startTime),
         };
       }
@@ -94,7 +109,7 @@ export const simulateNetworkCall = async (
           timestamp: new Date().toLocaleTimeString(),
           serviceName: service.name,
           status: RequestStatus.FAILED,
-          message: `Proxy Error (${upstreamStatus})${details}`,
+          message: `Proxy transport failed (${upstreamStatus})${details}`,
           latency: Math.round(performance.now() - startTime),
       };
   } catch (error) {

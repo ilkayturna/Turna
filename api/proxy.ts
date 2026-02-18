@@ -65,27 +65,27 @@ const buildRequestParams = (serviceId: string, phone: string, mail: string) => {
 };
 
 export default async function handler(req: any, res: any) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const body = (req.body || {}) as ProxyRequestBody;
-  if (!body.serviceId || typeof body.serviceId !== 'string') {
-    return res.status(400).json({ error: 'Missing serviceId' });
-  }
-
-  if (!body.targetPhone || typeof body.targetPhone !== 'string') {
-    return res.status(400).json({ error: 'Missing targetPhone' });
-  }
-
-  const service = TARGET_ENDPOINTS.find((item) => item.id === body.serviceId);
-  if (!service) {
-    return res.status(404).json({ error: 'Unknown serviceId' });
-  }
-
-  const { url, options } = buildRequestParams(body.serviceId, body.targetPhone, body.email || '');
-
   try {
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    const body = (req.body || {}) as ProxyRequestBody;
+    if (!body.serviceId || typeof body.serviceId !== 'string') {
+      return res.status(400).json({ error: 'Missing serviceId' });
+    }
+
+    if (!body.targetPhone || typeof body.targetPhone !== 'string') {
+      return res.status(400).json({ error: 'Missing targetPhone' });
+    }
+
+    const service = TARGET_ENDPOINTS.find((item) => item.id === body.serviceId);
+    if (!service) {
+      return res.status(404).json({ error: 'Unknown serviceId' });
+    }
+
+    const { url, options } = buildRequestParams(body.serviceId, body.targetPhone, body.email || '');
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);
 
@@ -99,18 +99,20 @@ export default async function handler(req: any, res: any) {
     clearTimeout(timeoutId);
 
     const responseText = await upstream.text();
-    return res.status(upstream.status).json({
+    return res.status(200).json({
+      reachable: true,
       ok: upstream.ok,
-      status: upstream.status,
+      status: 200,
+      upstreamStatus: upstream.status,
       serviceId: body.serviceId,
       hasBody: responseText.length > 0,
     });
   } catch {
     return res.status(502).json({
+      reachable: false,
       ok: false,
       status: 502,
       error: 'Upstream request failed',
-      serviceId: body.serviceId,
     });
   }
 }
