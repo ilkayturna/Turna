@@ -1,9 +1,31 @@
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+
 type ProxyRequest = {
-  serviceUrl: string;
-  serviceMethod: string;
-  body?: unknown;
+  serviceId?: string;
+  serviceUrl?: string;
+  serviceMethod?: string;
   serviceHeaders?: Record<string, unknown>;
+  body?: unknown;
+  targetPhone?: string;
+  phone?: string;
 };
+
+type UpstreamFailure = {
+  status: number;
+  text: string;
+  contentType?: string;
+  attempt: number;
+};
+
+const PHONE_KEYS = [
+  "phone",
+  "mobile",
+  "gsm",
+  "msisdn",
+  "phoneNumber",
+  "PhoneNumber",
+  "mobilePhoneNumber",
+];
 
 const HOP_BY_HOP_HEADERS = new Set([
   "host",
@@ -18,8 +40,7 @@ const HOP_BY_HOP_HEADERS = new Set([
   "content-length",
 ]);
 
-const CHROME_UA =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
+const DEFAULT_TIMEOUT_MS = 15000;
 
 const parseCsv = (value?: string): string[] =>
   (value || "")
@@ -27,57 +48,180 @@ const parseCsv = (value?: string): string[] =>
     .map((v) => v.trim().toLowerCase())
     .filter(Boolean);
 
-const getAllowedHosts = (): string[] => parseCsv(process.env.PROXY_ALLOWLIST);
-const getAllowedOrigins = (): string[] => parseCsv(process.env.CORS_ALLOWED_ORIGINS);
-
-const parseIncomingBody = (raw: unknown): Partial<ProxyRequest> => {
+const parseBody = (raw: unknown): ProxyRequest => {
   if (!raw) return {};
   if (typeof raw === "string") {
     try {
-      return JSON.parse(raw) as Partial<ProxyRequest>;
+      return JSON.parse(raw) as ProxyRequest;
     } catch {
       return {};
     }
   }
-  if (typeof raw === "object") return raw as Partial<ProxyRequest>;
+  if (typeof raw === "object") return raw as ProxyRequest;
   return {};
 };
 
-const sanitizeHeaders = (headers?: Record<string, unknown>): Record<string, string> => {
-  const out: Record<string, string> = {};
-  if (!headers) return out;
+const cloneSafe = <T>(value: T): T => {
+  try {
+    return JSON.parse(JSON.stringify(value)) as T;
+  } catch {
+    return value;
+  }
+};
 
-  for (const [k, v] of Object.entries(headers)) {
-    const key = k.toLowerCase().trim();
+const digitsOnly = (value: string): string => value.replace(/\D/g, "");
+
+const toRawPhone = (value: string): string => {
+  const d = digitsOnly(value);
+  if (d.length === 10) return d;
+  if (d.length === 11 && d.startsWith("0")) return d.slice(1);
+  if (d.length === 12 && d.startsWith("90")) return d.slice(2);
+  return d;
+};
+
+const toIntlPhone = (value: string): string => {
+  const raw = toRawPhone(value);
+  if (raw.length === 10) return `90${raw}`;
+  const d = digitsOnly(value);
+  if (d.startsWith("90")) return d;
+  return raw ? `90${raw}` : "";
+};
+
+const findPhone = (input: ProxyRequest): string => {
+  if (typeof input.targetPhone === "string" && input.targetPhone.trim()) return input.targetPhone.trim();
+  if (typeof input.phone === "string" && input.phone.trim()) return input.phone.trim();
+
+  if (input.body && typeof input.body === "object" && !Array.isArray(input.body)) {
+    const obj = input.body as Record<string, unknown>;
+    for (const key of PHONE_KEYS) {
+      if (typeof obj[key] === "string" && (obj[key] as string).trim()) {
+        return (obj[key] as string).trim();
+      }
+    }
+  }
+
+  return "";
+};
+
+const patchPhoneFields = (base: unknown, phoneValue: string): unknown => {
+  if (!phoneValue) return base;
+
+  if (base && typeof base === "object" && !Array.isArray(base)) {
+    const out = cloneSafe(base as Record<string, unknown>);
+    let patched = false;
+
+    for (const key of PHONE_KEYS) {
+      if (Object.prototype.hasOwnProperty.call(out, key)) {
+        out[key] = phoneValue;
+        patched = true;
+      }
+    }
+
+    if (out.variables && typeof out.variables === "object" && !Array.isArray(out.variables)) {
+      const vars = out.variables as Record<string, unknown>;
+      for (const key of PHONE_KEYS) {
+        if (Object.prototype.hasOwnProperty.call(vars, key)) {
+          vars[key] = phoneValue;
+          patched = true;
+        }
+      }
+      out.variables = vars;
+    }
+
+    if (!patched) out.phone = phoneValue;
+    return out;
+  }
+
+  if (typeof base === "string") return base;
+  return { phone: phoneValue };
+};
+
+const buildSpecialPayload = (
+  serviceId: string,
+  originalBody: unknown,
+  rawPhone: string,
+  intlPhone: string
+): unknown => {
+  const key = serviceId.toLowerCase();
+
+  switch (key) {
+    case "lc_waikiki":
+      return { PhoneNumber: rawPhone };
+    case "english_home":
+      return { Phone: rawPhone, Source: "WEB" };
+    case "file_market":
+      return { mobilePhoneNumber: intlPhone };
+    case "tikla_gelsin":
+      return {
+        operationName: "GENERATE_OTP",
+        query:
+          "mutation GENERATE_OTP($phone: String!) { generateOtp(phone: $phone) { success message } }",
+        variables: { phone: intlPhone },
+      };
+    default:
+      return patchPhoneFields(originalBody, intlPhone);
+  }
+};
+
+const buildStrategies = (input: ProxyRequest): unknown[] => {
+  const phone = findPhone(input);
+  const rawPhone = toRawPhone(phone);
+  const intlPhone = toIntlPhone(phone);
+
+  const attempt1 = patchPhoneFields(input.body, rawPhone);
+  const attempt2 = patchPhoneFields(input.body, intlPhone);
+  const attempt3 = buildSpecialPayload(input.serviceId || "", input.body, rawPhone, intlPhone);
+
+  return [attempt1, attempt2, attempt3];
+};
+
+const sanitizeHeaders = (input?: Record<string, unknown>): Record<string, string> => {
+  const out: Record<string, string> = {};
+  if (!input) return out;
+
+  for (const [rawKey, rawVal] of Object.entries(input)) {
+    const key = rawKey.toLowerCase().trim();
     if (!key || HOP_BY_HOP_HEADERS.has(key)) continue;
-    if (typeof v === "string") out[key] = v;
-    else if (typeof v === "number" || typeof v === "boolean") out[key] = String(v);
-    else if (Array.isArray(v)) out[key] = v.map(String).join(", ");
+
+    if (typeof rawVal === "string") out[key] = rawVal;
+    else if (typeof rawVal === "number" || typeof rawVal === "boolean") out[key] = String(rawVal);
+    else if (Array.isArray(rawVal)) out[key] = rawVal.map(String).join(", ");
   }
 
   return out;
 };
 
-const buildUpstreamBody = (
+const toUpstreamBody = (
   method: string,
-  input: unknown,
+  payload: unknown,
   headers: Record<string, string>
 ): BodyInit | undefined => {
   if (method === "GET" || method === "HEAD") return undefined;
-  if (input === undefined || input === null) return undefined;
+  if (payload === undefined || payload === null) return undefined;
 
-  if (typeof input === "string") {
+  if (typeof payload === "string") {
     if (!headers["content-type"]) headers["content-type"] = "text/plain; charset=utf-8";
-    return input;
+    return payload;
   }
 
   if (!headers["content-type"]) headers["content-type"] = "application/json";
-  return JSON.stringify(input);
+  return JSON.stringify(payload);
 };
 
-const setCors = (req: any, res: any): boolean => {
-  const origin = typeof req.headers?.origin === "string" ? req.headers.origin : "";
-  const allowlist = getAllowedOrigins();
+const fetchWithTimeout = async (url: string, init: RequestInit, timeoutMs: number): Promise<Response> => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(url, { ...init, signal: controller.signal, redirect: "follow" });
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+const setCors = (req: VercelRequest, res: VercelResponse): boolean => {
+  const origin = typeof req.headers.origin === "string" ? req.headers.origin : "";
+  const allowlist = parseCsv(process.env.CORS_ALLOWED_ORIGINS);
 
   if (!origin) {
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -91,7 +235,7 @@ const setCors = (req: any, res: any): boolean => {
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader(
     "Access-Control-Allow-Headers",
-    typeof req.headers?.["access-control-request-headers"] === "string"
+    typeof req.headers["access-control-request-headers"] === "string"
       ? req.headers["access-control-request-headers"]
       : "Content-Type, Authorization"
   );
@@ -99,27 +243,29 @@ const setCors = (req: any, res: any): boolean => {
   return true;
 };
 
-export default async function handler(req: any, res: any) {
-  if (!setCors(req, res)) {
-    return res.status(403).json({ error: "CORS origin not allowed" });
-  }
+const assertAllowlistedHost = (url: URL): boolean => {
+  const allowlist = parseCsv(process.env.PROXY_ALLOWLIST);
+  if (allowlist.length === 0) return false;
+  return allowlist.includes(url.hostname.toLowerCase());
+};
 
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (!setCors(req, res)) return res.status(403).json({ error: "CORS origin not allowed" });
   if (req.method === "OPTIONS") return res.status(204).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   try {
-    const payload = parseIncomingBody(req.body);
-    const serviceUrl = typeof payload.serviceUrl === "string" ? payload.serviceUrl.trim() : "";
-    const serviceMethod =
-      typeof payload.serviceMethod === "string" ? payload.serviceMethod.toUpperCase().trim() : "";
+    const input = parseBody(req.body);
 
-    if (!serviceUrl || !serviceMethod) {
-      return res.status(400).json({ error: "Missing serviceUrl or serviceMethod" });
+    if (!input.serviceUrl || typeof input.serviceUrl !== "string") {
+      return res.status(400).json({ error: "Missing serviceUrl" });
     }
+
+    const method = (input.serviceMethod || "POST").toUpperCase().trim();
 
     let target: URL;
     try {
-      target = new URL(serviceUrl);
+      target = new URL(input.serviceUrl);
     } catch {
       return res.status(400).json({ error: "Invalid serviceUrl" });
     }
@@ -128,45 +274,66 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: "Only https URLs are allowed" });
     }
 
-    const allowedHosts = getAllowedHosts();
-    if (allowedHosts.length > 0 && !allowedHosts.includes(target.hostname.toLowerCase())) {
+    if (!assertAllowlistedHost(target)) {
       return res.status(403).json({ error: "Target host is not allowlisted" });
     }
 
-    const headers = sanitizeHeaders(payload.serviceHeaders);
-    delete headers.host;
+    const baseHeaders = sanitizeHeaders(input.serviceHeaders);
+    if (!baseHeaders["user-agent"]) baseHeaders["user-agent"] = "UnifiedNotificationProxy/1.0";
+    if (!baseHeaders.origin) baseHeaders.origin = target.origin;
+    if (!baseHeaders.referer) baseHeaders.referer = `${target.origin}/`;
 
-    if (!headers["user-agent"]) headers["user-agent"] = CHROME_UA;
-    if (!headers.origin) headers.origin = target.origin;
-    if (!headers.referer) headers.referer = `${target.origin}/`;
+    const strategies = buildStrategies(input);
+    const timeoutMs = Number(process.env.PROXY_TIMEOUT_MS || DEFAULT_TIMEOUT_MS);
 
-    const upstreamBody = buildUpstreamBody(serviceMethod, payload.body, headers);
+    const transportErrors: string[] = [];
+    let lastFailure: UpstreamFailure | null = null;
 
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 20000);
+    for (let i = 0; i < strategies.length; i++) {
+      const headers = { ...baseHeaders };
+      const body = toUpstreamBody(method, strategies[i], headers);
 
-    let upstream: Response;
-    try {
-      upstream = await fetch(target.toString(), {
-        method: serviceMethod,
-        headers,
-        body: upstreamBody,
-        redirect: "follow",
-        signal: controller.signal,
-      });
-    } finally {
-      clearTimeout(timer);
+      try {
+        const upstream = await fetchWithTimeout(
+          target.toString(),
+          { method, headers, body },
+          timeoutMs
+        );
+
+        const text = await upstream.text();
+        const contentType = upstream.headers.get("content-type") || undefined;
+
+        if (upstream.ok) {
+          if (contentType) res.setHeader("Content-Type", contentType);
+          res.setHeader("X-Proxy-Attempt", String(i + 1));
+          return res.status(upstream.status).send(text);
+        }
+
+        lastFailure = {
+          status: upstream.status,
+          text,
+          contentType,
+          attempt: i + 1,
+        };
+      } catch (err: any) {
+        transportErrors.push(`attempt ${i + 1}: ${err?.message || "fetch failed"}`);
+      }
     }
 
-    const responseText = await upstream.text();
-    const contentType = upstream.headers.get("content-type");
-    if (contentType) res.setHeader("Content-Type", contentType);
+    if (lastFailure) {
+      if (lastFailure.contentType) res.setHeader("Content-Type", lastFailure.contentType);
+      res.setHeader("X-Proxy-Attempt", String(lastFailure.attempt));
+      return res.status(lastFailure.status).send(lastFailure.text);
+    }
 
-    return res.status(upstream.status).send(responseText);
-  } catch (error: any) {
+    return res.status(502).json({
+      error: "All attempts failed before receiving upstream response",
+      details: transportErrors,
+    });
+  } catch (err: any) {
     return res.status(500).json({
       error: "Proxy execution error",
-      message: error?.message || "Unknown error",
+      message: err?.message || "Unknown error",
     });
   }
 }
