@@ -188,6 +188,146 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     url: 'api.ido.com.tr/idows/v2/register', 
     method: 'POST', 
     payloadInfo: '{"firstName": "MEMATI", "tckn": "generated"}'
+  },
+  {
+    id: 'yurtici_kargo',
+    name: 'Yurtici Kargo',
+    url: 'api.yurticikargo.com/auth/login',
+    method: 'POST',
+    payloadInfo: '{"phone": "..."}'
+  },
+  {
+    id: 'aras_kargo',
+    name: 'Aras Kargo',
+    url: 'customer.araskargo.com.tr/auth/otp',
+    method: 'POST',
+    payloadInfo: '{"msisdn": "90..."}'
+  },
+  {
+    id: 'mng_kargo',
+    name: 'MNG Kargo',
+    url: 'api.mngkargo.com.tr/bireysel/auth',
+    method: 'POST',
+    payloadInfo: '{"tel": "..."}'
+  },
+  {
+    id: 'surat_kargo',
+    name: 'Surat Kargo',
+    url: 'api.suratkargo.com.tr/auth/login',
+    method: 'POST',
+    payloadInfo: '{"phone": "..."}'
+  },
+  {
+    id: 'kamil_koc',
+    name: 'Kamil Koc',
+    url: 'api.kamilkoc.com.tr/auth/otp',
+    method: 'POST',
+    payloadInfo: '{"phone": "..."}'
+  },
+  {
+    id: 'pamukkale',
+    name: 'Pamukkale Turizm',
+    url: 'api.pamukkale.com.tr/user/login',
+    method: 'POST',
+    payloadInfo: '{"mobile": "..."}'
+  },
+  {
+    id: 'metro_turizm',
+    name: 'Metro Turizm',
+    url: 'api.metroturizm.com.tr/auth/sms',
+    method: 'POST',
+    payloadInfo: '{"phone": "..."}'
+  },
+  {
+    id: 'burger_king',
+    name: 'Burger King TR',
+    url: 'api.burgerking.com.tr/auth/login',
+    method: 'POST',
+    payloadInfo: '{"phone": "..."}'
+  },
+  {
+    id: 'popeyes',
+    name: 'Popeyes TR',
+    url: 'api.popeyes.com.tr/auth/otp',
+    method: 'POST',
+    payloadInfo: '{"phone": "..."}'
+  },
+  {
+    id: 'arbys',
+    name: 'Arbys TR',
+    url: 'api.arbys.com.tr/auth/login',
+    method: 'POST',
+    payloadInfo: '{"phone": "..."}'
+  },
+  {
+    id: 'usta_donerci',
+    name: 'Usta Donerci',
+    url: 'api.ustadonerci.com/auth/otp',
+    method: 'POST',
+    payloadInfo: '{"phone": "..."}'
+  },
+  {
+    id: 'pasaport_pizza',
+    name: 'Pasaport Pizza',
+    url: 'api.pasaportpizza.com/user/login',
+    method: 'POST',
+    payloadInfo: '{"phone": "..."}'
+  },
+  {
+    id: 'flo',
+    name: 'FLO Magazacilik',
+    url: 'api.flo.com.tr/v1/user/login/otp',
+    method: 'POST',
+    payloadInfo: '{"mobile": "..."}'
+  },
+  {
+    id: 'in_street',
+    name: 'In Street',
+    url: 'api.instreet.com.tr/v1/auth/sms',
+    method: 'POST',
+    payloadInfo: '{"mobile": "..."}'
+  },
+  {
+    id: 'korayspor',
+    name: 'Korayspor',
+    url: 'api.korayspor.com/auth/login',
+    method: 'POST',
+    payloadInfo: '{"phone": "..."}'
+  },
+  {
+    id: 'dr_store',
+    name: 'D&R Store',
+    url: 'api.dr.com.tr/auth/login/otp',
+    method: 'POST',
+    payloadInfo: '{"mobile": "..."}'
+  },
+  {
+    id: 'kitapyurdu',
+    name: 'Kitapyurdu',
+    url: 'api.kitapyurdu.com/auth/sms',
+    method: 'POST',
+    payloadInfo: '{"mobile": "..."}'
+  },
+  {
+    id: 'bkm_kitap',
+    name: 'BKM Kitap',
+    url: 'api.bkmkitap.com/auth/login',
+    method: 'POST',
+    payloadInfo: '{"phone": "..."}'
+  },
+  {
+    id: 'cineverse',
+    name: 'Paribu Cineverse',
+    url: 'api.paribucineverse.com/auth/otp',
+    method: 'POST',
+    payloadInfo: '{"mobile": "..."}'
+  },
+  {
+    id: 'lc_waikiki',
+    name: 'LC Waikiki',
+    url: 'api.lcwaikiki.com/api/User/SendOtp',
+    method: 'POST',
+    payloadInfo: '{"PhoneNumber": "..."}'
   }
 ];
 

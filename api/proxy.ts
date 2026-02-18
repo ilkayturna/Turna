@@ -65,16 +65,36 @@ const buildSmartPayload = (body: ProxyRequestBody): string => {
 
   // ÖRNEK: Bazı siteler 'gsm', bazıları 'mobile', bazıları 'cellphone' ister.
   // Burayı loglara bakarak özelleştirebilirsin.
+// api/proxy.ts içindeki payloadMap objesini bununla değiştir:
+
   const payloadMap: Record<string, any> = {
-    'kahve_dunyasi': { countryCode: '90', phoneNumber: phoneRaw },
-    'koton': { email: email, mobile: phoneRaw, smsPermission: true },
-    'bim_market': { msisdn: phone90 },
-    'migros_money': { gsm: phoneRaw }, // Money Club genelde 'gsm' ister
-    'sok_market': { mobileNumber: phoneRaw },
-    'english_home': { phone: phoneRaw, source: 'WEB' },
+    // --- GİYİM DEVLERİ (Genelde CamelCase severler) ---
+    'lc_waikiki': { PhoneNumber: phoneRaw }, // LCW buna bayılır
+    'defacto': { MobilePhone: phoneRaw },
+    'mavi': { phone: phoneRaw, permission: true },
+    'boyner': { gsm: phoneRaw },
+    'flo': { mobile: phoneRaw },
+    'penti': { phone: phoneRaw },
+
+    // --- MARKET & GIDA ---
+    'migros_money': { gsm: phoneRaw },
+    'carrefoursa': { mobileNumber: phoneRaw },
+    'sok_market': { mobile: phoneRaw },
+    'burger_king': { phone: phoneRaw },
     'dominos': { Phone: phoneRaw, PhoneCountryCode: '90' },
-    // Standart Fallback
-    'default': { phone: phoneRaw, email: email }
+    'starbucks': { mobile: phoneRaw },
+
+    // --- ULAŞIM & KARGO (Bunlar genelde basittir) ---
+    'yurtici_kargo': { phone: phoneRaw },
+    'aras_kargo': { msisdn: phone90 },
+    'mng_kargo': { tel: phoneRaw },
+    'kamil_koc': { phone: phoneRaw },
+    'pamukkale': { mobile: phoneRaw },
+    'marti': { mobile_number: phoneRaw }, // Snake_case ister
+    'binbin': { phone: phoneRaw },
+
+    // --- DİĞERLERİ (Default Fallback) ---
+    'default': { phone: phoneRaw, email: email, mobile: phoneRaw }
   };
 
   const payload = payloadMap[serviceId] || payloadMap['default'];
