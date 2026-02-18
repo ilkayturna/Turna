@@ -47,6 +47,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let targetUrl = body.serviceUrl.trim();
     if (!/^https?:\/\//i.test(targetUrl)) targetUrl = 'https://' + targetUrl;
 
+    // api/proxy.ts içindeki switch-case veya if bloğuna yapıştır:
+
+if (serviceId.includes('lc_waikiki')) {
+    payload = {
+        RegisterFormView: {
+            RegisterPhoneNumber: `${phones.raw.slice(0, 3)} ${phones.raw.slice(3, 6)} ${phones.raw.slice(6, 8)} ${phones.raw.slice(8, 10)}`, // 534 362 23 75 formatı
+            RegisterEmail: email,
+            Password: "Password123!",
+            PhoneAreaCode: "0090",
+            IsMemberPrivacyRequired: true,
+            IsSmsChecked: true,
+            IsEmailChecked: false,
+            IsCallChecked: false,
+            ActivationCode: "",
+            CaptchaCode: "",
+            Referer: null
+        }
+    };
+}
+
     const phones = formatPhone(body.targetPhone || '5555555555');
     const serviceId = (body.serviceId || '').toLowerCase();
     
