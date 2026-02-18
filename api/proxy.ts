@@ -1,262 +1,172 @@
-// @ts-nocheck
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-// 1. SSL/TLS KONTROLLERİNİ DEVRE DIŞI BIRAK (GÜVENLİK DUVARLARINA KAFA ATMA MODU)
-// Bu satır olmazsa Vercel, sertifikası eski veya self-signed olan sitelere bağlanmaz.
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
-// --- TİP TANIMLARI ---
-type ProxyRequestBody = {
-  serviceId?: string;
-  serviceUrl?: string;
-  serviceMethod?: string;
-  serviceHeaders?: Record<string, unknown>;
-  targetPhone?: string;
-  email?: string;
+type ProxyRequest = {
+  serviceUrl: string;
+  serviceMethod: string;
   body?: unknown;
+  serviceHeaders?: Record<string, unknown>;
 };
 
-// --- KONFIGURASYON ---
-const BLOCKED_HEADERS = new Set([
-  'host', 'content-length', 'connection', 'transfer-encoding', 
-  'keep-alive', 'upgrade', 'proxy-authorization', 'proxy-authenticate', 
-  'cf-connecting-ip', 'x-forwarded-for' // Cloudflare'in sevmediği headerlar
+const HOP_BY_HOP_HEADERS = new Set([
+  "host",
+  "connection",
+  "keep-alive",
+  "proxy-authenticate",
+  "proxy-authorization",
+  "te",
+  "trailer",
+  "transfer-encoding",
+  "upgrade",
+  "content-length",
 ]);
 
-// Modern Chrome İmzası (WAF Bypass İçin Kritik)
-const CHROME_HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-  'Accept': 'application/json, text/plain, */*',
-  'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
-  'Accept-Encoding': 'gzip, deflate, br',
-  'Sec-Ch-Ua': '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"',
-  'Sec-Ch-Ua-Mobile': '?0',
-  'Sec-Ch-Ua-Platform': '"Windows"',
-  'Sec-Fetch-Dest': 'empty',
-  'Sec-Fetch-Mode': 'cors',
-  'Sec-Fetch-Site': 'same-site',
-  'Cache-Control': 'no-cache',
-  'Pragma': 'no-cache',
-  'DNT': '1' // Do Not Track
-};
+const CHROME_UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
 
-// Telefon Formatlayıcı
-const formatPhone = (phone: string, type: 'raw' | '90' | '05'): string => {
-  const p = (phone || '').replace(/\D/g, ''); // Sadece rakamlar
-  if (type === '90') return p.startsWith('90') ? p : `90${p}`;
-  if (type === '05') return p.startsWith('90') ? `0${p.substring(2)}` : (p.startsWith('0') ? p : `0${p}`);
-  return p.startsWith('90') ? p.substring(2) : p; // raw (5XX...)
-};
+const parseCsv = (value?: string): string[] =>
+  (value || "")
+    .split(",")
+    .map((v) => v.trim().toLowerCase())
+    .filter(Boolean);
 
-// --- PAYLOAD FABRİKASI (400 Hatalarını Çözmek İçin) ---
-// Eğer frontend'den özel body gelmezse, servise göre otomatik format üretir.
-// api/proxy.ts içindeki buildSmartPayload fonksiyonunu tamamen bununla değiştir:
+const getAllowedHosts = (): string[] => parseCsv(process.env.PROXY_ALLOWLIST);
+const getAllowedOrigins = (): string[] => parseCsv(process.env.CORS_ALLOWED_ORIGINS);
 
-const buildSmartPayload = (body: ProxyRequestBody): string => {
-  // Eğer frontend'den özel body gelmişse dokunma
-  if (body.body) {
-    return typeof body.body === 'string' ? body.body : JSON.stringify(body.body);
-  }
-
-  const phoneRaw = formatPhone(body.targetPhone || '', 'raw'); // 5XXXXXXXXX
-  const phone90 = formatPhone(body.targetPhone || '', '90');   // 905XXXXXXXXX
-  const phone05 = formatPhone(body.targetPhone || '', '05');   // 05XXXXXXXXX
-  const email = body.email || 'memati.bas@yandex.com'; // Spam filtresine takılmayan mail
-
-  const serviceId = body.serviceId || '';
-
-  // --- GELİŞMİŞ PAYLOAD HARİTASI ---
-  // api/proxy.ts -> buildSmartPayload fonksiyonu içindeki payloadMap:
-
-  const payloadMap: Record<string, any> = {
-    // --- GİYİM & MODA (Zorlu) ---
-    'lc_waikiki': { PhoneNumber: phoneRaw }, // Sadece 5xxxxxxxxx
-    'defacto': { MobilePhone: phoneRaw, Email: email },
-    'koton': { email: email, mobile: phoneRaw, sms_permission: true, kvkk_permission: true },
-    'mavi': { phone: phoneRaw, permission: true, kvkk: true },
-    'boyner': { gsm: phoneRaw },
-    'penti': { phone: phoneRaw, email: email },
-    'flo': { mobile: phoneRaw, sms_permission: 1, kvkk_permission: 1 },
-    'in_street': { mobile: phoneRaw, sms_permission: 1 },
-    'korayspor': { phone: phoneRaw },
-    'network': { mobile: phoneRaw },
-    'altinyildiz': { phone: phoneRaw },
-
-    // --- MARKET & EV (Hassas) ---
-    'migros_money': { gsm: phoneRaw, moneyCard: "", isKvkkConfirmed: true },
-    'sok_market': { mobileNumber: phoneRaw, token: "" },
-    'file_market': { mobilePhoneNumber: phone90 }, // 905xxxxxxxxx
-    'bim_market': { msisdn: phone90 }, // 905xxxxxxxxx
-    'english_home': { Phone: phone05, Source: "WEB" }, // 05xxxxxxxxx
-    'evidea': { phone: phoneRaw, sms_allowed: "on", email: email },
-    'koctas': { phone: phoneRaw },
-    'wmf': { phone: phoneRaw, confirm: "true", email: email },
-    'madame_coco': { mobile: phoneRaw },
-    'tedi': { phone: phoneRaw },
-
-    // --- YEMEK & İÇECEK (Hızlı) ---
-    'kahve_dunyasi': { countryCode: "90", phoneNumber: phoneRaw },
-    'starbucks': { mobile: phoneRaw },
-    'burger_king': { phone: phoneRaw },
-    'popeyes': { phone: phoneRaw },
-    'arbys': { phone: phoneRaw },
-    'usta_donerci': { phone: phoneRaw },
-    'sbarro': { phone: phoneRaw },
-    'little_caesars': { SmsInform: true, NameSurname: "Misafir", Phone: phone05 },
-    'dominos': { Phone: phoneRaw, PhoneCountryCode: "90" },
-    'pasaport_pizza': { phone: phoneRaw },
-    'baydoner': { Name: "Misafir", Surname: "Kullanici", Gsm: phoneRaw, Kvkk: true },
-    'kofteci_yusuf': { FirmaId: 82, Telefon: phoneRaw },
-    'komagene': { FirmaId: 32, Telefon: phoneRaw },
-    'coffy': { countryCode: "90", isKVKKAgreementApproved: true, phoneNumber: phoneRaw },
-    
-    // --- ÖZEL: TIKLA GELSİN (GraphQL) ---
-    'tikla_gelsin': { 
-        operationName: "GENERATE_OTP", 
-        variables: { phone: phoneRaw, countryCode: "TR" }, 
-        query: "mutation GENERATE_OTP($phone: String!, $countryCode: String) { generateOtp(phone: $phone, countryCode: $countryCode) { isSuccess message } }" 
-    },
-
-    // --- ULAŞIM & KARGO (IP Ban Riski Yüksek ama Deniyoruz) ---
-    'marti': { mobile_number: phoneRaw },
-    'binbin': { phone: phoneRaw },
-    'kamil_koc': { Phone: phoneRaw, TcNumber: "11111111111" },
-    'pamukkale': { mobile: phoneRaw, tc: "11111111111" },
-    'metro_turizm': { phone: phoneRaw, identity: "11111111111" },
-    'yurtici_kargo': { phone: phoneRaw },
-    'aras_kargo': { msisdn: phone90 },
-    'mng_kargo': { tel: phoneRaw },
-    'surat_kargo': { phone: phoneRaw },
-    'ido': { phone: phoneRaw },
-
-    // --- DİĞERLERİ ---
-    'yapp': { phone_number: phoneRaw, device_name: "Android" },
-    'hayat_su': { mobilePhoneNumber: "0" + phoneRaw, deviceId: "web" },
-    'suiste': { action: "register", gsm: phoneRaw },
-    'porty': { job: "start_login", phone: phoneRaw },
-    'kim_gb_ister': { msisdn: phone90 },
-    '345_dijital': { phoneNumber: "+" + phone90, name: "User" },
-    'beefull': { phoneCode: "90", tenant: "beefull", phone: phoneRaw },
-    'naosstars': { telephone: "+" + phone90, type: "register" },
-    'akasya_avm': { phone: phoneRaw },
-    'dr_store': { mobile: phoneRaw },
-    'kitapyurdu': { mobile: phoneRaw },
-    'bkm_kitap': { phone: phoneRaw },
-    'cineverse': { mobile: phoneRaw },
-    
-    // Default Fallback
-    'default': { phone: phoneRaw, email: email, mobile: phoneRaw }
-  };
-
-  const payload = payloadMap[serviceId] || payloadMap['default'];
-  return JSON.stringify(payload);
-};
-
-// --- HEADER TEMİZLEYİCİ ---
-const sanitizeHeaders = (input: Record<string, unknown> | undefined): Record<string, string> => {
-  const out: Record<string, string> = {};
-  if (!input) return out;
-  for (const [key, val] of Object.entries(input)) {
-    const k = key.toLowerCase().trim();
-    if (k && !BLOCKED_HEADERS.has(k)) {
-      out[k] = String(val);
+const parseIncomingBody = (raw: unknown): Partial<ProxyRequest> => {
+  if (!raw) return {};
+  if (typeof raw === "string") {
+    try {
+      return JSON.parse(raw) as Partial<ProxyRequest>;
+    } catch {
+      return {};
     }
   }
+  if (typeof raw === "object") return raw as Partial<ProxyRequest>;
+  return {};
+};
+
+const sanitizeHeaders = (headers?: Record<string, unknown>): Record<string, string> => {
+  const out: Record<string, string> = {};
+  if (!headers) return out;
+
+  for (const [k, v] of Object.entries(headers)) {
+    const key = k.toLowerCase().trim();
+    if (!key || HOP_BY_HOP_HEADERS.has(key)) continue;
+    if (typeof v === "string") out[key] = v;
+    else if (typeof v === "number" || typeof v === "boolean") out[key] = String(v);
+    else if (Array.isArray(v)) out[key] = v.map(String).join(", ");
+  }
+
   return out;
 };
 
-// --- MAIN HANDLER ---
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS - Tüm kapılar açık
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', '*');
+const buildUpstreamBody = (
+  method: string,
+  input: unknown,
+  headers: Record<string, string>
+): BodyInit | undefined => {
+  if (method === "GET" || method === "HEAD") return undefined;
+  if (input === undefined || input === null) return undefined;
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  
-  // Sadece POST kabul et (Güvenlik simülasyonu için)
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Only POST allowed' });
+  if (typeof input === "string") {
+    if (!headers["content-type"]) headers["content-type"] = "text/plain; charset=utf-8";
+    return input;
+  }
+
+  if (!headers["content-type"]) headers["content-type"] = "application/json";
+  return JSON.stringify(input);
+};
+
+const setCors = (req: any, res: any): boolean => {
+  const origin = typeof req.headers?.origin === "string" ? req.headers.origin : "";
+  const allowlist = getAllowedOrigins();
+
+  if (!origin) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  } else if (allowlist.length === 0 || allowlist.includes(origin.toLowerCase())) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+  } else {
+    return false;
+  }
+
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    typeof req.headers?.["access-control-request-headers"] === "string"
+      ? req.headers["access-control-request-headers"]
+      : "Content-Type, Authorization"
+  );
+  res.setHeader("Access-Control-Max-Age", "600");
+  return true;
+};
+
+export default async function handler(req: any, res: any) {
+  if (!setCors(req, res)) {
+    return res.status(403).json({ error: "CORS origin not allowed" });
+  }
+
+  if (req.method === "OPTIONS") return res.status(204).end();
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   try {
-    // Body Parse (String veya Object gelebilir)
-    let body: ProxyRequestBody = {};
-    if (typeof req.body === 'string') {
-        try { body = JSON.parse(req.body); } catch { body = {}; }
-    } else {
-        body = req.body || {};
+    const payload = parseIncomingBody(req.body);
+    const serviceUrl = typeof payload.serviceUrl === "string" ? payload.serviceUrl.trim() : "";
+    const serviceMethod =
+      typeof payload.serviceMethod === "string" ? payload.serviceMethod.toUpperCase().trim() : "";
+
+    if (!serviceUrl || !serviceMethod) {
+      return res.status(400).json({ error: "Missing serviceUrl or serviceMethod" });
     }
 
-    if (!body.serviceUrl) {
-      return res.status(400).json({ error: 'Missing serviceUrl' });
-    }
-
-    // URL Validasyon ve Düzeltme
-    let targetUrlStr = body.serviceUrl.trim();
-    if (!/^https?:\/\//i.test(targetUrlStr)) {
-        targetUrlStr = 'https://' + targetUrlStr;
-    }
-    const targetUrl = new URL(targetUrlStr);
-
-    // Header Birleştirme (Frontend + Stealth)
-    const requestHeaders = {
-      ...CHROME_HEADERS, // En üste Chrome imzalarını koy
-      ...sanitizeHeaders(body.serviceHeaders), // Frontend headerlarını ekle
-      'Host': targetUrl.host,
-      'Origin': targetUrl.origin,
-      'Referer': targetUrl.origin + '/'
-    };
-
-    // Body Oluşturma
-    const requestPayload = buildSmartPayload(body);
-    
-    // Content-Type kontrolü
-    if (requestPayload && !requestHeaders['content-type'] && !requestHeaders['Content-Type']) {
-        requestHeaders['Content-Type'] = 'application/json';
-    }
-
-    // --- FETCH (Timeout Korumalı) ---
-    // Köfteci Yusuf gibi yerler için timeout süresini 15sn yaptım.
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
-
+    let target: URL;
     try {
-        const response = await fetch(targetUrl.toString(), {
-            method: (body.serviceMethod || 'POST').toUpperCase(),
-            headers: requestHeaders as any,
-            body: (body.serviceMethod === 'GET') ? undefined : requestPayload,
-            redirect: 'follow',
-            signal: controller.signal
-        });
-        
-        clearTimeout(timeout);
-
-        // Yanıtı al
-        const responseText = await response.text();
-        
-        // Vercel'e yanıtı dön
-        return res.status(200).json({
-            reachable: true,
-            ok: response.ok,
-            status: 200, // Frontend'e hep 200 dön ki patlamasın
-            upstreamStatus: response.status, // Gerçek statüyü buraya koy
-            serviceId: body.serviceId,
-            responsePreview: responseText.substring(0, 500), // İlk 500 karakteri göster (Debug için)
-            error: response.ok ? null : `Upstream Error: ${response.status}`
-        });
-
-    } catch (fetchError: any) {
-        clearTimeout(timeout);
-        // Timeout veya Network Hatası
-        return res.status(200).json({
-            reachable: false,
-            ok: false,
-            status: 500, // Proxy iç hatası ama 200 içinde dönüyoruz
-            upstreamStatus: 0,
-            error: fetchError.name === 'AbortError' ? 'Timeout (15s)' : fetchError.message
-        });
+      target = new URL(serviceUrl);
+    } catch {
+      return res.status(400).json({ error: "Invalid serviceUrl" });
     }
 
+    if (target.protocol !== "https:") {
+      return res.status(400).json({ error: "Only https URLs are allowed" });
+    }
+
+    const allowedHosts = getAllowedHosts();
+    if (allowedHosts.length > 0 && !allowedHosts.includes(target.hostname.toLowerCase())) {
+      return res.status(403).json({ error: "Target host is not allowlisted" });
+    }
+
+    const headers = sanitizeHeaders(payload.serviceHeaders);
+    delete headers.host;
+
+    if (!headers["user-agent"]) headers["user-agent"] = CHROME_UA;
+    if (!headers.origin) headers.origin = target.origin;
+    if (!headers.referer) headers.referer = `${target.origin}/`;
+
+    const upstreamBody = buildUpstreamBody(serviceMethod, payload.body, headers);
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 20000);
+
+    let upstream: Response;
+    try {
+      upstream = await fetch(target.toString(), {
+        method: serviceMethod,
+        headers,
+        body: upstreamBody,
+        redirect: "follow",
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+
+    const responseText = await upstream.text();
+    const contentType = upstream.headers.get("content-type");
+    if (contentType) res.setHeader("Content-Type", contentType);
+
+    return res.status(upstream.status).send(responseText);
   } catch (error: any) {
-    return res.status(500).json({ error: 'Internal Proxy Error', details: error.message });
+    return res.status(500).json({
+      error: "Proxy execution error",
+      message: error?.message || "Unknown error",
+    });
   }
 }
