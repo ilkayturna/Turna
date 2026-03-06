@@ -73,8 +73,8 @@ export const simulateNetworkCall = async (
         ? payload.upstreamStatus
         : (typeof payload?.status === 'number' ? payload.status : response.status);
 
-      if (response.ok && payload?.reachable) {
-        if (payload.ok) {
+      if (response.ok) {
+        if (payload?.ok) {
           return {
               id: Math.random().toString(36).substr(2, 9),
               timestamp: new Date().toLocaleTimeString(),
