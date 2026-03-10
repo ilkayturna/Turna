@@ -142,6 +142,14 @@ export const INITIAL_STATS = {
 
 export const CERTIFICATES: Certificate[] = [
   {
+    id: 'sak_onur_belgesi',
+    title: 'Onur Belgesi',
+    issuer: 'Sakarya Üniversitesi',
+    date: '2022 – 2023',
+    url: '',
+    count: 2,
+  },
+  {
     id: 'sak_erasmus_eng',
     title: 'İngilizce Yeterlilik Sertifikası',
     issuer: 'Sakarya Üniversitesi (Erasmus Sınavı)',

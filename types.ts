@@ -44,4 +44,5 @@ export interface Certificate {
   issuer: string;
   date: string;
   url: string;
+  count?: number;
 }

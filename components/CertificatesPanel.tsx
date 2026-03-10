@@ -13,12 +13,12 @@ export const CertificatesPanel: React.FC = () => {
 
       <div className="space-y-2">
         {CERTIFICATES.map((cert) => (
-          <a
+          <div
             key={cert.id}
-            href={cert.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/60 hover:border-zinc-700 transition-all group cursor-pointer"
+            onClick={() => cert.url && window.open(cert.url, '_blank', 'noopener,noreferrer')}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-900/50 transition-all group ${
+              cert.url ? 'hover:bg-zinc-800/60 hover:border-zinc-700 cursor-pointer' : 'cursor-default'
+            }`}
           >
             <div className="w-2 h-2 rounded-full bg-emerald-500/70 shrink-0 group-hover:bg-emerald-400 transition-colors" />
 
@@ -30,16 +30,23 @@ export const CertificatesPanel: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
+              {cert.count && cert.count > 1 && (
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 font-mono">
+                  x{cert.count}
+                </span>
+              )}
               <span className="flex items-center gap-1 text-[10px] text-zinc-600 font-mono">
                 <Calendar size={10} />
                 {cert.date}
               </span>
-              <ExternalLink
-                size={12}
-                className="text-zinc-600 group-hover:text-zinc-300 transition-colors"
-              />
+              {cert.url && (
+                <ExternalLink
+                  size={12}
+                  className="text-zinc-600 group-hover:text-zinc-300 transition-colors"
+                />
+              )}
             </div>
-          </a>
+          </div>
         ))}
       </div>
     </div>
