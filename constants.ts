@@ -1,4 +1,4 @@
-import { ServiceDefinition } from './types';
+import { ServiceDefinition, Certificate } from './types';
 
 // TEST EDİLMİŞ VE ÇALIŞAN SERVİSLER (11 Adet)
 // Not: Çoğu büyük şirket (Migros, Dominos, Trendyol, vb.) bot koruması (Cloudflare, Akamai) kullanıyor.
@@ -139,3 +139,13 @@ export const INITIAL_STATS = {
   rateLimited: 0,
   sentOpaque: 0,
 };
+
+export const CERTIFICATES: Certificate[] = [
+  {
+    id: 'sak_erasmus_eng',
+    title: 'İngilizce Yeterlilik Sertifikası',
+    issuer: 'Sakarya Üniversitesi (Erasmus Sınavı)',
+    date: 'Mar 2022',
+    url: 'https://drive.google.com/file/d/1DBx6FxymCRiGjhOgth5wGnsaHZL_cEfb/view?usp=sharing',
+  },
+];

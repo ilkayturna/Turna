@@ -6,6 +6,7 @@ import { ControlPanel } from './components/ControlPanel';
 import { LogConsole } from './components/LogConsole';
 import { StatsBoard } from './components/StatsBoard';
 import { NetworkVisualizer } from './components/NetworkVisualizer';
+import { CertificatesPanel } from './components/CertificatesPanel';
 import { Activity, Zap, Server, Globe } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -180,6 +181,8 @@ const App: React.FC = () => {
               <div className="h-[400px] lg:h-[450px] bg-zinc-900/50 rounded-xl border border-zinc-800 overflow-hidden">
                  <NetworkVisualizer activeServices={activeServices} />
               </div>
+
+              <CertificatesPanel />
             </div>
 
             {/* Right Column: Logs */}
