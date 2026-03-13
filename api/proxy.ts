@@ -77,8 +77,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(200).json({ ok: firstAttempt.success, upstreamStatus: firstAttempt.status });
         }
 
+        // HTML Temizleyici Fonksiyon (Gereksiz Script, Style ve SVG çöplerini siler)
+        const cleanHtmlForAi = (rawHtml: any) => {
+            if (!rawHtml) return 'No body';
+            let str = typeof rawHtml === 'string' ? rawHtml : JSON.stringify(rawHtml);
+            
+            // Scriptleri, Style'ları, SVG'leri ve yorum satırlarını tamamen temizle
+            str = str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+            str = str.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+            str = str.replace(/<svg\b[^<]*(?:(?!<\/svg>)<[^<]*)*<\/svg>/gi, '');
+            str = str.replace(/<!--[\s\S]*?-->/g, '');
+            
+            // Fazla boşlukları ve sekmeleri tek boşluğa düşür
+            str = str.replace(/\s+/g, ' ').trim();
+            
+            // Eğer hala çok uzunsa, sadece ilk 2500 karakteri (en hayati kısım) al (Token tasarrufu)
+            return str.length > 2500 ? str.substring(0, 2500) + '...[TRUNCATED]' : str;
+        };
+
+        const cleanedErrorBody = cleanHtmlForAi(firstAttempt.html);
+
         // 3. Çelik Kubbe Devreye Giriyor (Auto-Heal via Groq) SADECE İSTENİRSE
-        console.log(`[Proxy] Request to ${serviceId} failed with ${firstAttempt.status}. Healing...`);
+        console.log(`[Proxy] Request to ${serviceId} failed with ${firstAttempt.status}. Healing... Length: ${cleanedErrorBody.length}`);
         
         const prompt = `
         You are a highly advanced API reverse-engineering AI. 
@@ -87,7 +107,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         The server rejected it with HTTP ${firstAttempt.status}.
         The server returned this error/HTML body: 
         ---
-        ${firstAttempt.html ? firstAttempt.html.substring(0, 1500) : 'No body'}
+        ${cleanedErrorBody}
         ---
         Based on this error or HTML form, deduce the correct JSON body format required by this API.
         You MUST output ONLY valid JSON. Nothing else. No markdown formatting. 
