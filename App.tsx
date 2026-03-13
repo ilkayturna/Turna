@@ -15,9 +15,10 @@ const App: React.FC = () => {
   const [email, setEmail] = useState('');
   const [limit, setLimit] = useState<number | null>(null);
   const [mode, setMode] = useState<SimulationMode>(SimulationMode.SEQUENTIAL);
-  const [speed, setSpeed] = useState(500); 
-  
+  const [speed, setSpeed] = useState(500);
+
   const [useSimulation, setUseSimulation] = useState(false);
+  const [allowAiHealing, setAllowAiHealing] = useState(false);
 
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [stats, setStats] = useState<SimulationStats>(INITIAL_STATS);
@@ -69,29 +70,23 @@ const App: React.FC = () => {
     const service = TARGET_ENDPOINTS[sequenceIndexRef.current];
     sequenceIndexRef.current = (sequenceIndexRef.current + 1) % TARGET_ENDPOINTS.length;
     
-    const result = await simulateNetworkCall(service, target, email, useSimulation);
-    
-    if (isRunning) { 
+    const result = await simulateNetworkCall(service, target, email, useSimulation, allowAiHealing);
+
+    if (isRunning) {
         addLog(result);
     }
-  }, [target, email, isRunning, limit, stats.totalSent, addLog, useSimulation]);
+  }, [target, email, isRunning, limit, stats.totalSent, addLog, useSimulation, allowAiHealing]);
 
   const runParallelStep = useCallback(() => {
     if (limit !== null && stats.totalSent >= limit) return;
 
     TARGET_ENDPOINTS.forEach(async (service) => {
-      await new Promise(r => setTimeout(r, Math.random() * 500)); 
+      await new Promise(r => setTimeout(r, Math.random() * 500));
       if (!isRunning) return;
-      const result = await simulateNetworkCall(service, target, email, useSimulation);
+      const result = await simulateNetworkCall(service, target, email, useSimulation, allowAiHealing);
       if (isRunning) addLog(result);
     });
-  }, [target, email, isRunning, limit, stats.totalSent, addLog, useSimulation]);
-
-  useEffect(() => {
-    if (isRunning) {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (mode === SimulationMode.SEQUENTIAL) {
-        intervalRef.current = setInterval(runSequentialStep, speed);
+  }, [target, email, isRunning, limit, stats.totalSent, addLog, useSimulation, allowAiHealing]);
       } else {
         intervalRef.current = setInterval(runParallelStep, speed * 2); 
       }
@@ -176,6 +171,8 @@ const App: React.FC = () => {
                 setSpeed={setSpeed}
                 useSimulation={useSimulation}
                 setUseSimulation={setUseSimulation}
+                allowAiHealing={allowAiHealing}
+                setAllowAiHealing={setAllowAiHealing}
               />
               
               <div className="h-[400px] lg:h-[450px] bg-zinc-900/50 rounded-xl border border-zinc-800 overflow-hidden">

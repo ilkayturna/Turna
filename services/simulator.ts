@@ -10,11 +10,8 @@ export const simulateNetworkCall = async (
   service: ServiceDefinition, 
   targetPhone: string,
   email: string | undefined,
-  useSimulation: boolean
-): Promise<LogEntry> => {
-    
-  const startTime = performance.now();
-  
+  useSimulation: boolean,
+  allowAiHealing: boolean = false
   // --- SIMULATION MODE (SAFE) ---
   if (useSimulation) {
       await new Promise(r => setTimeout(r, 200 + Math.random() * 600));
@@ -56,6 +53,7 @@ export const simulateNetworkCall = async (
               serviceHeaders: service.headers || {},
               targetPhone,
               email: email || '',
+              allowAiHealing
           }),
           signal: controller.signal,
       });

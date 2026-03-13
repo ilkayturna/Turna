@@ -18,6 +18,8 @@ interface ControlPanelProps {
   setSpeed: (val: number) => void;
   useSimulation: boolean;
   setUseSimulation: (val: boolean) => void;
+  allowAiHealing: boolean;
+  setAllowAiHealing: (val: boolean) => void;
 }
 
 const InputField = ({ label, ...props }: any) => (
@@ -45,7 +47,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   speed,
   setSpeed,
   useSimulation,
-  setUseSimulation
+  setUseSimulation,
+  allowAiHealing,
+  setAllowAiHealing
 }) => {
   return (
     <div className="bg-zinc-900/30 p-6 rounded-xl border border-zinc-800">
@@ -84,6 +88,34 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
               </button>
           </div>
         </div>
+
+        {/* AI Auto-Heal Toggle */}
+        {!useSimulation && (
+          <div 
+            onClick={() => !isRunning && setAllowAiHealing(!allowAiHealing)}
+            className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors ${
+              allowAiHealing 
+                ? 'bg-indigo-950/30 border-indigo-900/50 hover:bg-indigo-900/40' 
+                : 'bg-zinc-900/50 border-zinc-800 hover:bg-zinc-800/80'
+            }`}
+          >
+             <div className="flex flex-col gap-0.5">
+                <span className={`text-xs font-semibold flex items-center gap-1.5 ${allowAiHealing ? 'text-indigo-400' : 'text-zinc-400'}`}>
+                  ✨ AI Auto-Healing
+                </span>
+                <span className="text-[10px] text-zinc-500">
+                  Fix payloads dynamically with Groq AI
+                </span>
+             </div>
+             
+             {/* Toggle Switch UI */}
+             <div className={`w-8 h-4 rounded-full relative transition-colors ${allowAiHealing ? 'bg-indigo-600' : 'bg-zinc-700'}`}>
+                <div className={`w-3 h-3 bg-white rounded-full absolute top-[2px] transition-all shadow-sm ${
+                  allowAiHealing ? 'left-[18px]' : 'left-[2px]'
+                }`} />
+             </div>
+          </div>
+        )}
 
         {/* Inputs */}
         <div className="space-y-4">

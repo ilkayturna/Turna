@@ -18,7 +18,7 @@ const groq = new Groq({
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    const { serviceId, serviceUrl, serviceMethod, targetPhone, email, initialPayload } = req.body;
+    const { serviceId, serviceUrl, serviceMethod, targetPhone, email, initialPayload, allowAiHealing } = req.body;
 
     if (!serviceId || !serviceUrl || !targetPhone) {
         return res.status(400).json({ error: 'Missing required fields' });
@@ -72,11 +72,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // 2. İlk Deneme
         let firstAttempt = await executeRequest(payloadToUse);
 
-        if (firstAttempt.success) {
-            return res.status(200).json({ ok: true, upstreamStatus: firstAttempt.status });
+        // UI'dan gelen "allowAiHealing" izni yoksa doğrudan sonucu dön.
+        if (firstAttempt.success || !allowAiHealing) {
+            return res.status(200).json({ ok: firstAttempt.success, upstreamStatus: firstAttempt.status });
         }
 
-        // 3. Çelik Kubbe Devreye Giriyor (Auto-Heal via Groq)
+        // 3. Çelik Kubbe Devreye Giriyor (Auto-Heal via Groq) SADECE İSTENİRSE
         console.log(`[Proxy] Request to ${serviceId} failed with ${firstAttempt.status}. Healing...`);
         
         const prompt = `
