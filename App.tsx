@@ -6,7 +6,6 @@ import { ControlPanel } from './components/ControlPanel';
 import { LogConsole } from './components/LogConsole';
 import { StatsBoard } from './components/StatsBoard';
 import { NetworkVisualizer } from './components/NetworkVisualizer';
-import { CertificatesPanel } from './components/CertificatesPanel';
 import { Activity, Zap, Server, Globe } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -87,6 +86,11 @@ const App: React.FC = () => {
       if (isRunning) addLog(result);
     });
   }, [target, email, isRunning, limit, stats.totalSent, addLog, useSimulation, allowAiHealing]);
+
+  useEffect(() => {
+    if (isRunning) {
+      if (mode === SimulationMode.SEQUENTIAL) {
+        intervalRef.current = setInterval(runSequentialStep, speed);
       } else {
         intervalRef.current = setInterval(runParallelStep, speed * 2); 
       }
@@ -138,12 +142,18 @@ const App: React.FC = () => {
           </div>
           
           <div className={`px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2 border transition-all ${
-            useSimulation 
-              ? 'bg-zinc-900 border-zinc-700 text-zinc-300' 
-              : 'bg-red-950/30 border-red-900 text-red-400'
+              allowAiHealing
+              ? 'bg-indigo-950/30 border-indigo-900 text-indigo-400'
+              : useSimulation
+                ? 'bg-zinc-900 border-zinc-700 text-zinc-300'
+                : 'bg-red-950/30 border-red-900 text-red-400'
           }`}>
-              <div className={`w-1.5 h-1.5 rounded-full ${useSimulation ? 'bg-emerald-500' : 'bg-red-500'}`} />
-              {useSimulation ? "Mode: Safe Simulation" : "Mode: Live Backend Proxy"}
+              <div className={`w-1.5 h-1.5 rounded-full ${allowAiHealing ? 'bg-indigo-500' : useSimulation ? 'bg-emerald-500' : 'bg-red-500'}`} />
+              {allowAiHealing 
+                ? "Mode: AI Training Studio" 
+                : useSimulation 
+                  ? "Mode: Safe Simulation" 
+                  : "Mode: Live Backend Proxy"}
           </div>
         </header>
 
@@ -179,7 +189,6 @@ const App: React.FC = () => {
                  <NetworkVisualizer activeServices={activeServices} />
               </div>
 
-              <CertificatesPanel />
             </div>
 
             {/* Right Column: Logs */}

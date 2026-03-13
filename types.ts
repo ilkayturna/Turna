@@ -19,6 +19,8 @@ export interface ServiceDefinition {
   // Removed failureRate - We are doing live requests now
   headers?: Record<string, string>; 
   payloadInfo?: string; 
+  category?: string;
+  status?: string;
 }
 
 export interface LogEntry {
@@ -35,7 +37,7 @@ export interface SimulationStats {
   success: number;
   failed: number;
   rateLimited: number;
-  sentOpaque: number; 
+  sentOpaque: number;
 }
 
 export interface Certificate {

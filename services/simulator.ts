@@ -7,11 +7,14 @@ import { ServiceDefinition, RequestStatus, LogEntry } from '../types';
  * useSimulation = FALSE => live request via backend proxy (/api/proxy)
  */
 export const simulateNetworkCall = async (
-  service: ServiceDefinition, 
+  service: ServiceDefinition,
   targetPhone: string,
   email: string | undefined,
   useSimulation: boolean,
   allowAiHealing: boolean = false
+): Promise<LogEntry> => {
+  const startTime = performance.now();
+
   // --- SIMULATION MODE (SAFE) ---
   if (useSimulation) {
       await new Promise(r => setTimeout(r, 200 + Math.random() * 600));
