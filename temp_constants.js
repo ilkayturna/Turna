@@ -1,6 +1,6 @@
 import { ServiceDefinition } from '../types';
 
-export const TARGET_ENDPOINTS: ServiceDefinition[] = [
+const TARGET_ENDPOINTS = [
   // ✅ ÇALIŞAN SERVİSLER (Test Edildi)
   // --- GİYİM & EV EŞYASI ---
   {
@@ -866,10 +866,11 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
   },
 ];
 
-export const INITIAL_STATS = {
+const INITIAL_STATS = {
   totalSent: 0,
   success: 0,
   failed: 0,
   rateLimited: 0,
   sentOpaque: 0,
 };
+module.exports = { TARGET_ENDPOINTS };
