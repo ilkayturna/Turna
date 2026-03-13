@@ -42,7 +42,7 @@ export const simulateNetworkCall = async (
   // --- LIVE MODE (BACKEND PROXY) ---
   try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
 
       const response = await fetch('/api/proxy', {
           method: 'POST',
@@ -68,6 +68,8 @@ export const simulateNetworkCall = async (
           reachable?: boolean;
           ok?: boolean;
           error?: string;
+          healed?: boolean;
+          healedPayload?: any;
       } | null;
       const upstreamStatus = typeof payload?.upstreamStatus === 'number'
         ? payload.upstreamStatus
@@ -75,12 +77,13 @@ export const simulateNetworkCall = async (
 
       if (response.ok) {
         if (payload?.ok) {
+          const healMsg = payload.healed ? ' ⚡ (Auto-Healed by Groq AI)' : '';
           return {
               id: Math.random().toString(36).substr(2, 9),
               timestamp: new Date().toLocaleTimeString(),
               serviceName: service.name,
               status: RequestStatus.SUCCESS,
-              message: `200 OK | Backend proxy (upstream ${upstreamStatus})`,
+              message: `200 OK | Backend proxy (upstream ${upstreamStatus})${healMsg}`,
               latency: Math.round(performance.now() - startTime),
           };
         }
