@@ -387,11 +387,100 @@ function buildUniversalBody(phone: string, email: string): Record<string, string
   };
 }
 
+type FieldKind = 'phone' | 'email' | 'first_name' | 'last_name' | 'password' | 'country_code' | 'unknown';
+type PhoneFormat = 'raw' | 'zero' | '90' | '+90' | '0090';
+
+interface LearnedHint {
+  field: string;
+  kind: FieldKind;
+  score: number;
+  phoneFormat?: PhoneFormat;
+  updatedAt: number;
+}
+
+const learnedHintsByService = new Map<string, Map<string, LearnedHint>>();
+
+function inferFieldKind(fieldName: string): FieldKind {
+  const f = fieldName.toLowerCase();
+  if (/country.?code|ulkekodu|alan.?kodu/.test(f)) return 'country_code';
+  if (/phone|gsm|msisdn|tel|cep|mobile|number/.test(f)) return 'phone';
+  if (/email|mail/.test(f)) return 'email';
+  if (/first.?name|^name$|ad|isim/.test(f)) return 'first_name';
+  if (/last.?name|surname|soyad/.test(f)) return 'last_name';
+  if (/password|pass|sifre|şifre/.test(f)) return 'password';
+  return 'unknown';
+}
+
+function inferPhoneFormat(fieldName: string): PhoneFormat {
+  const f = fieldName.toLowerCase();
+  if (f.includes('msisdn')) return '+90';
+  if (f.includes('country')) return '90';
+  if (f.includes('number') || f.includes('mobilephone')) return '90';
+  if (f.includes('gsm_no') || f.includes('gsmno')) return 'zero';
+  return 'raw';
+}
+
+function readPhoneByFormat(phone: string, fmt: PhoneFormat): string {
+  const [raw, withZero, with90, withPlus90, with0090] = phoneFormats(phone);
+  if (fmt === 'zero') return withZero;
+  if (fmt === '90') return with90;
+  if (fmt === '+90') return withPlus90;
+  if (fmt === '0090') return with0090;
+  return raw;
+}
+
+function valueForKind(kind: FieldKind, fieldName: string, phone: string, email: string, hint?: LearnedHint): string {
+  if (kind === 'phone') {
+    const fmt = hint?.phoneFormat || inferPhoneFormat(fieldName);
+    return readPhoneByFormat(phone, fmt);
+  }
+  if (kind === 'email') return email;
+  if (kind === 'first_name') return 'Test';
+  if (kind === 'last_name') return 'User';
+  if (kind === 'password') return 'Test123!';
+  if (kind === 'country_code') return '90';
+  return '';
+}
+
+function upsertHint(serviceId: string, field: string, kind: FieldKind) {
+  if (kind === 'unknown') return;
+  const key = field.toLowerCase();
+  if (!learnedHintsByService.has(serviceId)) learnedHintsByService.set(serviceId, new Map());
+  const store = learnedHintsByService.get(serviceId)!;
+  const prev = store.get(key);
+  const next: LearnedHint = {
+    field,
+    kind,
+    score: Math.min((prev?.score || 0) + 1, 10),
+    phoneFormat: kind === 'phone' ? inferPhoneFormat(field) : prev?.phoneFormat,
+    updatedAt: Date.now(),
+  };
+  store.set(key, next);
+}
+
+function applyLearnedHints(
+  serviceId: string,
+  originalBody: Record<string, any>,
+  phone: string,
+  email: string
+): Record<string, any> | null {
+  const store = learnedHintsByService.get(serviceId);
+  if (!store || store.size === 0) return null;
+
+  const patched = { ...originalBody };
+  const hints = Array.from(store.values()).sort((a, b) => b.score - a.score).slice(0, 12);
+  for (const hint of hints) {
+    patched[hint.field] = valueForKind(hint.kind, hint.field, phone, email, hint);
+  }
+  return patched;
+}
+
 /**
  * Hata metninden hangi alan adının eksik/yanlış olduğunu çıkar,
  * hem adapter body'ini hem de universal body'yi bu bilgiyle patchler.
  */
 function inferAndPatch(
+  serviceId: string,
   originalBody: Record<string, any>,
   errorText: string,
   phone: string,
@@ -421,6 +510,8 @@ function inferAndPatch(
 
   if (detected) {
     const dl = detected.toLowerCase();
+    const kind = inferFieldKind(dl);
+    upsertHint(serviceId, detected, kind);
     const patched = { ...originalBody };
     const [raw,, with90, withPlus90] = phoneFormats(phone);
     if (phoneKeys.includes(dl)) { patched[detected] = dl.includes('90') ? with90 : dl.includes('+') ? withPlus90 : raw; return patched; }
@@ -428,6 +519,10 @@ function inferAndPatch(
     if (firstKeys.includes(dl)) { patched[detected] = 'Test'; return patched; }
     if (lastKeys.includes(dl))  { patched[detected] = 'User'; return patched; }
     if (passKeys.includes(dl))  { patched[detected] = 'Test123!'; return patched; }
+    if (kind !== 'unknown') {
+      patched[detected] = valueForKind(kind, detected, phone, email);
+      return patched;
+    }
   }
 
   // 3. Genel tahmin: sadece telefon alanı farklı formatta olabilir
@@ -684,9 +779,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (detectSuccess(r2.status, d2, t2)) { resp = r2; rText = t2; rData = d2; ok = true; }
     }
 
-    // ── AŞAMA 3: Hata metninden alan adı öğren, patch et ─────────────────
+    // ── AŞAMA 3: Servis bazlı öğrenilen alanları önce uygula ──────────────
     if (!ok) {
-      const patched = inferAndPatch(payload, rText, targetPhone, reqEmail);
+      const learnedPatched = applyLearnedHints(serviceId, payload, targetPhone, reqEmail);
+      if (learnedPatched) {
+        const r3a = await doFetch(learnedPatched, extraHeaders);
+        const { t: t3a, d: d3a } = await readResponse(r3a);
+        if (detectSuccess(r3a.status, d3a, t3a)) { resp = r3a; rText = t3a; rData = d3a; ok = true; }
+        if (!ok) {
+          const r3ab = await doFetch(learnedPatched, cycleContentType(extraHeaders));
+          const { t: t3ab, d: d3ab } = await readResponse(r3ab);
+          if (detectSuccess(r3ab.status, d3ab, t3ab)) { resp = r3ab; rText = t3ab; rData = d3ab; ok = true; }
+        }
+      }
+    }
+
+    // ── AŞAMA 4: Hata metninden alan adı öğren, patch et ─────────────────
+    if (!ok) {
+      const patched = inferAndPatch(serviceId, payload, rText, targetPhone, reqEmail);
       if (patched) {
         const r3 = await doFetch(patched, extraHeaders);
         const { t: t3, d: d3 } = await readResponse(r3);
@@ -700,7 +810,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // ── AŞAMA 4: Evrensel probe body (TÜM alan adları tek seferde) ────────
+    // ── AŞAMA 5: Evrensel probe body (TÜM alan adları tek seferde) ────────
     if (!ok) {
       const universal = buildUniversalBody(targetPhone, reqEmail);
       // JSON ile dene
@@ -715,7 +825,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // ── AŞAMA 5: Telefon formatı döngüsü (en yaygın 8 alan × 5 format) ───
+    // ── AŞAMA 6: Telefon formatı döngüsü (en yaygın 8 alan × 5 format) ───
     if (!ok) {
       const topKeys = ['phone','phoneNumber','phone_number','gsm','msisdn','mobilePhoneNumber','mobile','tel'];
       const [raw, withZero, with90, withPlus90, with0090] = phoneFormats(targetPhone);
