@@ -1,23 +1,5 @@
 import { ServiceDefinition, Certificate } from './types';
 
-export const CERTIFICATES: Certificate[] = [
-  {
-    id: 'sak_onur_belgesi',
-    title: 'Onur Belgesi',
-    issuer: 'Sakarya Üniversitesi',
-    date: '2022 – 2023',
-    url: '',
-    count: 2,
-  },
-  {
-    id: 'sak_erasmus_eng',
-    title: 'İngilizce Yeterlilik Sertifikası',
-    issuer: 'Sakarya Üniversitesi (Erasmus Sınavı)',
-    date: 'Mar 2022',
-    url: 'https://drive.google.com/file/d/1DBx6FxymCRiGjhOgth5wGnsaHZL_cEfb/view?usp=sharing',
-  },
-];
-
 export const TARGET_ENDPOINTS: ServiceDefinition[] = [
   // ✅ ÇALIŞAN SERVİSLER (Test Edildi)
   // --- GİYİM & EV EŞYASI ---
