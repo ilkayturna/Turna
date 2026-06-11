@@ -1,0 +1,459 @@
+{
+  "total": 95,
+  "working": 18,
+  "failed": 77,
+  "workingEndpoints": [
+    {
+      "id": "bambi",
+      "name": "Bambi",
+      "url": "https://www.bambi.com.tr/api/v1/auth/register/send-otp",
+      "strategy": "direct",
+      "status": 200
+    },
+    {
+      "id": "bim",
+      "name": "BİM",
+      "url": "https://bim.veesk.net:443/service/v1.0/account/login",
+      "strategy": "direct",
+      "status": 200
+    },
+    {
+      "id": "bkm_express",
+      "name": "BKM Express",
+      "url": "https://www.bkmexpress.com.tr/api/v1/otp/send",
+      "strategy": "direct",
+      "status": 200
+    },
+    {
+      "id": "e_bebek",
+      "name": "E-bebek",
+      "url": "https://www.e-bebek.com/api/v1/auth/register/send-otp",
+      "strategy": "direct",
+      "status": 200
+    },
+    {
+      "id": "happy_center",
+      "name": "Happy Center",
+      "url": "https://www.happycenter.com.tr/api/v1/auth/register/sendOtp",
+      "strategy": "direct",
+      "status": 200
+    },
+    {
+      "id": "hayat_su",
+      "name": "Hayat Su",
+      "url": "https://api.hayatsu.com.tr/api/SignUp/SendOtp",
+      "strategy": "direct",
+      "status": 200
+    },
+    {
+      "id": "kahve_dunyasi",
+      "name": "Kahve Dünyası",
+      "url": "https://api.kahvedunyasi.com/api/v1/auth/account/register/phone-number",
+      "strategy": "direct",
+      "status": 200
+    },
+    {
+      "id": "kfc",
+      "name": "KFC",
+      "url": "https://www.kfc.com.tr/api/v1/auth/register/send-otp",
+      "strategy": "direct",
+      "status": 200
+    },
+    {
+      "id": "lcwaikiki",
+      "name": "LC Waikiki",
+      "url": "https://www.lcwaikiki.com.tr/api/v1/auth/register/send-otp",
+      "strategy": "direct",
+      "status": 200
+    },
+    {
+      "id": "oldubil",
+      "name": "Oldubil",
+      "url": "https://api.oldubil.com/api/v1/auth/send-otp",
+      "strategy": "direct",
+      "status": 200
+    },
+    {
+      "id": "onur_market",
+      "name": "Onur Market",
+      "url": "https://www.onurmarket.com/api/v1/auth/register/sendOtp",
+      "strategy": "direct",
+      "status": 200
+    },
+    {
+      "id": "shopandfly",
+      "name": "Shop&Fly",
+      "url": "https://www.shopandfly.com.tr/api/v1/otp/send",
+      "strategy": "direct",
+      "status": 200
+    },
+    {
+      "id": "sportive",
+      "name": "Sportive",
+      "url": "https://www.sportive.com.tr/api/v1/auth/register/send-otp",
+      "strategy": "direct",
+      "status": 200
+    },
+    {
+      "id": "steam",
+      "name": "Steam",
+      "url": "https://store.steampowered.com/phone/add_ajaxop",
+      "strategy": "direct",
+      "status": 200
+    },
+    {
+      "id": "suiste",
+      "name": "Suiste",
+      "url": "https://suiste.com/api/auth/code",
+      "strategy": "direct",
+      "status": 200
+    },
+    {
+      "id": "teb",
+      "name": "TEB",
+      "url": "https://www.teb.com.tr/api/v1/otp/send",
+      "strategy": "direct",
+      "status": 200
+    },
+    {
+      "id": "teknosa",
+      "name": "Teknosa",
+      "url": "https://www.teknosa.com/api/v1/auth/register/sendOtp",
+      "strategy": "cookie_first",
+      "status": 200
+    },
+    {
+      "id": "yapp",
+      "name": "Yapp",
+      "url": "https://yapp.com.tr/api/mobile/v1/register",
+      "strategy": "direct",
+      "status": 200
+    }
+  ],
+  "categories": {
+    "404_NOT_FOUND": [
+      {
+        "id": "migros",
+        "url": "https://www.migros.com.tr/rest/auth/register/send-otp"
+      },
+      {
+        "id": "starbucks",
+        "url": "https://www.starbucks.com.tr/api/account/register/otp"
+      },
+      {
+        "id": "kim_gb_ister",
+        "url": "https://api.kimgbister.com/api/auth/otp/send"
+      },
+      {
+        "id": "english_home",
+        "url": "https://www.englishhome.com/api/member/register/send-code"
+      },
+      {
+        "id": "penti",
+        "url": "https://www.penti.com/api/member/register/sendOtp"
+      },
+      {
+        "id": "naosstars",
+        "url": "https://www.naosstars.com/api/auth/register/sendOtp"
+      },
+      {
+        "id": "dr",
+        "url": "https://www.dr.com.tr/api/member/sendOtp"
+      },
+      {
+        "id": "ido",
+        "url": "https://api.ido.com.tr/api/v1/member/register/sendOtp"
+      },
+      {
+        "id": "bayrampasa_belediye",
+        "url": "https://ebelediye.bayrampasa.bel.tr/api/auth/register/sendOtp"
+      },
+      {
+        "id": "macrocenter",
+        "url": "https://www.macrocenter.com.tr/rest/auth/register/send-otp"
+      },
+      {
+        "id": "jimmy_key",
+        "url": "https://www.jimmykey.com/api/member/register/sendOtp"
+      },
+      {
+        "id": "alix_avien",
+        "url": "https://www.alixavien.com.tr/api/member/register/sendOtp"
+      },
+      {
+        "id": "tikla_gelsin",
+        "url": "https://api.tiklagelsin.com/api/v1/auth/otp/send"
+      },
+      {
+        "id": "kitapyurdu",
+        "url": "https://www.kitapyurdu.com/index.php?route=account/register/sendOtp"
+      },
+      {
+        "id": "toyzz_shop",
+        "url": "https://www.toyzzshop.com/api/member/register/sendOtp"
+      },
+      {
+        "id": "decathlon",
+        "url": "https://www.decathlon.com.tr/api/v1/auth/register/sendOtp"
+      },
+      {
+        "id": "hm",
+        "url": "https://www2.hm.com/tr_tr/api/customer/register/sendOtp"
+      },
+      {
+        "id": "zara",
+        "url": "https://www.zara.com/tr/api/v1/auth/register/send-otp"
+      },
+      {
+        "id": "mango",
+        "url": "https://shop.mango.com/services/user/v1/register/send-otp"
+      },
+      {
+        "id": "bershka",
+        "url": "https://www.bershka.com/itxrest/2/auth/register/sendOtp"
+      },
+      {
+        "id": "pull_bear",
+        "url": "https://www.pullandbear.com/itxrest/2/auth/register/sendOtp"
+      },
+      {
+        "id": "stradivarius",
+        "url": "https://www.stradivarius.com/itxrest/2/auth/register/sendOtp"
+      },
+      {
+        "id": "massimo_dutti",
+        "url": "https://www.massimodutti.com/itxrest/2/auth/register/sendOtp"
+      },
+      {
+        "id": "mediamarkt",
+        "url": "https://www.mediamarkt.com.tr/api/v1/auth/register/send-otp"
+      },
+      {
+        "id": "vatan_bilgisayar",
+        "url": "https://www.vatanbilgisayar.com/api/v1/auth/register/sendOtp"
+      },
+      {
+        "id": "itopya",
+        "url": "https://www.itopya.com/api/v1/auth/register/sendOtp"
+      },
+      {
+        "id": "playstation",
+        "url": "https://store.playstation.com/api/v1/auth/otp/send"
+      },
+      {
+        "id": "xbox",
+        "url": "https://login.live.com/api/v1/auth/otp/send"
+      },
+      {
+        "id": "nintendo",
+        "url": "https://accounts.nintendo.com/api/v1/auth/otp/send"
+      },
+      {
+        "id": "epic_games",
+        "url": "https://www.epicgames.com/id/api/v1/auth/otp/send"
+      },
+      {
+        "id": "a101",
+        "url": "https://www.a101.com.tr/api/v1/auth/register/send-otp"
+      },
+      {
+        "id": "carrefour",
+        "url": "https://www.carrefoursa.com/api/v1/auth/register/send-otp"
+      },
+      {
+        "id": "watsons",
+        "url": "https://www.watsons.com.tr/api/v1/auth/register/send-otp"
+      },
+      {
+        "id": "gratis",
+        "url": "https://www.gratis.com/api/v1/auth/register/sendOtp"
+      },
+      {
+        "id": "avon",
+        "url": "https://www.avon.com.tr/api/v1/auth/register/sendOtp"
+      },
+      {
+        "id": "oriflame",
+        "url": "https://www.oriflame.com.tr/api/v1/auth/register/send-otp"
+      },
+      {
+        "id": "lr",
+        "url": "https://www.lrworld.com/tr/api/auth/register/send-otp"
+      },
+      {
+        "id": "amway",
+        "url": "https://www.amway.com.tr/api/v1/auth/register/send-otp"
+      }
+    ],
+    "TIMEOUT_DOWN": [
+      {
+        "id": "komagene",
+        "url": "https://api.komagene.com.tr/api/v1/auth/send-otp"
+      },
+      {
+        "id": "cineverse",
+        "url": "https://api.cineverse.com.tr/api/v1/auth/register/otp"
+      },
+      {
+        "id": "akasya_avm",
+        "url": "https://api.akasyaavm.com/api/v1/auth/send-otp"
+      },
+      {
+        "id": "akbati",
+        "url": "https://api.akbati.com.tr/api/v1/auth/send-otp"
+      },
+      {
+        "id": "kuryem_gelsin",
+        "url": "https://api.kuryemgelsin.com/api/v1/auth/otp/send"
+      },
+      {
+        "id": "hamidiye",
+        "url": "https://api.hamidiyesu.com.tr/api/auth/register/otp"
+      },
+      {
+        "id": "clickme_live",
+        "url": "https://api.clickmelive.com/api/v1/auth/otp/send"
+      },
+      {
+        "id": "hizli_ecza",
+        "url": "https://api.hizliecza.com/api/v1/auth/register/otp"
+      },
+      {
+        "id": "pidem",
+        "url": "https://api.pidem.com.tr/api/v1/auth/otp/send"
+      },
+      {
+        "id": "orwi",
+        "url": "https://api.orwi.com.tr/api/v1/auth/register/otp"
+      },
+      {
+        "id": "tazi",
+        "url": "https://api.tazi.com.tr/api/v1/auth/register/sendOtp"
+      },
+      {
+        "id": "bisu",
+        "url": "https://api.bisu.com.tr/api/v1/auth/otp/send"
+      },
+      {
+        "id": "bodrum_belediye",
+        "url": "https://ebelediye.bodrum.bel.tr/api/auth/register/sendOtp"
+      },
+      {
+        "id": "hey_scooter",
+        "url": "https://api.heyscooter.com/api/v1/auth/otp/send"
+      },
+      {
+        "id": "tasimacim",
+        "url": "https://api.tasimacim.com/api/v1/auth/register/otp"
+      },
+      {
+        "id": "ipragaz",
+        "url": "https://api.ipragaz.com.tr/api/v1/auth/register/sendOtp"
+      },
+      {
+        "id": "sancaktepe_belediye",
+        "url": "https://ebelediye.sancaktepe.bel.tr/api/auth/register/sendOtp"
+      },
+      {
+        "id": "ayyildiz",
+        "url": "https://www.ayyildiz.com/api/member/register/sendOtp"
+      },
+      {
+        "id": "mothercare",
+        "url": "https://www.mothercare.com.tr/api/member/register/sendOtp"
+      },
+      {
+        "id": "rossmann",
+        "url": "https://www.rossmann.com.tr/api/v1/auth/register/send-otp"
+      },
+      {
+        "id": "farmasi",
+        "url": "https://www.farmasi.com.tr/api/v1/auth/register/sendOtp"
+      },
+      {
+        "id": "forever_living",
+        "url": "https://www.foreverliving.com.tr/api/v1/auth/register/sendOtp"
+      }
+    ],
+    "DNS_FAIL": [
+      {
+        "id": "dominos",
+        "url": "https://api.dominos.com.tr/api/v1/auth/otp/send"
+      },
+      {
+        "id": "marti",
+        "url": "https://api.marti.tech/api/v2/auth/otp/send"
+      },
+      {
+        "id": "iste_gelsin",
+        "url": "https://api.istegelsin.com/api/v1/auth/otp/send"
+      }
+    ],
+    "403_BOT_PROTECTED": [
+      {
+        "id": "koton",
+        "url": "https://www.koton.com/api/v1/auth/register/send-otp"
+      },
+      {
+        "id": "intersport",
+        "url": "https://www.intersport.com.tr/api/v1/auth/register/sendOtp"
+      },
+      {
+        "id": "flormar",
+        "url": "https://www.flormar.com.tr/api/v1/auth/register/sendOtp"
+      }
+    ],
+    "400_WRONG_PAYLOAD": [
+      {
+        "id": "file_market",
+        "url": "https://api.filemarket.com.tr/v1/otp/send"
+      }
+    ],
+    "429_RATE_LIMITED": [
+      {
+        "id": "wmf",
+        "url": "https://www.wmf.com.tr/users/register/"
+      },
+      {
+        "id": "evidea",
+        "url": "https://www.evidea.com/users/register/"
+      }
+    ],
+    "500_SERVER_ERROR": [
+      {
+        "id": "joker",
+        "url": "https://www.joker.com.tr/api/auth/otp/send"
+      },
+      {
+        "id": "fatih_belediye",
+        "url": "https://ebelediye.fatih.bel.tr/Sicil/KisiUyelikKaydet"
+      },
+      {
+        "id": "bkm_kitap",
+        "url": "https://www.bkmkitap.com/api/member/register/sendOtp"
+      }
+    ],
+    "OTHER": [
+      {
+        "id": "kahve_dunyasi",
+        "url": "https://api.kahvedunyasi.com/api/v1/auth/account/register/phone-number"
+      },
+      {
+        "id": "paybol",
+        "url": "https://api.paybol.com/api/v1/auth/otp/send"
+      },
+      {
+        "id": "tasdelen_su",
+        "url": "https://api.tasdelensu.com.tr/api/auth/register/sendSms"
+      },
+      {
+        "id": "gamegaraj",
+        "url": "https://www.gamegaraj.com/api/v1/auth/register/sendOtp"
+      },
+      {
+        "id": "herbalife",
+        "url": "https://www.herbalife.com.tr/api/v1/auth/register/sendOtp"
+      }
+    ]
+  }
+}

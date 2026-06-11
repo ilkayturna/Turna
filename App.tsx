@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { SimulationMode, LogEntry, SimulationStats, RequestStatus } from './types';
+import { SimulationMode, LogEntry, SimulationStats, RequestStatus, EndpointHealth } from './types';
 import { TARGET_ENDPOINTS, INITIAL_STATS } from './constants';
 import { simulateNetworkCall } from './services/simulator';
 import { ControlPanel } from './components/ControlPanel';
 import { LogConsole } from './components/LogConsole';
 import { StatsBoard } from './components/StatsBoard';
 import { NetworkVisualizer } from './components/NetworkVisualizer';
-import { Activity, Zap, Server, Globe } from 'lucide-react';
+import { Activity, Zap, Server, Globe, TestTube } from 'lucide-react';
 
 const App: React.FC = () => {
   const [isRunning, setIsRunning] = useState(false);
-  const [target, setTarget] = useState('5551234567');
+  const [target, setTarget] = useState('5343622375');
   const [email, setEmail] = useState('');
   const [limit, setLimit] = useState<number | null>(null);
   const [mode, setMode] = useState<SimulationMode>(SimulationMode.SEQUENTIAL);
@@ -22,6 +22,10 @@ const App: React.FC = () => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [stats, setStats] = useState<SimulationStats>(INITIAL_STATS);
   const [activeServices, setActiveServices] = useState<string[]>([]);
+  const [endpointHealth, setEndpointHealth] = useState<EndpointHealth[]>(
+    TARGET_ENDPOINTS.map(s => ({ id: s.id, name: s.name, status: 'unknown' }))
+  );
+  const [isTesting, setIsTesting] = useState(false);
   
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const sequenceIndexRef = useRef(0);
@@ -118,7 +122,70 @@ const App: React.FC = () => {
   const handleClearLogs = () => {
     setLogs([]);
     setStats(INITIAL_STATS);
+    setEndpointHealth(TARGET_ENDPOINTS.map(s => ({ id: s.id, name: s.name, status: 'unknown' })));
   };
+
+  const handleBulkTest = useCallback(async () => {
+    if (isTesting) return;
+    setIsTesting(true);
+    setLogs([]);
+    setStats(INITIAL_STATS);
+    setEndpointHealth(TARGET_ENDPOINTS.map(s => ({ id: s.id, name: s.name, status: 'unknown' })));
+    setUseSimulation(false);
+    setAllowAiHealing(false);
+
+    const batchSize = 5;
+    const results: LogEntry[] = [];
+
+    for (let i = 0; i < TARGET_ENDPOINTS.length; i += batchSize) {
+      const batch = TARGET_ENDPOINTS.slice(i, i + batchSize);
+      const batchResults = await Promise.all(
+        batch.map(async (service) => {
+          const result = await simulateNetworkCall(service, target, email, false, false);
+          return result;
+        })
+      );
+
+      for (const result of batchResults) {
+        results.push(result);
+        setLogs(prev => {
+          const newLogs = [...prev, result];
+          if (newLogs.length > 200) newLogs.shift();
+          return newLogs;
+        });
+        setStats(prev => {
+          const ns = { ...prev, totalSent: prev.totalSent + 1 };
+          if (result.status === RequestStatus.SUCCESS) ns.success++;
+          if (result.status === RequestStatus.FAILED) ns.failed++;
+          if (result.status === RequestStatus.RATE_LIMITED) ns.rateLimited++;
+          if (result.status === RequestStatus.SENT) ns.sentOpaque++;
+          return ns;
+        });
+        setActiveServices(prev => [...prev, result.serviceName]);
+      }
+
+      // endpoint health update
+      setEndpointHealth(prev => {
+        const updated = [...prev];
+        for (const r of batchResults) {
+          const idx = updated.findIndex(e => e.name === r.serviceName);
+          if (idx >= 0) {
+            const matched = TARGET_ENDPOINTS.find(s => s.name === r.serviceName);
+            updated[idx] = {
+              ...updated[idx],
+              status: r.status === RequestStatus.SUCCESS ? 'working' : matched?.status === 'limited' ? 'limited' : 'dead',
+              upstreamStatus: parseInt(r.message.match(/(\d+)/)?.[0] || '0')
+            };
+          }
+        }
+        return updated;
+      });
+
+      await new Promise(r => setTimeout(r, 200));
+    }
+
+    setIsTesting(false);
+  }, [target, email, isTesting]);
 
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 font-sans selection:bg-zinc-800 selection:text-white">
@@ -158,7 +225,7 @@ const App: React.FC = () => {
         </header>
 
         <main className="space-y-6">
-          <StatsBoard stats={stats} />
+            <StatsBoard stats={stats} endpointHealth={endpointHealth} />
 
           {/* Grid Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -183,10 +250,12 @@ const App: React.FC = () => {
                 setUseSimulation={setUseSimulation}
                 allowAiHealing={allowAiHealing}
                 setAllowAiHealing={setAllowAiHealing}
+                isTesting={isTesting}
+                onBulkTest={handleBulkTest}
               />
               
               <div className="h-[400px] lg:h-[450px] bg-zinc-900/50 rounded-xl border border-zinc-800 overflow-hidden">
-                 <NetworkVisualizer activeServices={activeServices} />
+                 <NetworkVisualizer activeServices={activeServices} endpointHealth={endpointHealth} />
               </div>
 
             </div>

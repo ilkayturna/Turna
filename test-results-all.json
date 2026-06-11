@@ -1,0 +1,1676 @@
+[
+  {
+    "id": "file_market",
+    "name": "File Market",
+    "url": "https://api.filemarket.com.tr/v1/otp/send",
+    "method": "POST",
+    "status": "limited",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.7"
+  },
+  {
+    "id": "onur_market",
+    "name": "Onur Market",
+    "url": "https://www.onurmarket.com/api/v1/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": true,
+    "strategy": "direct",
+    "upstreamStatus": 200,
+    "tried": null,
+    "elapsed": "0.1"
+  },
+  {
+    "id": "hayat_su",
+    "name": "Hayat Su",
+    "url": "https://api.hayatsu.com.tr/api/SignUp/SendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": true,
+    "strategy": "direct",
+    "upstreamStatus": 200,
+    "tried": null,
+    "elapsed": "0.1"
+  },
+  {
+    "id": "yapp",
+    "name": "Yapp",
+    "url": "https://yapp.com.tr/api/mobile/v1/register",
+    "method": "POST",
+    "status": "working",
+    "ok": true,
+    "strategy": "direct",
+    "upstreamStatus": 200,
+    "tried": null,
+    "elapsed": "0.6"
+  },
+  {
+    "id": "suiste",
+    "name": "Suiste",
+    "url": "https://suiste.com/api/auth/code",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.0"
+  },
+  {
+    "id": "e_bebek",
+    "name": "E-bebek",
+    "url": "https://www.e-bebek.com/api/v1/auth/register/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": true,
+    "strategy": "direct",
+    "upstreamStatus": 200,
+    "tried": null,
+    "elapsed": "0.2"
+  },
+  {
+    "id": "bkm_express",
+    "name": "BKM Express",
+    "url": "https://www.bkmexpress.com.tr/api/v1/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": true,
+    "strategy": "direct",
+    "upstreamStatus": 200,
+    "tried": null,
+    "elapsed": "0.5"
+  },
+  {
+    "id": "shopandfly",
+    "name": "Shop&Fly",
+    "url": "https://www.shopandfly.com.tr/api/v1/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": true,
+    "strategy": "direct",
+    "upstreamStatus": 200,
+    "tried": null,
+    "elapsed": "6.3"
+  },
+  {
+    "id": "teb",
+    "name": "TEB",
+    "url": "https://www.teb.com.tr/api/v1/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": true,
+    "strategy": "direct",
+    "upstreamStatus": 200,
+    "tried": null,
+    "elapsed": "0.2"
+  },
+  {
+    "id": "kfc",
+    "name": "KFC",
+    "url": "https://www.kfc.com.tr/api/v1/auth/register/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": true,
+    "strategy": "direct",
+    "upstreamStatus": 200,
+    "tried": null,
+    "elapsed": "0.1"
+  },
+  {
+    "id": "sportive",
+    "name": "Sportive",
+    "url": "https://www.sportive.com.tr/api/v1/auth/register/send-otp",
+    "method": "GET",
+    "status": "working",
+    "ok": true,
+    "strategy": "direct",
+    "upstreamStatus": 200,
+    "tried": null,
+    "elapsed": "0.5"
+  },
+  {
+    "id": "oldubil",
+    "name": "Oldubil",
+    "url": "https://api.oldubil.com/api/v1/auth/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": true,
+    "strategy": "direct",
+    "upstreamStatus": 200,
+    "tried": null,
+    "elapsed": "0.9"
+  },
+  {
+    "id": "lcwaikiki",
+    "name": "LC Waikiki",
+    "url": "https://www.lcwaikiki.com.tr/api/v1/auth/register/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": true,
+    "strategy": "direct",
+    "upstreamStatus": 200,
+    "tried": null,
+    "elapsed": "0.8"
+  },
+  {
+    "id": "bambi",
+    "name": "Bambi",
+    "url": "https://www.bambi.com.tr/api/v1/auth/register/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": true,
+    "strategy": "direct",
+    "upstreamStatus": 200,
+    "tried": null,
+    "elapsed": "0.5"
+  },
+  {
+    "id": "migros",
+    "name": "Migros",
+    "url": "https://www.migros.com.tr/rest/auth/register/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.5"
+  },
+  {
+    "id": "dominos",
+    "name": "Dominos",
+    "url": "https://api.dominos.com.tr/api/v1/auth/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.0"
+  },
+  {
+    "id": "starbucks",
+    "name": "Starbucks",
+    "url": "https://www.starbucks.com.tr/api/account/register/otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.0"
+  },
+  {
+    "id": "komagene",
+    "name": "Komagene",
+    "url": "https://api.komagene.com.tr/api/v1/auth/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "7.9"
+  },
+  {
+    "id": "kim_gb_ister",
+    "name": "Kim GB İster",
+    "url": "https://api.kimgbister.com/api/auth/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.7"
+  },
+  {
+    "id": "english_home",
+    "name": "English Home",
+    "url": "https://www.englishhome.com/api/member/register/send-code",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.2"
+  },
+  {
+    "id": "koton",
+    "name": "Koton",
+    "url": "https://www.koton.com/api/v1/auth/register/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.6"
+  },
+  {
+    "id": "joker",
+    "name": "Joker",
+    "url": "https://www.joker.com.tr/api/auth/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.8"
+  },
+  {
+    "id": "penti",
+    "name": "Penti",
+    "url": "https://www.penti.com/api/member/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.8"
+  },
+  {
+    "id": "cineverse",
+    "name": "Cineverse",
+    "url": "https://api.cineverse.com.tr/api/v1/auth/register/otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "8.0"
+  },
+  {
+    "id": "naosstars",
+    "name": "Naosstars",
+    "url": "https://www.naosstars.com/api/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "2.4"
+  },
+  {
+    "id": "akasya_avm",
+    "name": "Akasya AVM",
+    "url": "https://api.akasyaavm.com/api/v1/auth/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "7.9"
+  },
+  {
+    "id": "akbati",
+    "name": "Akbatı",
+    "url": "https://api.akbati.com.tr/api/v1/auth/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "8.0"
+  },
+  {
+    "id": "kahve_dunyasi",
+    "name": "Kahve Dünyası",
+    "url": "https://api.kahvedunyasi.com/api/v1/auth/account/register/phone-number",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.2"
+  },
+  {
+    "id": "wmf",
+    "name": "WMF",
+    "url": "https://www.wmf.com.tr/users/register/",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.0"
+  },
+  {
+    "id": "evidea",
+    "name": "Evidea",
+    "url": "https://www.evidea.com/users/register/",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.7"
+  },
+  {
+    "id": "dr",
+    "name": "D&R",
+    "url": "https://www.dr.com.tr/api/member/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "2.5"
+  },
+  {
+    "id": "fatih_belediye",
+    "name": "Fatih Belediye",
+    "url": "https://ebelediye.fatih.bel.tr/Sicil/KisiUyelikKaydet",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.4"
+  },
+  {
+    "id": "kuryem_gelsin",
+    "name": "Kuryem Gelsin",
+    "url": "https://api.kuryemgelsin.com/api/v1/auth/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "7.9"
+  },
+  {
+    "id": "marti",
+    "name": "Martı",
+    "url": "https://api.marti.tech/api/v2/auth/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.0"
+  },
+  {
+    "id": "ido",
+    "name": "İDO",
+    "url": "https://api.ido.com.tr/api/v1/member/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.5"
+  },
+  {
+    "id": "hamidiye",
+    "name": "Hamidiye",
+    "url": "https://api.hamidiyesu.com.tr/api/auth/register/otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "11.1"
+  },
+  {
+    "id": "clickme_live",
+    "name": "ClickMe Live",
+    "url": "https://api.clickmelive.com/api/v1/auth/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "8.0"
+  },
+  {
+    "id": "hizli_ecza",
+    "name": "Hızlı Ecza",
+    "url": "https://api.hizliecza.com/api/v1/auth/register/otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "8.0"
+  },
+  {
+    "id": "paybol",
+    "name": "Paybol",
+    "url": "https://api.paybol.com/api/v1/auth/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.6"
+  },
+  {
+    "id": "tasdelen_su",
+    "name": "Taşdelen Su",
+    "url": "https://api.tasdelensu.com.tr/api/auth/register/sendSms",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.1"
+  },
+  {
+    "id": "pidem",
+    "name": "Pidem",
+    "url": "https://api.pidem.com.tr/api/v1/auth/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "8.0"
+  },
+  {
+    "id": "orwi",
+    "name": "Orwi",
+    "url": "https://api.orwi.com.tr/api/v1/auth/register/otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "11.2"
+  },
+  {
+    "id": "tazi",
+    "name": "Tazi",
+    "url": "https://api.tazi.com.tr/api/v1/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "8.0"
+  },
+  {
+    "id": "bisu",
+    "name": "Bisu",
+    "url": "https://api.bisu.com.tr/api/v1/auth/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "8.0"
+  },
+  {
+    "id": "bodrum_belediye",
+    "name": "Bodrum Belediye",
+    "url": "https://ebelediye.bodrum.bel.tr/api/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "8.0"
+  },
+  {
+    "id": "hey_scooter",
+    "name": "Hey Scooter",
+    "url": "https://api.heyscooter.com/api/v1/auth/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "11.1"
+  },
+  {
+    "id": "tasimacim",
+    "name": "Taşımacım",
+    "url": "https://api.tasimacim.com/api/v1/auth/register/otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "7.9"
+  },
+  {
+    "id": "iste_gelsin",
+    "name": "İste Gelsin",
+    "url": "https://api.istegelsin.com/api/v1/auth/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.1"
+  },
+  {
+    "id": "ipragaz",
+    "name": "İpragaz",
+    "url": "https://api.ipragaz.com.tr/api/v1/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "8.0"
+  },
+  {
+    "id": "sancaktepe_belediye",
+    "name": "Sancaktepe Belediye",
+    "url": "https://ebelediye.sancaktepe.bel.tr/api/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "8.0"
+  },
+  {
+    "id": "bayrampasa_belediye",
+    "name": "Bayrampaşa Belediye",
+    "url": "https://ebelediye.bayrampasa.bel.tr/api/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.4"
+  },
+  {
+    "id": "macrocenter",
+    "name": "Macrocenter",
+    "url": "https://www.macrocenter.com.tr/rest/auth/register/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.5"
+  },
+  {
+    "id": "jimmy_key",
+    "name": "Jimmy Key",
+    "url": "https://www.jimmykey.com/api/member/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.3"
+  },
+  {
+    "id": "alix_avien",
+    "name": "Alix Avien",
+    "url": "https://www.alixavien.com.tr/api/member/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "2.1"
+  },
+  {
+    "id": "ayyildiz",
+    "name": "Ayyıldız",
+    "url": "https://www.ayyildiz.com/api/member/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "54.0"
+  },
+  {
+    "id": "tikla_gelsin",
+    "name": "Tıkla Gelsin",
+    "url": "https://api.tiklagelsin.com/api/v1/auth/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.4"
+  },
+  {
+    "id": "kitapyurdu",
+    "name": "Kitapyurdu",
+    "url": "https://www.kitapyurdu.com/index.php?route=account/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.9"
+  },
+  {
+    "id": "bkm_kitap",
+    "name": "BKM Kitap",
+    "url": "https://www.bkmkitap.com/api/member/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.3"
+  },
+  {
+    "id": "mothercare",
+    "name": "Mothercare",
+    "url": "https://www.mothercare.com.tr/api/member/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "54.0"
+  },
+  {
+    "id": "toyzz_shop",
+    "name": "Toyzz Shop",
+    "url": "https://www.toyzzshop.com/api/member/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.9"
+  },
+  {
+    "id": "intersport",
+    "name": "Intersport",
+    "url": "https://www.intersport.com.tr/api/v1/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.6"
+  },
+  {
+    "id": "decathlon",
+    "name": "Decathlon",
+    "url": "https://www.decathlon.com.tr/api/v1/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.9"
+  },
+  {
+    "id": "hm",
+    "name": "H&M",
+    "url": "https://www2.hm.com/tr_tr/api/customer/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.1"
+  },
+  {
+    "id": "zara",
+    "name": "Zara",
+    "url": "https://www.zara.com/tr/api/v1/auth/register/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.7"
+  },
+  {
+    "id": "mango",
+    "name": "Mango",
+    "url": "https://shop.mango.com/services/user/v1/register/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.6"
+  },
+  {
+    "id": "bershka",
+    "name": "Bershka",
+    "url": "https://www.bershka.com/itxrest/2/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.1"
+  },
+  {
+    "id": "pull_bear",
+    "name": "Pull&Bear",
+    "url": "https://www.pullandbear.com/itxrest/2/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.0"
+  },
+  {
+    "id": "stradivarius",
+    "name": "Stradivarius",
+    "url": "https://www.stradivarius.com/itxrest/2/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.1"
+  },
+  {
+    "id": "massimo_dutti",
+    "name": "Massimo Dutti",
+    "url": "https://www.massimodutti.com/itxrest/2/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.6"
+  },
+  {
+    "id": "mediamarkt",
+    "name": "Mediamarkt",
+    "url": "https://www.mediamarkt.com.tr/api/v1/auth/register/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.5"
+  },
+  {
+    "id": "teknosa",
+    "name": "Teknosa",
+    "url": "https://www.teknosa.com/api/v1/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": true,
+    "strategy": "cookie_first",
+    "upstreamStatus": 200,
+    "tried": null,
+    "elapsed": "0.4"
+  },
+  {
+    "id": "vatan_bilgisayar",
+    "name": "Vatan Bilgisayar",
+    "url": "https://www.vatanbilgisayar.com/api/v1/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.8"
+  },
+  {
+    "id": "itopya",
+    "name": "İtopya",
+    "url": "https://www.itopya.com/api/v1/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.0"
+  },
+  {
+    "id": "gamegaraj",
+    "name": "GameGaraj",
+    "url": "https://www.gamegaraj.com/api/v1/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.5"
+  },
+  {
+    "id": "playstation",
+    "name": "PlayStation",
+    "url": "https://store.playstation.com/api/v1/auth/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "3.9"
+  },
+  {
+    "id": "xbox",
+    "name": "Xbox",
+    "url": "https://login.live.com/api/v1/auth/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.7"
+  },
+  {
+    "id": "nintendo",
+    "name": "Nintendo",
+    "url": "https://accounts.nintendo.com/api/v1/auth/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "4.1"
+  },
+  {
+    "id": "steam",
+    "name": "Steam",
+    "url": "https://store.steampowered.com/phone/add_ajaxop",
+    "method": "POST",
+    "status": "working",
+    "ok": true,
+    "strategy": "direct",
+    "upstreamStatus": 200,
+    "tried": null,
+    "elapsed": "0.2"
+  },
+  {
+    "id": "epic_games",
+    "name": "Epic Games",
+    "url": "https://www.epicgames.com/id/api/v1/auth/otp/send",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.4"
+  },
+  {
+    "id": "a101",
+    "name": "A101",
+    "url": "https://www.a101.com.tr/api/v1/auth/register/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.9"
+  },
+  {
+    "id": "bim",
+    "name": "BİM",
+    "url": "https://bim.veesk.net:443/service/v1.0/account/login",
+    "method": "POST",
+    "status": "working",
+    "ok": true,
+    "strategy": "direct",
+    "upstreamStatus": 200,
+    "tried": null,
+    "elapsed": "0.5"
+  },
+  {
+    "id": "carrefour",
+    "name": "Carrefour",
+    "url": "https://www.carrefoursa.com/api/v1/auth/register/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.6"
+  },
+  {
+    "id": "happy_center",
+    "name": "Happy Center",
+    "url": "https://www.happycenter.com.tr/api/v1/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": true,
+    "strategy": "direct",
+    "upstreamStatus": 200,
+    "tried": null,
+    "elapsed": "0.2"
+  },
+  {
+    "id": "rossmann",
+    "name": "Rossmann",
+    "url": "https://www.rossmann.com.tr/api/v1/auth/register/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "4.3"
+  },
+  {
+    "id": "watsons",
+    "name": "Watsons",
+    "url": "https://www.watsons.com.tr/api/v1/auth/register/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.8"
+  },
+  {
+    "id": "gratis",
+    "name": "Gratis",
+    "url": "https://www.gratis.com/api/v1/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "3.1"
+  },
+  {
+    "id": "flormar",
+    "name": "Flormar",
+    "url": "https://www.flormar.com.tr/api/v1/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.5"
+  },
+  {
+    "id": "avon",
+    "name": "Avon",
+    "url": "https://www.avon.com.tr/api/v1/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "3.1"
+  },
+  {
+    "id": "oriflame",
+    "name": "Oriflame",
+    "url": "https://www.oriflame.com.tr/api/v1/auth/register/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "2.2"
+  },
+  {
+    "id": "farmasi",
+    "name": "Farmasi",
+    "url": "https://www.farmasi.com.tr/api/v1/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "9.6"
+  },
+  {
+    "id": "lr",
+    "name": "LR",
+    "url": "https://www.lrworld.com/tr/api/auth/register/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "8.8"
+  },
+  {
+    "id": "herbalife",
+    "name": "Herbalife",
+    "url": "https://www.herbalife.com.tr/api/v1/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "2.7"
+  },
+  {
+    "id": "amway",
+    "name": "Amway",
+    "url": "https://www.amway.com.tr/api/v1/auth/register/send-otp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "1.1"
+  },
+  {
+    "id": "forever_living",
+    "name": "Forever Living",
+    "url": "https://www.foreverliving.com.tr/api/v1/auth/register/sendOtp",
+    "method": "POST",
+    "status": "working",
+    "ok": false,
+    "strategy": null,
+    "upstreamStatus": null,
+    "tried": [
+      "direct",
+      "proxy+ai_heal",
+      "cookie_first",
+      "urlencoded+headers",
+      "bare_phone",
+      "90_format"
+    ],
+    "elapsed": "0.1"
+  }
+]

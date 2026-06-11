@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Square, Settings, Server, Globe, Zap } from 'lucide-react';
+import { Play, Square, Settings, Server, Globe, Zap, TestTube } from 'lucide-react';
 import { SimulationMode } from '../types';
 
 interface ControlPanelProps {
@@ -20,6 +20,8 @@ interface ControlPanelProps {
   setUseSimulation: (val: boolean) => void;
   allowAiHealing: boolean;
   setAllowAiHealing: (val: boolean) => void;
+  isTesting: boolean;
+  onBulkTest: () => void;
 }
 
 const InputField = ({ label, ...props }: any) => (
@@ -49,7 +51,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   useSimulation,
   setUseSimulation,
   allowAiHealing,
-  setAllowAiHealing
+  setAllowAiHealing,
+  isTesting,
+  onBulkTest
 }) => {
   return (
     <div className="bg-zinc-900/30 p-6 rounded-xl border border-zinc-800">
@@ -181,8 +185,8 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             />
         </div>
 
-        {/* Action Button */}
-        <div className="pt-2">
+        {/* Action Buttons */}
+        <div className="pt-2 space-y-2">
           {!isRunning ? (
             <button
               onClick={onStart}
@@ -198,6 +202,18 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
               <Square size={16} fill="currentColor" /> Stop Process
             </button>
           )}
+
+          <button
+            onClick={onBulkTest}
+            disabled={isRunning || isTesting}
+            className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm transition-all ${
+              isTesting
+                ? 'bg-amber-900/30 text-amber-400 border border-amber-700/50'
+                : 'bg-zinc-900 border border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white'
+            }`}
+          >
+            <TestTube size={16} /> {isTesting ? 'Testing...' : 'Tümünü Test Et'}
+          </button>
         </div>
       </div>
     </div>

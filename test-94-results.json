@@ -1,0 +1,744 @@
+[
+  {
+    "id": "file_market",
+    "status": "real",
+    "code": 202,
+    "strat": "direct",
+    "url": "https://api.filemarket.com.tr/v1/otp/send"
+  },
+  {
+    "id": "onur_market",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://www.onurmarket.com/api/v1/auth/register/sendOtp"
+  },
+  {
+    "id": "hayat_su",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://api.hayatsu.com.tr/api/SignUp/SendOtp"
+  },
+  {
+    "id": "yapp",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://yapp.com.tr/api/mobile/v1/register"
+  },
+  {
+    "id": "suiste",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://suiste.com/api/auth/code"
+  },
+  {
+    "id": "e_bebek",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://www.e-bebek.com/api/v1/auth/register/send-otp"
+  },
+  {
+    "id": "bkm_express",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://www.bkmexpress.com.tr/api/v1/otp/send"
+  },
+  {
+    "id": "shopandfly",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://www.shopandfly.com.tr/api/v1/otp/send"
+  },
+  {
+    "id": "teb",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://www.teb.com.tr/api/v1/otp/send"
+  },
+  {
+    "id": "kfc",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://www.kfc.com.tr/api/v1/auth/register/send-otp"
+  },
+  {
+    "id": "sportive",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://www.sportive.com.tr/api/v1/auth/register/send-otp"
+  },
+  {
+    "id": "oldubil",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://api.oldubil.com/api/v1/auth/send-otp"
+  },
+  {
+    "id": "lcwaikiki",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://www.lcwaikiki.com.tr/api/v1/auth/register/send-otp"
+  },
+  {
+    "id": "bambi",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://www.bambi.com.tr/api/v1/auth/register/send-otp"
+  },
+  {
+    "id": "iste_gelsin",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://api.istegelsin.com/api/v1/auth/otp/send"
+  },
+  {
+    "id": "tikla_gelsin",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://api.tiklagelsin.com/api/v1/auth/otp/send"
+  },
+  {
+    "id": "clickme_live",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://api.clickmelive.com/api/v1/auth/otp/send"
+  },
+  {
+    "id": "naosstars",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://api.naosstars.com/api/smsSend/9c9fa861-cc5d-43b0-b4ea-1b541be15350"
+  },
+  {
+    "id": "akasya_avm",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://akasyaapi.poilabs.com/v1/en/sms"
+  },
+  {
+    "id": "akbati",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://akbatiapi.poilabs.com/v1/en/sms"
+  },
+  {
+    "id": "tasimacim",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://api.tasimacim.com/api/v1/auth/register/otp"
+  },
+  {
+    "id": "ipragaz",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://api.ipragaz.com.tr/api/v1/auth/register/sendOtp"
+  },
+  {
+    "id": "hizli_ecza",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://api.hizliecza.com/api/v1/auth/register/otp"
+  },
+  {
+    "id": "mothercare",
+    "status": "error",
+    "code": 0,
+    "strat": "ECONNABORTED",
+    "url": "https://www.mothercare.com.tr/api/member/register/sendOtp"
+  },
+  {
+    "id": "sancaktepe_belediye",
+    "status": "failed",
+    "code": 500,
+    "strat": "csrf_json",
+    "url": "https://e-belediye.sancaktepe.bel.tr/Sicil/KisiUyelikKaydet"
+  },
+  {
+    "id": "paybol",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://api.paybol.com/api/v1/auth/otp/send"
+  },
+  {
+    "id": "migros",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://rest.migros.com.tr:443/sanalmarket/users/register/otp"
+  },
+  {
+    "id": "dominos",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://frontend.dominos.com.tr:443/api/customer/sendOtpCode"
+  },
+  {
+    "id": "starbucks",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.starbucks.com.tr/api/account/register/otp"
+  },
+  {
+    "id": "komagene",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://gateway.komagene.com.tr/auth/auth/smskodugonder"
+  },
+  {
+    "id": "kim_gb_ister",
+    "status": "failed",
+    "code": 401,
+    "strat": "90_format",
+    "url": "https://api.kimgbister.com/api/auth/otp/send"
+  },
+  {
+    "id": "english_home",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://www.englishhome.com/api/member/saveMemberAndLogin"
+  },
+  {
+    "id": "koton",
+    "status": "failed",
+    "code": 500,
+    "strat": "csrf_json",
+    "url": "https://www.koton.com/users/register/"
+  },
+  {
+    "id": "joker",
+    "status": "error",
+    "code": 0,
+    "strat": "ECONNABORTED",
+    "url": "https://api.joker.com.tr:443/api/register"
+  },
+  {
+    "id": "penti",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.penti.com/api/member/register/sendOtp"
+  },
+  {
+    "id": "cineverse",
+    "status": "failed",
+    "code": 404,
+    "strat": "csrf_json",
+    "url": "https://www.paribucineverse.com/api/v1/auth/register/otp"
+  },
+  {
+    "id": "naosstars",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://api.naosstars.com/api/smsSend/9c9fa861-cc5d-43b0-b4ea-1b541be15350"
+  },
+  {
+    "id": "akasya_avm",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://akasyaapi.poilabs.com/v1/en/sms"
+  },
+  {
+    "id": "akbati",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://akbatiapi.poilabs.com/v1/en/sms"
+  },
+  {
+    "id": "kahve_dunyasi",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://api.kahvedunyasi.com/api/v1/auth/account/register/phone-number"
+  },
+  {
+    "id": "wmf",
+    "status": "failed",
+    "code": 429,
+    "strat": "csrf_json",
+    "url": "https://www.wmf.com.tr/users/register/"
+  },
+  {
+    "id": "evidea",
+    "status": "failed",
+    "code": 400,
+    "strat": "csrf_json",
+    "url": "https://www.evidea.com/users/register/"
+  },
+  {
+    "id": "dr",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.dr.com.tr/api/member/sendOtp"
+  },
+  {
+    "id": "fatih_belediye",
+    "status": "failed",
+    "code": 500,
+    "strat": "90_format",
+    "url": "https://ebelediye.fatih.bel.tr/Sicil/KisiUyelikKaydet"
+  },
+  {
+    "id": "kuryem_gelsin",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.kuryemgelsin.com/api/v1/auth/otp/send"
+  },
+  {
+    "id": "marti",
+    "status": "failed",
+    "code": 403,
+    "strat": "90_format",
+    "url": "https://www.marti.tech/api/v2/auth/otp/send"
+  },
+  {
+    "id": "ido",
+    "status": "failed",
+    "code": 400,
+    "strat": "90_format",
+    "url": "https://api.ido.com.tr:443/idows/v2/register"
+  },
+  {
+    "id": "hamidiye",
+    "status": "failed",
+    "code": 405,
+    "strat": "90_format",
+    "url": "https://bayi.hamidiye.istanbul:3400/hamidiyeMobile/send-otp"
+  },
+  {
+    "id": "clickme_live",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://api.clickmelive.com/api/v1/auth/otp/send"
+  },
+  {
+    "id": "hizli_ecza",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://api.hizliecza.com/api/v1/auth/register/otp"
+  },
+  {
+    "id": "paybol",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://api.paybol.com/api/v1/auth/otp/send"
+  },
+  {
+    "id": "tasdelen_su",
+    "status": "failed",
+    "code": 401,
+    "strat": "90_format",
+    "url": "https://tasdelen.sufirmam.com:3300/mobile/send-otp"
+  },
+  {
+    "id": "pidem",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://restashop.azurewebsites.net/graphql/"
+  },
+  {
+    "id": "orwi",
+    "status": "failed",
+    "code": 500,
+    "strat": "90_format",
+    "url": "https://gandalf.orwi.app/api/user/requestOtp"
+  },
+  {
+    "id": "tazi",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://mobileapiv2.tazi.tech:443/C08467681C6844CFA6DA240D51C8AA8C/uyev2/smslogin"
+  },
+  {
+    "id": "bisu",
+    "status": "failed",
+    "code": 530,
+    "strat": "90_format",
+    "url": "https://www.bisu.com.tr/api/v2/app/authentication/phone/register"
+  },
+  {
+    "id": "bodrum_belediye",
+    "status": "failed",
+    "code": 500,
+    "strat": "90_format",
+    "url": "https://gandalf.orwi.app/api/user/requestOtp"
+  },
+  {
+    "id": "hey_scooter",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.heyscooter.com.tr/api/v1/auth/otp/send"
+  },
+  {
+    "id": "tasimacim",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://api.tasimacim.com/api/v1/auth/register/otp"
+  },
+  {
+    "id": "iste_gelsin",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://api.istegelsin.com/api/v1/auth/otp/send"
+  },
+  {
+    "id": "ipragaz",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://api.ipragaz.com.tr/api/v1/auth/register/sendOtp"
+  },
+  {
+    "id": "sancaktepe_belediye",
+    "status": "failed",
+    "code": 500,
+    "strat": "csrf_json",
+    "url": "https://e-belediye.sancaktepe.bel.tr/Sicil/KisiUyelikKaydet"
+  },
+  {
+    "id": "bayrampasa_belediye",
+    "status": "failed",
+    "code": 500,
+    "strat": "90_format",
+    "url": "https://ebelediye.bayrampasa.bel.tr/Sicil/KisiUyelikKaydet"
+  },
+  {
+    "id": "macrocenter",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://www.macrocenter.com.tr/rest/user-edge/auth/login/otp"
+  },
+  {
+    "id": "jimmy_key",
+    "status": "failed",
+    "code": 403,
+    "strat": "90_format",
+    "url": "https://www.jimmykey.com/tr/p/User/SendConfirmationSms"
+  },
+  {
+    "id": "alix_avien",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.alixavien.com.tr/api/member/sendOtp"
+  },
+  {
+    "id": "ayyildiz",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://api.altinyildizclassics.com/mobileapi2/autapi/CreateSmsOtpForRegister"
+  },
+  {
+    "id": "tikla_gelsin",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://api.tiklagelsin.com/api/v1/auth/otp/send"
+  },
+  {
+    "id": "kitapyurdu",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.kitapyurdu.com/index.php?route=account/register/sendOtp"
+  },
+  {
+    "id": "bkm_kitap",
+    "status": "failed",
+    "code": 500,
+    "strat": "90_format",
+    "url": "https://www.bkmkitap.com/api/member/register/sendOtp"
+  },
+  {
+    "id": "mothercare",
+    "status": "error",
+    "code": 0,
+    "strat": "ECONNABORTED",
+    "url": "https://www.mothercare.com.tr/api/member/register/sendOtp"
+  },
+  {
+    "id": "toyzz_shop",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.toyzzshop.com/api/member/register/sendOtp"
+  },
+  {
+    "id": "intersport",
+    "status": "failed",
+    "code": 403,
+    "strat": "90_format",
+    "url": "https://www.intersport.com.tr/api/v1/auth/register/sendOtp"
+  },
+  {
+    "id": "decathlon",
+    "status": "failed",
+    "code": 405,
+    "strat": "90_format",
+    "url": "https://www.decathlon.com.tr/api/v1/auth/register/sendOtp"
+  },
+  {
+    "id": "hm",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www2.hm.com/tr_tr/api/customer/register/sendOtp"
+  },
+  {
+    "id": "zara",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.zara.com/tr/api/v1/auth/register/send-otp"
+  },
+  {
+    "id": "mango",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://shop.mango.com/services/user/v1/register/send-otp"
+  },
+  {
+    "id": "bershka",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.bershka.com/itxrest/2/auth/register/sendOtp"
+  },
+  {
+    "id": "pull_bear",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.pullandbear.com/itxrest/2/auth/register/sendOtp"
+  },
+  {
+    "id": "stradivarius",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.stradivarius.com/itxrest/2/auth/register/sendOtp"
+  },
+  {
+    "id": "massimo_dutti",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.massimodutti.com/itxrest/2/auth/register/sendOtp"
+  },
+  {
+    "id": "mediamarkt",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.mediamarkt.com.tr/api/v1/auth/register/send-otp"
+  },
+  {
+    "id": "teknosa",
+    "status": "real",
+    "code": 200,
+    "strat": "form_urlencoded",
+    "url": "https://www.teknosa.com/api/v1/auth/register/sendOtp"
+  },
+  {
+    "id": "vatan_bilgisayar",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.vatanbilgisayar.com/api/v1/auth/register/sendOtp"
+  },
+  {
+    "id": "itopya",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.itopya.com/api/v1/auth/register/sendOtp"
+  },
+  {
+    "id": "gamegaraj",
+    "status": "failed",
+    "code": 418,
+    "strat": "90_format",
+    "url": "https://www.gamegaraj.com/api/v1/auth/register/sendOtp"
+  },
+  {
+    "id": "playstation",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://store.playstation.com/api/v1/auth/otp/send"
+  },
+  {
+    "id": "xbox",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://login.live.com/api/v1/auth/otp/send"
+  },
+  {
+    "id": "nintendo",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://accounts.nintendo.com/api/v1/auth/otp/send"
+  },
+  {
+    "id": "steam",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://store.steampowered.com/phone/add_ajaxop"
+  },
+  {
+    "id": "epic_games",
+    "status": "failed",
+    "code": 409,
+    "strat": "90_format",
+    "url": "https://www.epicgames.com/id/api/v1/auth/otp/send"
+  },
+  {
+    "id": "a101",
+    "status": "failed",
+    "code": 403,
+    "strat": "90_format",
+    "url": "https://www.a101.com.tr/users/otp-login/"
+  },
+  {
+    "id": "bim",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://bim.veesk.net:443/service/v1.0/account/login"
+  },
+  {
+    "id": "carrefour",
+    "status": "failed",
+    "code": 403,
+    "strat": "90_format",
+    "url": "https://www.carrefoursa.com/api/v1/auth/register/send-otp"
+  },
+  {
+    "id": "happy_center",
+    "status": "real",
+    "code": 200,
+    "strat": "direct",
+    "url": "https://www.happycenter.com.tr/api/v1/auth/register/sendOtp"
+  },
+  {
+    "id": "rossmann",
+    "status": "failed",
+    "code": 0,
+    "strat": "90_format",
+    "url": "https://www.rossmann.com.tr/api/v1/auth/register/send-otp"
+  },
+  {
+    "id": "watsons",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.watsons.com.tr/api/v1/auth/register/send-otp"
+  },
+  {
+    "id": "gratis",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.gratis.com/api/v1/auth/register/sendOtp"
+  },
+  {
+    "id": "flormar",
+    "status": "failed",
+    "code": 405,
+    "strat": "csrf_json",
+    "url": "https://www.flormar.com.tr/api/v1/auth/register/sendOtp"
+  },
+  {
+    "id": "avon",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.avon.com.tr/api/v1/auth/register/sendOtp"
+  },
+  {
+    "id": "oriflame",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.oriflame.com.tr/api/v1/auth/register/send-otp"
+  },
+  {
+    "id": "farmasi",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.farmasi.com.tr/api/v1/auth/register/sendOtp"
+  },
+  {
+    "id": "lr",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.lrworld.com/tr/api/auth/register/send-otp"
+  },
+  {
+    "id": "herbalife",
+    "status": "failed",
+    "code": 500,
+    "strat": "90_format",
+    "url": "https://www.herbalife.com.tr/api/v1/auth/register/sendOtp"
+  },
+  {
+    "id": "amway",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.amway.com.tr/api/v1/auth/register/send-otp"
+  },
+  {
+    "id": "forever_living",
+    "status": "failed",
+    "code": 404,
+    "strat": "90_format",
+    "url": "https://www.foreverliving.com.tr/api/v1/auth/register/sendOtp"
+  }
+]

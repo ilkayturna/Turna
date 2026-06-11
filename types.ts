@@ -40,6 +40,13 @@ export interface SimulationStats {
   sentOpaque: number;
 }
 
+export interface EndpointHealth {
+  id: string;
+  name: string;
+  status: 'unknown' | 'working' | 'dead' | 'limited';
+  upstreamStatus?: number;
+}
+
 export interface Certificate {
   id: string;
   title: string;

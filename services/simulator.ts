@@ -18,17 +18,6 @@ export const simulateNetworkCall = async (
   // --- SIMULATION MODE (SAFE) ---
   if (useSimulation) {
       await new Promise(r => setTimeout(r, 200 + Math.random() * 600));
-      const rand = Math.random();
-      if (rand > 0.95) {
-          return {
-            id: Math.random().toString(36).substr(2, 9),
-            timestamp: new Date().toLocaleTimeString(),
-            serviceName: service.name,
-            status: RequestStatus.FAILED,
-            message: `500 Internal Server Error (Simulated)`,
-            latency: Math.round(performance.now() - startTime),
-          };
-      }
       return {
         id: Math.random().toString(36).substr(2, 9),
         timestamp: new Date().toLocaleTimeString(),
@@ -76,47 +65,27 @@ export const simulateNetworkCall = async (
         ? payload.upstreamStatus
         : (typeof payload?.status === 'number' ? payload.status : response.status);
 
-      if (response.ok) {
-        if (payload?.ok) {
-          const healMsg = payload.healed ? ' ⚡ (Auto-Healed by Groq AI)' : '';
+      const details = payload?.error ? ` - ${payload.error}` : '';
+      const lastResp = payload?.lastResponse ? ` | ${payload.lastResponse}` : '';
+
+      if (response.ok && payload?.ok) {
+          const healMsg = payload?.healed ? ' ⚡ (Auto-Healed by Groq AI)' : '';
           return {
               id: Math.random().toString(36).substr(2, 9),
               timestamp: new Date().toLocaleTimeString(),
               serviceName: service.name,
               status: RequestStatus.SUCCESS,
-              message: `200 OK | Backend proxy (upstream ${upstreamStatus})${healMsg}`,
+              message: `200 OK | ${payload.strategy} (upstream ${upstreamStatus})${healMsg}`,
               latency: Math.round(performance.now() - startTime),
           };
-        }
-
-        return {
-            id: Math.random().toString(36).substr(2, 9),
-            timestamp: new Date().toLocaleTimeString(),
-            serviceName: service.name,
-            status: RequestStatus.SENT,
-            message: `Request reached upstream (${upstreamStatus})`,
-            latency: Math.round(performance.now() - startTime),
-        };
       }
 
-      if (response.status === 404) {
-        return {
-            id: Math.random().toString(36).substr(2, 9),
-            timestamp: new Date().toLocaleTimeString(),
-            serviceName: service.name,
-            status: RequestStatus.FAILED,
-            message: 'Proxy endpoint missing (404): deploy project root, not only dist',
-            latency: Math.round(performance.now() - startTime),
-        };
-      }
-
-      const details = payload?.error ? ` - ${payload.error}` : '';
       return {
           id: Math.random().toString(36).substr(2, 9),
           timestamp: new Date().toLocaleTimeString(),
           serviceName: service.name,
           status: RequestStatus.FAILED,
-          message: `Proxy transport failed (${upstreamStatus})${details}`,
+          message: `${response.status} | ${payload?.strategy || 'failed'}${details}${lastResp}`,
           latency: Math.round(performance.now() - startTime),
       };
   } catch (error) {
