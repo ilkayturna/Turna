@@ -337,10 +337,10 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
   {
     id: 'wmf',
     name: 'WMF',
-    url: 'https://www.wmf.com.tr/users/register/',
+    url: 'https://wmf.com.tr/users/register/',
     method: 'POST',
     payloadInfo: '{"phone":"05XXXXXXXXX","first_name":"Test","last_name":"Test","email":"{{EMAIL}}","password":"Test123!","confirm":true,"date_of_birth":"1990-01-01"}',
-    status: 'dead',
+    status: 'working',
     category: 'Giyim & Ev Eşyası',
   },
   {
@@ -719,10 +719,10 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
   {
     id: 'massimo_dutti',
     name: 'Massimo Dutti',
-    url: 'https://www.massimodutti.com/itxrest/2/auth/register/sendOtp',
+    url: 'https://www.massimodutti.com/tr/api/auth/register/sendOtp',
     method: 'POST',
     payloadInfo: '{"phone": "+905XXXXXXXXX"}',
-    status: 'dead',
+    status: 'working',
     category: 'Giyim & Ev Eşyası',
   },
   {
@@ -803,7 +803,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     url: 'https://store.steampowered.com/phone/add_ajaxop',
     method: 'POST',
     payloadInfo: '{"phoneNumber":"+905XXXXXXXXX","sessionID":"..."}',
-    status: 'dead',
+    status: 'working',
     category: 'Oyun',
   },
   {
@@ -918,10 +918,10 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
   {
     id: 'lr',
     name: 'LR',
-    url: 'https://www.lrworld.com/tr/api/auth/register/send-otp',
+    url: 'https://neo.lrworld.com/api/v1/login/cas',
     method: 'POST',
     payloadInfo: '{"phone": "+905XXXXXXXXX", "country": "TR"}',
-    status: 'dead',
+    status: 'working',
     category: 'Kozmetik',
   },
   {

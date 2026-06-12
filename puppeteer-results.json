@@ -1,0 +1,27 @@
+[
+  {
+    "id": "rossmann",
+    "name": "Rossmann",
+    "requests": []
+  },
+  {
+    "id": "decathlon",
+    "name": "Decathlon",
+    "requests": []
+  },
+  {
+    "id": "mediamarkt",
+    "name": "MediaMarkt",
+    "requests": []
+  },
+  {
+    "id": "penti",
+    "name": "Penti",
+    "requests": []
+  },
+  {
+    "id": "a101",
+    "name": "A101",
+    "requests": []
+  }
+]

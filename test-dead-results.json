@@ -1,0 +1,1038 @@
+[
+  {
+    "id": "decathlon",
+    "name": "Decathlon",
+    "directOk": false,
+    "directStatus": 403,
+    "proxyOk": false,
+    "proxyStatus": 405,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.decathlon.com.tr/api/v1/auth/register/send-otp",
+        "ok": false,
+        "status": 403
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "hm",
+    "name": "H&M",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www2.hm.com/tr_tr/api/auth/register/sendOtp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.hm.com/tr/api/customer/register/sendOtp",
+        "ok": false,
+        "status": 403
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "zara",
+    "name": "Zara",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.zara.com/tr/api/auth/register/sendOtp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.zara.com/tr/api/v1/auth/register/sendOtp",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "bershka",
+    "name": "Bershka",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.bershka.com/tr/api/auth/register/sendOtp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.bershka.com/itxrest/2/auth/register/send-otp",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "pull_bear",
+    "name": "Pull&Bear",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.pullandbear.com/tr/api/auth/register/sendOtp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.pullandbear.com/itxrest/2/auth/register/send-otp",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "stradivarius",
+    "name": "Stradivarius",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.stradivarius.com/tr/api/auth/register/sendOtp",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "massimo_dutti",
+    "name": "Massimo Dutti",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.massimodutti.com/tr/api/auth/register/sendOtp",
+        "ok": true,
+        "status": 200
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "mediamarkt",
+    "name": "Mediamarkt",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.mediamarkt.com.tr/api/v1/auth/register/sendOtp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.mediamarkt.com.tr/api/auth/register/send-otp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.mediamarkt.com.tr/rest/user-edge/auth/login/otp",
+        "ok": false,
+        "status": 405
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "vatan_bilgisayar",
+    "name": "Vatan Bilgisayar",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "itopya",
+    "name": "İtopya",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "gamegaraj",
+    "name": "GameGaraj",
+    "directOk": false,
+    "directStatus": 418,
+    "proxyOk": false,
+    "proxyStatus": 418,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "carrefour",
+    "name": "Carrefour",
+    "directOk": false,
+    "directStatus": 403,
+    "proxyOk": false,
+    "proxyStatus": 405,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.carrefoursa.com/api/auth/register/send-otp",
+        "ok": false,
+        "status": 403
+      },
+      {
+        "url": "https://www.carrefoursa.com/rest/user-edge/auth/login/otp",
+        "ok": false,
+        "status": 403
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "rossmann",
+    "name": "Rossmann",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 502,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.rossmann.com.tr/api/v1/auth/register/sendOtp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.rossmann.com.tr/api/auth/register/send-otp",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "watsons",
+    "name": "Watsons",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.watsons.com.tr/api/auth/register/send-otp",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "gratis",
+    "name": "Gratis",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://gratis.com/api/v1/auth/register/send-otp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.gratis.com/api/v1/auth/register/send-otp",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "penti",
+    "name": "Penti",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.penti.com/api/v1/auth/register/sendOtp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.penti.com/api/auth/register/send-otp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.penti.com/api/v1/otp/send",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "a101",
+    "name": "A101",
+    "directOk": false,
+    "directStatus": 403,
+    "proxyOk": false,
+    "proxyStatus": 403,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.a101.com.tr/api/v1/auth/register/send-otp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.a101.com.tr/api/v1/auth/register/sendOtp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.a101.com.tr/api/v1/otp/send",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "wmf",
+    "name": "WMF",
+    "directOk": false,
+    "directStatus": 400,
+    "proxyOk": false,
+    "proxyStatus": 429,
+    "proxyStrategy": "csrf_json",
+    "altUrls": [
+      {
+        "url": "https://wmf.com.tr/users/register/",
+        "ok": true,
+        "status": 200
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "dr",
+    "name": "D&R",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.dr.com.tr/api/v1/auth/register/sendOtp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.dr.com.tr/api/v1/otp/send",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "kitapyurdu",
+    "name": "Kitapyurdu",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.kitapyurdu.com/api/v1/auth/register/sendOtp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.kitapyurdu.com/api/v1/otp/send",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "bkm_kitap",
+    "name": "BKM Kitap",
+    "directOk": false,
+    "directStatus": 500,
+    "proxyOk": false,
+    "proxyStatus": 500,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.bkmkitap.com/api/v1/auth/register/sendOtp",
+        "ok": false,
+        "status": 500
+      },
+      {
+        "url": "https://www.bkmkitap.com/api/v1/otp/send",
+        "ok": false,
+        "status": 500
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "toyzz_shop",
+    "name": "Toyzz Shop",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.toyzzshop.com/api/v1/auth/register/sendOtp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.toyzzshop.com/api/v1/otp/send",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "avon",
+    "name": "Avon",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.avon.com.tr/api/auth/register/send-otp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.avon.com.tr/api/v1/auth/register/send-otp",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "oriflame",
+    "name": "Oriflame",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.oriflame.com.tr/api/auth/register/sendOtp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.oriflame.com.tr/api/v1/auth/register/sendOtp",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "farmasi",
+    "name": "Farmasi",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.farmasi.com.tr/api/auth/register/send-otp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.farmasi.com.tr/api/v1/auth/register/send-otp",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "starbucks",
+    "name": "Starbucks",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.starbucks.com.tr/api/v1/auth/register/otp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.starbucks.com.tr/api/v1/auth/register/send-otp",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "cineverse",
+    "name": "Cineverse",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "csrf_json",
+    "altUrls": [
+      {
+        "url": "https://www.paribucineverse.com/api/v1/auth/register/send-otp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.paribucineverse.com/api/v1/auth/register/sendOtp",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "kuryem_gelsin",
+    "name": "Kuryem Gelsin",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.kuryemgelsin.com/api/v1/auth/otp/send",
+        "ok": false,
+        "status": 429
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "hey_scooter",
+    "name": "Hey Scooter",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.heyscooter.com.tr/api/v1/auth/otp/send",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "mango",
+    "name": "Mango",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://shop.mango.com/services/user/v1/register/sendOtp",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "marti",
+    "name": "Martı",
+    "directOk": false,
+    "directStatus": 403,
+    "proxyOk": false,
+    "proxyStatus": 403,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.marti.tech/api/v1/auth/otp/send",
+        "ok": false,
+        "status": 403
+      },
+      {
+        "url": "https://www.marti.tech/api/auth/otp/send",
+        "ok": false,
+        "status": 403
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "alix_avien",
+    "name": "Alix Avien",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.alixavien.com.tr/api/v1/auth/register/sendOtp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.alixavien.com.tr/api/auth/register/send-otp",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "jimmy_key",
+    "name": "Jimmy Key",
+    "directOk": false,
+    "directStatus": 403,
+    "proxyOk": false,
+    "proxyStatus": 403,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://www.jimmykey.com/tr/api/member/sendOtp",
+        "ok": false,
+        "status": 404
+      },
+      {
+        "url": "https://www.jimmykey.com/tr/api/v1/auth/register/sendOtp",
+        "ok": false,
+        "status": 404
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "iste_gelsin",
+    "name": "İste Gelsin",
+    "directOk": false,
+    "directStatus": 0,
+    "proxyOk": false,
+    "proxyStatus": 502,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "tikla_gelsin",
+    "name": "Tıkla Gelsin",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "clickme_live",
+    "name": "ClickMe Live",
+    "directOk": false,
+    "directStatus": 0,
+    "proxyOk": false,
+    "proxyStatus": 502,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "mothercare",
+    "name": "Mothercare",
+    "directOk": false,
+    "directStatus": 0,
+    "proxyOk": false,
+    "proxyStatus": 0,
+    "proxyStrategy": "error",
+    "altUrls": [],
+    "proxyError": "This operation was aborted"
+  },
+  {
+    "id": "paybol",
+    "name": "Paybol",
+    "directOk": false,
+    "directStatus": 0,
+    "proxyOk": false,
+    "proxyStatus": 502,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "kim_gb_ister",
+    "name": "Kim GB İster",
+    "directOk": false,
+    "directStatus": 401,
+    "proxyOk": false,
+    "proxyStatus": 401,
+    "proxyStrategy": "90_format",
+    "altUrls": [
+      {
+        "url": "https://api.kimgbister.com/api/v1/auth/otp/send",
+        "ok": false,
+        "status": 401
+      }
+    ],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "ipragaz",
+    "name": "İpragaz",
+    "directOk": false,
+    "directStatus": 0,
+    "proxyOk": false,
+    "proxyStatus": 502,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "tasimacim",
+    "name": "Taşımacım",
+    "directOk": false,
+    "directStatus": 0,
+    "proxyOk": false,
+    "proxyStatus": 502,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "hizli_ecza",
+    "name": "Hızlı Ecza",
+    "directOk": false,
+    "directStatus": 0,
+    "proxyOk": false,
+    "proxyStatus": 502,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "sancaktepe_belediye",
+    "name": "Sancaktepe Belediye",
+    "directOk": false,
+    "directStatus": 0,
+    "proxyOk": false,
+    "proxyStatus": 500,
+    "proxyStrategy": "csrf_json",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "fatih_belediye",
+    "name": "Fatih Belediye",
+    "directOk": false,
+    "directStatus": 500,
+    "proxyOk": false,
+    "proxyStatus": 500,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "bayrampasa_belediye",
+    "name": "Bayrampaşa Belediye",
+    "directOk": false,
+    "directStatus": 500,
+    "proxyOk": false,
+    "proxyStatus": 500,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "bodrum_belediye",
+    "name": "Bodrum Belediye",
+    "directOk": false,
+    "directStatus": 500,
+    "proxyOk": false,
+    "proxyStatus": 500,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "playstation",
+    "name": "PlayStation",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "xbox",
+    "name": "Xbox",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "nintendo",
+    "name": "Nintendo",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "steam",
+    "name": "Steam",
+    "directOk": true,
+    "directStatus": 200,
+    "proxyOk": false,
+    "proxyStatus": 0,
+    "proxyStrategy": "",
+    "altUrls": []
+  },
+  {
+    "id": "epic_games",
+    "name": "Epic Games",
+    "directOk": false,
+    "directStatus": 409,
+    "proxyOk": false,
+    "proxyStatus": 409,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "joker",
+    "name": "Joker",
+    "directOk": false,
+    "directStatus": 403,
+    "proxyOk": false,
+    "proxyStatus": 403,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "ido",
+    "name": "İDO",
+    "directOk": false,
+    "directStatus": 400,
+    "proxyOk": false,
+    "proxyStatus": 400,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "hamidiye",
+    "name": "Hamidiye",
+    "directOk": false,
+    "directStatus": 405,
+    "proxyOk": false,
+    "proxyStatus": 405,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "tasdelen_su",
+    "name": "Taşdelen Su",
+    "directOk": false,
+    "directStatus": 401,
+    "proxyOk": false,
+    "proxyStatus": 401,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "pidem",
+    "name": "Pidem",
+    "directOk": false,
+    "directStatus": 0,
+    "proxyOk": false,
+    "proxyStatus": 502,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "orwi",
+    "name": "Orwi",
+    "directOk": false,
+    "directStatus": 500,
+    "proxyOk": false,
+    "proxyStatus": 500,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "tazi",
+    "name": "Tazi",
+    "directOk": false,
+    "directStatus": 0,
+    "proxyOk": false,
+    "proxyStatus": 502,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "bisu",
+    "name": "Bisu",
+    "directOk": false,
+    "directStatus": 530,
+    "proxyOk": false,
+    "proxyStatus": 530,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "naosstars",
+    "name": "Naosstars",
+    "directOk": false,
+    "directStatus": 0,
+    "proxyOk": false,
+    "proxyStatus": 502,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "akasya_avm",
+    "name": "Akasya AVM",
+    "directOk": false,
+    "directStatus": 0,
+    "proxyOk": false,
+    "proxyStatus": 502,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "akbati",
+    "name": "Akbatı",
+    "directOk": false,
+    "directStatus": 0,
+    "proxyOk": false,
+    "proxyStatus": 502,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "herbalife",
+    "name": "Herbalife",
+    "directOk": false,
+    "directStatus": 500,
+    "proxyOk": false,
+    "proxyStatus": 500,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "amway",
+    "name": "Amway",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "forever_living",
+    "name": "Forever Living",
+    "directOk": false,
+    "directStatus": 0,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  },
+  {
+    "id": "lr",
+    "name": "LR",
+    "directOk": false,
+    "directStatus": 404,
+    "proxyOk": false,
+    "proxyStatus": 404,
+    "proxyStrategy": "90_format",
+    "altUrls": [],
+    "proxyError": "All upstream attempts failed"
+  }
+]
