@@ -4,7 +4,7 @@ import { SimulationStats, EndpointHealth } from '../types';
 interface StatsBoardProps {
   stats: SimulationStats;
   endpointHealth?: EndpointHealth[];
-  useLocalProxy?: boolean;
+  localProxyAvailable?: boolean | null;
 }
 
 const StatCard = ({ title, value, type = "default", subtitle }: any) => {
@@ -25,7 +25,7 @@ const StatCard = ({ title, value, type = "default", subtitle }: any) => {
   );
 };
 
-export const StatsBoard: React.FC<StatsBoardProps> = ({ stats, endpointHealth, useLocalProxy }) => {
+export const StatsBoard: React.FC<StatsBoardProps> = ({ stats, endpointHealth, localProxyAvailable }) => {
   const working = endpointHealth?.filter(h => h.status === 'working').length || 0;
   const dead = endpointHealth?.filter(h => h.status === 'dead').length || 0;
   const limited = endpointHealth?.filter(h => h.status === 'limited').length || 0;
@@ -75,9 +75,9 @@ export const StatsBoard: React.FC<StatsBoardProps> = ({ stats, endpointHealth, u
 
       <StatCard 
         title="Proxy Mode" 
-        value={useLocalProxy ? 'Local' : 'Vercel'} 
-        type={useLocalProxy ? 'success' : 'warning'}
-        subtitle={useLocalProxy ? 'your IP (fast)' : 'datacenter IP (blocked)'}
+        value={localProxyAvailable === true ? 'Local' : localProxyAvailable === false ? 'Vercel' : '...'} 
+        type={localProxyAvailable === true ? 'success' : 'warning'}
+        subtitle={localProxyAvailable === true ? 'your IP' : localProxyAvailable === false ? 'datacenter IP' : 'detecting'}
       />
     </div>
   );

@@ -304,6 +304,10 @@ async function attemptStrategies({ serviceUrl, serviceMethod, targetPhone, email
   return results;
 }
 
+app.get('/health', (req, res) => {
+  res.json({ ok: true, mode: 'local', pid: process.pid });
+});
+
 app.post('/api/proxy', async (req, res) => {
   const { serviceId, serviceUrl, serviceMethod, targetPhone, email, initialPayload, allowAiHealing, maxRetries } = req.body;
 

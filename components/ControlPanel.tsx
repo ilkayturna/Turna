@@ -18,8 +18,7 @@ interface ControlPanelProps {
   setSpeed: (val: number) => void;
   isTesting: boolean;
   onBulkTest: () => void;
-  useLocalProxy: boolean;
-  setUseLocalProxy: (val: boolean) => void;
+  localProxyAvailable: boolean | null;
 }
 
 const InputField = ({ label, ...props }: any) => (
@@ -48,8 +47,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   setSpeed,
   isTesting,
   onBulkTest,
-  useLocalProxy,
-  setUseLocalProxy
+  localProxyAvailable
 }) => {
   return (
     <div className="bg-zinc-900/30 p-6 rounded-xl border border-zinc-800">
@@ -118,33 +116,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
            />
         </div>
 
-        {/* Local Proxy Toggle */}
-        <div>
-          <label className="flex items-center gap-3 cursor-pointer">
-            <button
-              onClick={() => setUseLocalProxy(!useLocalProxy)}
-              disabled={isRunning}
-              className={`relative w-11 h-6 rounded-full transition-all ${
-                useLocalProxy ? 'bg-emerald-600' : 'bg-zinc-700'
-              } ${isRunning ? 'opacity-50' : ''}`}
-            >
-              <div className={`absolute w-5 h-5 bg-white rounded-full top-0.5 transition-all ${
-                useLocalProxy ? 'left-[22px]' : 'left-0.5'
-              }`} />
-            </button>
-            <div className="flex items-center gap-2">
-              <Monitor size={14} className="text-zinc-400" />
-              <span className="text-zinc-300 text-sm font-medium">Local Proxy</span>
-              {useLocalProxy && (
-                <span className="text-[10px] text-emerald-400 font-mono">your IP</span>
-              )}
-            </div>
-          </label>
-          <p className="text-zinc-600 text-[10px] mt-1.5 ml-[52px]">
-            Run <code className="text-zinc-500">node local-dev.mjs</code> on your machine for requests from your IP
-          </p>
-        </div>
-
         {/* Speed Slider */}
         <div>
             <div className="flex justify-between text-xs font-medium text-zinc-400 mb-2">
@@ -161,6 +132,20 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
               disabled={isRunning}
               className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-white"
             />
+        </div>
+
+        {/* Local Proxy Status */}
+        <div className="flex items-center gap-2 bg-zinc-900/50 rounded-lg px-3 py-2.5 border border-zinc-800">
+          <Monitor size={14} className="text-zinc-500" />
+          <span className="text-xs text-zinc-400">Local Proxy:</span>
+          <span className={`flex items-center gap-1.5 ml-auto text-xs font-mono ${
+            localProxyAvailable === true ? 'text-emerald-400' : localProxyAvailable === false ? 'text-red-400' : 'text-zinc-500'
+          }`}>
+            <span className={`w-2 h-2 rounded-full ${
+              localProxyAvailable === true ? 'bg-emerald-500' : localProxyAvailable === false ? 'bg-red-500' : 'bg-zinc-600 animate-pulse'
+            }`} />
+            {localProxyAvailable === null ? 'Detecting...' : localProxyAvailable === true ? 'Connected (your IP)' : 'Vercel Proxy'}
+          </span>
         </div>
 
         {/* Action Buttons */}
