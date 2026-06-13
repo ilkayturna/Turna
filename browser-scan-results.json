@@ -1,0 +1,602 @@
+[
+  {
+    "origin": "https://www.onurmarket.com",
+    "endpoints": [
+      {
+        "id": "onur_market",
+        "name": "Onur Market",
+        "url": "https://www.onurmarket.com/api/v1/auth/register/sendOtp",
+        "status": "limited",
+        "origin": "https://www.onurmarket.com",
+        "homepage": "https://www.onurmarket.com"
+      }
+    ],
+    "apis": []
+  },
+  {
+    "origin": "https://www.hayatsu.com.tr",
+    "endpoints": [
+      {
+        "id": "hayat_su",
+        "name": "Hayat Su",
+        "url": "https://www.hayatsu.com.tr/api/v1/auth/register/send-otp",
+        "status": "dead",
+        "origin": "https://www.hayatsu.com.tr",
+        "homepage": "https://www.hayatsu.com.tr"
+      }
+    ],
+    "apis": []
+  },
+  {
+    "origin": "https://www.e-bebek.com",
+    "endpoints": [
+      {
+        "id": "e_bebek",
+        "name": "E-bebek",
+        "url": "https://www.e-bebek.com/api/v1/auth/register/send-otp",
+        "status": "limited",
+        "origin": "https://www.e-bebek.com",
+        "homepage": "https://www.e-bebek.com"
+      }
+    ],
+    "apis": []
+  },
+  {
+    "origin": "https://www.bkmexpress.com.tr",
+    "endpoints": [
+      {
+        "id": "bkm_express",
+        "name": "BKM Express",
+        "url": "https://www.bkmexpress.com.tr/api/v1/otp/send",
+        "status": "limited",
+        "origin": "https://www.bkmexpress.com.tr",
+        "homepage": "https://www.bkmexpress.com.tr"
+      }
+    ],
+    "apis": []
+  },
+  {
+    "origin": "https://www.shopandfly.com.tr",
+    "endpoints": [
+      {
+        "id": "shopandfly",
+        "name": "Shop&Fly",
+        "url": "https://www.shopandfly.com.tr/api/v1/otp/send",
+        "status": "limited",
+        "origin": "https://www.shopandfly.com.tr",
+        "homepage": "https://www.shopandfly.com.tr"
+      }
+    ],
+    "apis": []
+  },
+  {
+    "origin": "https://www.teb.com.tr",
+    "endpoints": [
+      {
+        "id": "teb",
+        "name": "TEB",
+        "url": "https://www.teb.com.tr/api/v1/otp/send",
+        "status": "limited",
+        "origin": "https://www.teb.com.tr",
+        "homepage": "https://www.teb.com.tr"
+      }
+    ],
+    "apis": []
+  },
+  {
+    "origin": "https://www.kfc.com.tr",
+    "endpoints": [
+      {
+        "id": "kfc",
+        "name": "KFC",
+        "url": "https://www.kfc.com.tr/api/v1/auth/register/send-otp",
+        "status": "limited",
+        "origin": "https://www.kfc.com.tr",
+        "homepage": "https://www.kfc.com.tr"
+      }
+    ],
+    "apis": []
+  },
+  {
+    "origin": "https://www.sportive.com.tr",
+    "endpoints": [
+      {
+        "id": "sportive",
+        "name": "Sportive",
+        "url": "https://www.sportive.com.tr/api/v1/auth/register/send-otp",
+        "status": "limited",
+        "origin": "https://www.sportive.com.tr",
+        "homepage": "https://www.sportive.com.tr"
+      }
+    ],
+    "apis": [
+      "GET https://www.sportive.com.tr/api/auth/session",
+      "GET https://www.sportive.com.tr/api/client/widgets/pznext-register-campaigns/",
+      "GET https://www.sportive.com.tr/api/client/users/pz-captcha/"
+    ]
+  },
+  {
+    "origin": "https://api.oldubil.com",
+    "endpoints": [
+      {
+        "id": "oldubil",
+        "name": "Oldubil",
+        "url": "https://api.oldubil.com/api/v1/auth/send-otp",
+        "status": "limited",
+        "origin": "https://api.oldubil.com",
+        "homepage": "https://api.oldubil.com"
+      }
+    ],
+    "apis": [
+      "GET https://api.oldubil.com/kayit-ol",
+      "GET https://api.oldubil.com/register",
+      "GET https://api.oldubil.com/signup",
+      "GET https://api.oldubil.com/users/auth/register",
+      "GET https://api.oldubil.com/auth/register"
+    ]
+  },
+  {
+    "origin": "https://www.lcwaikiki.com.tr",
+    "endpoints": [
+      {
+        "id": "lcwaikiki",
+        "name": "LC Waikiki",
+        "url": "https://www.lcwaikiki.com.tr/api/v1/auth/register/send-otp",
+        "status": "limited",
+        "origin": "https://www.lcwaikiki.com.tr",
+        "homepage": "https://www.lcwaikiki.com.tr"
+      }
+    ],
+    "apis": []
+  },
+  {
+    "origin": "https://www.bambi.com.tr",
+    "endpoints": [
+      {
+        "id": "bambi",
+        "name": "Bambi",
+        "url": "https://www.bambi.com.tr/api/v1/auth/register/send-otp",
+        "status": "limited",
+        "origin": "https://www.bambi.com.tr",
+        "homepage": "https://www.bambi.com.tr"
+      }
+    ],
+    "apis": []
+  },
+  {
+    "origin": "https://api.istegelsin.com",
+    "endpoints": [
+      {
+        "id": "iste_gelsin",
+        "name": "İste Gelsin",
+        "url": "https://api.istegelsin.com/api/v1/auth/otp/send",
+        "status": "dead",
+        "origin": "https://api.istegelsin.com",
+        "homepage": "https://api.istegelsin.com"
+      },
+      {
+        "id": "iste_gelsin",
+        "name": "İste Gelsin",
+        "url": "https://api.istegelsin.com/api/v1/auth/otp/send",
+        "status": "dead",
+        "origin": "https://api.istegelsin.com",
+        "homepage": "https://api.istegelsin.com"
+      }
+    ],
+    "apis": [
+      "GET https://api.istegelsin.com/kayit-ol",
+      "GET https://api.istegelsin.com/register",
+      "GET https://api.istegelsin.com/signup",
+      "GET https://api.istegelsin.com/users/auth/register",
+      "GET https://api.istegelsin.com/auth/register"
+    ]
+  },
+  {
+    "origin": "https://api.tiklagelsin.com",
+    "endpoints": [
+      {
+        "id": "tikla_gelsin",
+        "name": "Tıkla Gelsin",
+        "url": "https://api.tiklagelsin.com/api/v1/auth/otp/send",
+        "status": "dead",
+        "origin": "https://api.tiklagelsin.com",
+        "homepage": "https://api.tiklagelsin.com"
+      },
+      {
+        "id": "tikla_gelsin",
+        "name": "Tıkla Gelsin",
+        "url": "https://api.tiklagelsin.com/api/v1/auth/otp/send",
+        "status": "dead",
+        "origin": "https://api.tiklagelsin.com",
+        "homepage": "https://api.tiklagelsin.com"
+      }
+    ],
+    "apis": [
+      "GET https://api.tiklagelsin.com/kayit-ol",
+      "GET https://api.tiklagelsin.com/register",
+      "GET https://api.tiklagelsin.com/signup",
+      "GET https://api.tiklagelsin.com/users/auth/register",
+      "GET https://api.tiklagelsin.com/auth/register"
+    ]
+  },
+  {
+    "origin": "https://api.clickmelive.com",
+    "endpoints": [
+      {
+        "id": "clickme_live",
+        "name": "ClickMe Live",
+        "url": "https://api.clickmelive.com/api/v1/auth/otp/send",
+        "status": "dead",
+        "origin": "https://api.clickmelive.com",
+        "homepage": "https://api.clickmelive.com"
+      },
+      {
+        "id": "clickme_live",
+        "name": "ClickMe Live",
+        "url": "https://api.clickmelive.com/api/v1/auth/otp/send",
+        "status": "dead",
+        "origin": "https://api.clickmelive.com",
+        "homepage": "https://api.clickmelive.com"
+      }
+    ],
+    "apis": [
+      "GET https://api.clickmelive.com/kayit-ol",
+      "GET https://api.clickmelive.com/register",
+      "GET https://api.clickmelive.com/signup",
+      "GET https://api.clickmelive.com/users/auth/register",
+      "GET https://api.clickmelive.com/auth/register"
+    ]
+  },
+  {
+    "origin": "https://api.naosstars.com",
+    "endpoints": [
+      {
+        "id": "naosstars",
+        "name": "Naosstars",
+        "url": "https://api.naosstars.com/api/smsSend/9c9fa861-cc5d-43b0-b4ea-1b541be15350",
+        "status": "dead",
+        "origin": "https://api.naosstars.com",
+        "homepage": "https://api.naosstars.com"
+      },
+      {
+        "id": "naosstars",
+        "name": "Naosstars",
+        "url": "https://api.naosstars.com/api/smsSend/9c9fa861-cc5d-43b0-b4ea-1b541be15350",
+        "status": "dead",
+        "origin": "https://api.naosstars.com",
+        "homepage": "https://api.naosstars.com"
+      }
+    ],
+    "apis": [
+      "GET https://api.naosstars.com/kayit-ol",
+      "GET https://api.naosstars.com/register",
+      "GET https://api.naosstars.com/signup",
+      "GET https://api.naosstars.com/users/auth/register",
+      "GET https://api.naosstars.com/auth/register"
+    ]
+  },
+  {
+    "origin": "https://akasyaapi.poilabs.com",
+    "endpoints": [
+      {
+        "id": "akasya_avm",
+        "name": "Akasya AVM",
+        "url": "https://akasyaapi.poilabs.com/v1/en/sms",
+        "status": "dead",
+        "origin": "https://akasyaapi.poilabs.com",
+        "homepage": "https://akasyaapi.poilabs.com"
+      },
+      {
+        "id": "akasya_avm",
+        "name": "Akasya AVM",
+        "url": "https://akasyaapi.poilabs.com/v1/en/sms",
+        "status": "dead",
+        "origin": "https://akasyaapi.poilabs.com",
+        "homepage": "https://akasyaapi.poilabs.com"
+      }
+    ],
+    "apis": [
+      "GET https://akasyaapi.poilabs.com/kayit-ol",
+      "GET https://akasyaapi.poilabs.com/register",
+      "GET https://akasyaapi.poilabs.com/signup",
+      "GET https://akasyaapi.poilabs.com/users/auth/register",
+      "GET https://akasyaapi.poilabs.com/auth/register"
+    ]
+  },
+  {
+    "origin": "https://akbatiapi.poilabs.com",
+    "endpoints": [
+      {
+        "id": "akbati",
+        "name": "Akbatı",
+        "url": "https://akbatiapi.poilabs.com/v1/en/sms",
+        "status": "dead",
+        "origin": "https://akbatiapi.poilabs.com",
+        "homepage": "https://akbatiapi.poilabs.com"
+      },
+      {
+        "id": "akbati",
+        "name": "Akbatı",
+        "url": "https://akbatiapi.poilabs.com/v1/en/sms",
+        "status": "dead",
+        "origin": "https://akbatiapi.poilabs.com",
+        "homepage": "https://akbatiapi.poilabs.com"
+      }
+    ],
+    "apis": [
+      "GET https://akbatiapi.poilabs.com/kayit-ol",
+      "GET https://akbatiapi.poilabs.com/register",
+      "GET https://akbatiapi.poilabs.com/signup",
+      "GET https://akbatiapi.poilabs.com/users/auth/register",
+      "GET https://akbatiapi.poilabs.com/auth/register"
+    ]
+  },
+  {
+    "origin": "https://api.tasimacim.com",
+    "endpoints": [
+      {
+        "id": "tasimacim",
+        "name": "Taşımacım",
+        "url": "https://api.tasimacim.com/api/v1/auth/register/otp",
+        "status": "dead",
+        "origin": "https://api.tasimacim.com",
+        "homepage": "https://api.tasimacim.com"
+      },
+      {
+        "id": "tasimacim",
+        "name": "Taşımacım",
+        "url": "https://api.tasimacim.com/api/v1/auth/register/otp",
+        "status": "dead",
+        "origin": "https://api.tasimacim.com",
+        "homepage": "https://api.tasimacim.com"
+      }
+    ],
+    "apis": [
+      "GET https://api.tasimacim.com/kayit-ol",
+      "GET https://api.tasimacim.com/register",
+      "GET https://api.tasimacim.com/signup",
+      "GET https://api.tasimacim.com/users/auth/register",
+      "GET https://api.tasimacim.com/auth/register"
+    ]
+  },
+  {
+    "origin": "https://api.ipragaz.com.tr",
+    "endpoints": [
+      {
+        "id": "ipragaz",
+        "name": "İpragaz",
+        "url": "https://api.ipragaz.com.tr/api/v1/auth/register/sendOtp",
+        "status": "dead",
+        "origin": "https://api.ipragaz.com.tr",
+        "homepage": "https://api.ipragaz.com.tr"
+      },
+      {
+        "id": "ipragaz",
+        "name": "İpragaz",
+        "url": "https://api.ipragaz.com.tr/api/v1/auth/register/sendOtp",
+        "status": "dead",
+        "origin": "https://api.ipragaz.com.tr",
+        "homepage": "https://api.ipragaz.com.tr"
+      }
+    ],
+    "apis": [
+      "GET https://api.ipragaz.com.tr/kayit-ol",
+      "GET https://api.ipragaz.com.tr/register",
+      "GET https://api.ipragaz.com.tr/signup",
+      "GET https://api.ipragaz.com.tr/users/auth/register",
+      "GET https://api.ipragaz.com.tr/auth/register"
+    ]
+  },
+  {
+    "origin": "https://api.hizliecza.com",
+    "endpoints": [
+      {
+        "id": "hizli_ecza",
+        "name": "Hızlı Ecza",
+        "url": "https://api.hizliecza.com/api/v1/auth/register/otp",
+        "status": "dead",
+        "origin": "https://api.hizliecza.com",
+        "homepage": "https://api.hizliecza.com"
+      },
+      {
+        "id": "hizli_ecza",
+        "name": "Hızlı Ecza",
+        "url": "https://api.hizliecza.com/api/v1/auth/register/otp",
+        "status": "dead",
+        "origin": "https://api.hizliecza.com",
+        "homepage": "https://api.hizliecza.com"
+      }
+    ],
+    "apis": [
+      "GET https://api.hizliecza.com/kayit-ol",
+      "GET https://api.hizliecza.com/register",
+      "GET https://api.hizliecza.com/signup",
+      "GET https://api.hizliecza.com/users/auth/register",
+      "GET https://api.hizliecza.com/auth/register"
+    ]
+  },
+  {
+    "origin": "https://www.mothercare.com.tr",
+    "endpoints": [
+      {
+        "id": "mothercare",
+        "name": "Mothercare",
+        "url": "https://www.mothercare.com.tr/api/member/register/sendOtp",
+        "status": "dead",
+        "origin": "https://www.mothercare.com.tr",
+        "homepage": "https://www.mothercare.com.tr"
+      },
+      {
+        "id": "mothercare",
+        "name": "Mothercare",
+        "url": "https://www.mothercare.com.tr/api/member/register/sendOtp",
+        "status": "dead",
+        "origin": "https://www.mothercare.com.tr",
+        "homepage": "https://www.mothercare.com.tr"
+      }
+    ],
+    "apis": []
+  },
+  {
+    "origin": "https://e-belediye.sancaktepe.bel.tr",
+    "endpoints": [
+      {
+        "id": "sancaktepe_belediye",
+        "name": "Sancaktepe Belediye",
+        "url": "https://e-belediye.sancaktepe.bel.tr/Sicil/KisiUyelikKaydet",
+        "status": "dead",
+        "origin": "https://e-belediye.sancaktepe.bel.tr",
+        "homepage": "https://e-belediye.sancaktepe.bel.tr"
+      },
+      {
+        "id": "sancaktepe_belediye",
+        "name": "Sancaktepe Belediye",
+        "url": "https://e-belediye.sancaktepe.bel.tr/Sicil/KisiUyelikKaydet",
+        "status": "dead",
+        "origin": "https://e-belediye.sancaktepe.bel.tr",
+        "homepage": "https://e-belediye.sancaktepe.bel.tr"
+      }
+    ],
+    "apis": []
+  },
+  {
+    "origin": "https://api.paybol.com",
+    "endpoints": [
+      {
+        "id": "paybol",
+        "name": "Paybol",
+        "url": "https://api.paybol.com/api/v1/auth/otp/send",
+        "status": "dead",
+        "origin": "https://api.paybol.com",
+        "homepage": "https://api.paybol.com"
+      },
+      {
+        "id": "paybol",
+        "name": "Paybol",
+        "url": "https://api.paybol.com/api/v1/auth/otp/send",
+        "status": "dead",
+        "origin": "https://api.paybol.com",
+        "homepage": "https://api.paybol.com"
+      }
+    ],
+    "apis": [
+      "GET https://api.paybol.com/kayit-ol",
+      "GET https://api.paybol.com/register",
+      "GET https://api.paybol.com/signup",
+      "GET https://api.paybol.com/users/auth/register",
+      "GET https://api.paybol.com/auth/register"
+    ]
+  },
+  {
+    "origin": "https://www.starbucks.com.tr",
+    "endpoints": [
+      {
+        "id": "starbucks",
+        "name": "Starbucks",
+        "url": "https://www.starbucks.com.tr/api/account/register/otp",
+        "status": "dead",
+        "origin": "https://www.starbucks.com.tr",
+        "homepage": "https://www.starbucks.com.tr"
+      }
+    ],
+    "apis": []
+  },
+  {
+    "origin": "https://gateway.komagene.com.tr",
+    "endpoints": [
+      {
+        "id": "komagene",
+        "name": "Komagene",
+        "url": "https://gateway.komagene.com.tr/auth/auth/smskodugonder",
+        "status": "dead",
+        "origin": "https://gateway.komagene.com.tr",
+        "homepage": "https://gateway.komagene.com.tr"
+      }
+    ],
+    "apis": []
+  },
+  {
+    "origin": "https://api.kimgbister.com",
+    "endpoints": [
+      {
+        "id": "kim_gb_ister",
+        "name": "Kim GB İster",
+        "url": "https://api.kimgbister.com/api/auth/otp/send",
+        "status": "dead",
+        "origin": "https://api.kimgbister.com",
+        "homepage": "https://api.kimgbister.com"
+      }
+    ],
+    "apis": [
+      "GET https://api.kimgbister.com/kayit-ol",
+      "GET https://api.kimgbister.com/register",
+      "GET https://api.kimgbister.com/signup",
+      "GET https://api.kimgbister.com/users/auth/register",
+      "GET https://api.kimgbister.com/auth/register"
+    ]
+  },
+  {
+    "origin": "https://www.englishhome.com",
+    "endpoints": [
+      {
+        "id": "english_home",
+        "name": "English Home",
+        "url": "https://www.englishhome.com/api/member/saveMemberAndLogin",
+        "status": "limited",
+        "origin": "https://www.englishhome.com",
+        "homepage": "https://www.englishhome.com"
+      }
+    ],
+    "apis": [
+      "GET https://www.englishhome.com/api/cart/GetMemberCart?c=trtry0000&v=80555116-3979-4926-80dc-0eb492a9a47c&ProductType=0"
+    ]
+  },
+  {
+    "origin": "https://api.joker.com.tr",
+    "endpoints": [
+      {
+        "id": "joker",
+        "name": "Joker",
+        "url": "https://api.joker.com.tr:443/api/register",
+        "status": "dead",
+        "origin": "https://api.joker.com.tr",
+        "homepage": "https://api.joker.com.tr"
+      }
+    ],
+    "apis": [
+      "GET https://api.joker.com.tr/kayit-ol",
+      "GET https://api.joker.com.tr/register",
+      "GET https://api.joker.com.tr/signup",
+      "GET https://api.joker.com.tr/users/auth/register",
+      "GET https://api.joker.com.tr/auth/register"
+    ]
+  },
+  {
+    "origin": "https://www.penti.com",
+    "endpoints": [
+      {
+        "id": "penti",
+        "name": "Penti",
+        "url": "https://www.penti.com/api/member/register/sendOtp",
+        "status": "dead",
+        "origin": "https://www.penti.com",
+        "homepage": "https://www.penti.com"
+      }
+    ],
+    "apis": []
+  },
+  {
+    "origin": "https://www.paribucineverse.com",
+    "endpoints": [
+      {
+        "id": "cineverse",
+        "name": "Cineverse",
+        "url": "https://www.paribucineverse.com/api/v1/auth/register/otp",
+        "status": "dead",
+        "origin": "https://www.paribucineverse.com",
+        "homepage": "https://www.paribucineverse.com"
+      }
+    ],
+    "apis": []
+  }
+]

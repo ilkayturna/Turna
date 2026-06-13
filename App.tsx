@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { LogEntry, SimulationStats, RequestStatus, EndpointHealth, SpeedLevel } from './types';
+import { LogEntry, SimulationStats, RequestStatus, EndpointHealth } from './types';
 import { TARGET_ENDPOINTS, INITIAL_STATS } from './constants';
 import { simulateNetworkCall, detectLocalProxy } from './services/simulator';
 import { AdaptiveConcurrencyQueue } from './services/queue';
@@ -7,14 +7,13 @@ import { ControlPanel } from './components/ControlPanel';
 import { LogConsole } from './components/LogConsole';
 import { StatsBoard } from './components/StatsBoard';
 import { NetworkVisualizer } from './components/NetworkVisualizer';
-import { Activity, Zap, Server, Globe, TestTube } from 'lucide-react';
+import { Zap } from 'lucide-react';
 
 const App: React.FC = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [target, setTarget] = useState('5343622375');
   const [email, setEmail] = useState('');
   const [limit, setLimit] = useState<number | null>(null);
-  const [speedLevel, setSpeedLevel] = useState<SpeedLevel>('normal');
   const [localProxyAvailable, setLocalProxyAvailable] = useState<boolean | null>(null);
 
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -24,7 +23,6 @@ const App: React.FC = () => {
     TARGET_ENDPOINTS.map(s => ({ id: s.id, name: s.name, status: 'unknown' }))
   );
   const [isTesting, setIsTesting] = useState(false);
-  const [currentPool, setCurrentPool] = useState(0);
 
   const abortRef = useRef<AbortController | null>(null);
 
@@ -54,6 +52,24 @@ const App: React.FC = () => {
     }, 400);
   }, []);
 
+  const addResult = useCallback((result: LogEntry) => {
+    addLog(result);
+
+    setEndpointHealth(prev => {
+      const updated = [...prev];
+      const idx = updated.findIndex(e => e.name === result.serviceName);
+      if (idx >= 0) {
+        const matched = TARGET_ENDPOINTS.find(s => s.name === result.serviceName);
+        updated[idx] = {
+          ...updated[idx],
+          status: result.status === RequestStatus.SUCCESS ? 'working' : matched?.status === 'limited' ? 'limited' : 'dead',
+          upstreamStatus: parseInt(result.message.match(/(\d+)/)?.[0] || '0')
+        };
+      }
+      return updated;
+    });
+  }, [addLog]);
+
   const handleStart = useCallback(async () => {
     if (!target) {
       alert("Please enter a valid target phone number.");
@@ -70,39 +86,15 @@ const App: React.FC = () => {
 
     const endpoints = limit ? TARGET_ENDPOINTS.slice(0, limit) : TARGET_ENDPOINTS;
 
-    const queue = new AdaptiveConcurrencyQueue(speedLevel, (pool) => {
-      setCurrentPool(pool);
-    });
-
+    const queue = new AdaptiveConcurrencyQueue();
     const tasks = endpoints.map(service => ({
       id: service.id,
       execute: () => simulateNetworkCall(service, target, email, localProxyAvailable === true),
     }));
 
-    const results = await queue.run(tasks, abort.signal);
-
-    if (!abort.signal.aborted) {
-      for (const result of results) {
-        addLog(result);
-
-        setEndpointHealth(prev => {
-          const updated = [...prev];
-          const idx = updated.findIndex(e => e.name === result.serviceName);
-          if (idx >= 0) {
-            const matched = TARGET_ENDPOINTS.find(s => s.name === result.serviceName);
-            updated[idx] = {
-              ...updated[idx],
-              status: result.status === RequestStatus.SUCCESS ? 'working' : matched?.status === 'limited' ? 'limited' : 'dead',
-              upstreamStatus: parseInt(result.message.match(/(\d+)/)?.[0] || '0')
-            };
-          }
-          return updated;
-        });
-      }
-    }
-
+    await queue.run(tasks, abort.signal, addResult);
     setIsRunning(false);
-  }, [target, email, limit, speedLevel, localProxyAvailable, addLog]);
+  }, [target, email, limit, localProxyAvailable, addResult]);
 
   const handleStop = () => {
     abortRef.current?.abort();
@@ -122,43 +114,15 @@ const App: React.FC = () => {
     setStats(INITIAL_STATS);
     setEndpointHealth(TARGET_ENDPOINTS.map(s => ({ id: s.id, name: s.name, status: 'unknown' })));
 
-    const queue = new AdaptiveConcurrencyQueue('aggressive');
+    const queue = new AdaptiveConcurrencyQueue();
     const tasks = TARGET_ENDPOINTS.map(service => ({
       id: service.id,
       execute: () => simulateNetworkCall(service, target, email, localProxyAvailable === true),
     }));
 
-    const results = await queue.run(tasks);
-
-    for (const result of results) {
-      addLog(result);
-
-      setEndpointHealth(prev => {
-        const updated = [...prev];
-        const idx = updated.findIndex(e => e.name === result.serviceName);
-        if (idx >= 0) {
-          const matched = TARGET_ENDPOINTS.find(s => s.name === result.serviceName);
-          updated[idx] = {
-            ...updated[idx],
-            status: result.status === RequestStatus.SUCCESS ? 'working' : matched?.status === 'limited' ? 'limited' : 'dead',
-            upstreamStatus: parseInt(result.message.match(/(\d+)/)?.[0] || '0')
-          };
-        }
-        return updated;
-      });
-
-      setStats(prev => {
-        const ns = { ...prev, totalSent: prev.totalSent + 1 };
-        if (result.status === RequestStatus.SUCCESS) ns.success++;
-        if (result.status === RequestStatus.FAILED) ns.failed++;
-        if (result.status === RequestStatus.RATE_LIMITED) ns.rateLimited++;
-        if (result.status === RequestStatus.SENT) ns.sentOpaque++;
-        return ns;
-      });
-    }
-
+    await queue.run(tasks, undefined, addResult);
     setIsTesting(false);
-  }, [target, email, localProxyAvailable, addLog]);
+  }, [target, email, localProxyAvailable, addResult]);
 
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 font-sans selection:bg-zinc-800 selection:text-white">
@@ -190,7 +154,7 @@ const App: React.FC = () => {
         </header>
 
         <main className="space-y-6">
-            <StatsBoard stats={stats} endpointHealth={endpointHealth} localProxyAvailable={localProxyAvailable} currentPool={currentPool} />
+            <StatsBoard stats={stats} endpointHealth={endpointHealth} localProxyAvailable={localProxyAvailable} />
 
           {/* Grid Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -207,8 +171,6 @@ const App: React.FC = () => {
                 setEmail={setEmail}
                 limit={limit}
                 setLimit={setLimit}
-                speedLevel={speedLevel}
-                setSpeedLevel={setSpeedLevel}
                 isTesting={isTesting}
                 onBulkTest={handleBulkTest}
                 localProxyAvailable={localProxyAvailable}

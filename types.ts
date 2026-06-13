@@ -1,12 +1,3 @@
-export type SpeedLevel = 'safe' | 'normal' | 'aggressive' | 'max';
-
-export const SPEED_CONFIG: Record<SpeedLevel, { maxConcurrent: number; batchDelay: number; minEndpointGap: number }> = {
-  safe:       { maxConcurrent: 3,  batchDelay: 800,  minEndpointGap: 5000 },
-  normal:     { maxConcurrent: 5,  batchDelay: 400,  minEndpointGap: 3000 },
-  aggressive: { maxConcurrent: 8,  batchDelay: 200,  minEndpointGap: 1500 },
-  max:        { maxConcurrent: 12, batchDelay: 100,  minEndpointGap: 800  },
-};
-
 export enum RequestStatus {
   PENDING = 'PENDING',
   SUCCESS = 'SUCCESS',

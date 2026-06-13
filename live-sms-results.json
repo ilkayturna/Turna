@@ -1,0 +1,272 @@
+[
+  {
+    "id": "onur_market",
+    "name": "Onur Market",
+    "url": "https://www.onurmarket.com/api/v1/auth/register/sendOtp",
+    "ok": true,
+    "status": 200,
+    "ms": 110,
+    "viaProxy": false,
+    "response": ""
+  },
+  {
+    "id": "bambi",
+    "name": "Bambi",
+    "url": "https://www.bambi.com.tr/api/v1/auth/register/send-otp",
+    "ok": false,
+    "status": 403,
+    "ms": 73,
+    "viaProxy": false,
+    "response": ""
+  },
+  {
+    "id": "koton",
+    "name": "Koton",
+    "url": "https://www.koton.com/users/register/",
+    "ok": false,
+    "status": 429,
+    "ms": 131,
+    "viaProxy": false,
+    "response": "{\"detail\":\"Üst üste çok fazla istek yapıldı. Lütfen 1 dakika 38 saniye sonra tekrar deneyiniz.\"}"
+  },
+  {
+    "id": "sportive",
+    "name": "Sportive",
+    "url": "https://www.sportive.com.tr/api/v1/auth/register/send-otp",
+    "ok": true,
+    "status": 200,
+    "ms": 393,
+    "viaProxy": false,
+    "response": ""
+  },
+  {
+    "id": "yapp",
+    "name": "Yapp",
+    "url": "https://yapp.com.tr/api/mobile/v1/register",
+    "ok": true,
+    "status": 200,
+    "ms": 286,
+    "viaProxy": false,
+    "response": "{\"message\":\"Telefon numaranıza SMS gönderildi\"}"
+  },
+  {
+    "id": "shopandfly",
+    "name": "Shop&Fly",
+    "url": "https://www.shopandfly.com.tr/api/v1/otp/send",
+    "ok": true,
+    "status": 200,
+    "ms": 5640,
+    "viaProxy": false,
+    "response": ""
+  },
+  {
+    "id": "teb",
+    "name": "TEB",
+    "url": "https://www.teb.com.tr/api/v1/otp/send",
+    "ok": true,
+    "status": 200,
+    "ms": 164,
+    "viaProxy": false,
+    "response": ""
+  },
+  {
+    "id": "macrocenter",
+    "name": "Macrocenter",
+    "url": "https://www.macrocenter.com.tr/rest/user-edge/auth/login/otp",
+    "ok": true,
+    "status": 200,
+    "ms": 132,
+    "viaProxy": false,
+    "response": "{\"tryAgainEnableInSeconds\":60,\"expireInSeconds\":300,\"claimId\":\"b8d1105c-97f6-4634-a93c-eea67be19545\",\"objectId\":\"5343622375\",\"objectType\":\"PHONE\"}"
+  },
+  {
+    "id": "lr",
+    "name": "LR",
+    "url": "https://neo.lrworld.com/api/v1/login/cas",
+    "ok": true,
+    "status": 200,
+    "ms": 583,
+    "viaProxy": false,
+    "response": ""
+  },
+  {
+    "id": "intersport",
+    "name": "Intersport",
+    "url": "https://www.intersport.com.tr/users/register/",
+    "ok": false,
+    "status": 400,
+    "ms": 186,
+    "viaProxy": false,
+    "response": "{\"first_name\":[\"Bu alan gerekli.\"],\"last_name\":[\"Bu alan gerekli.\"],\"email\":[\"Bu alan gerekli.\"],\"password\":[\"Bu alan gerekli.\"],\"confirm\":[\"Lütfen gizlilik sözleşmesini onaylayınız.\"],\"phone\":[\"Bu al"
+  },
+  {
+    "id": "kahve_dunyasi",
+    "name": "Kahve Dünyası",
+    "url": "https://api.kahvedunyasi.com/api/v1/auth/account/register/phone-number",
+    "ok": false,
+    "status": 415,
+    "ms": 61,
+    "viaProxy": false,
+    "response": "{\"type\":\"https://tools.ietf.org/html/rfc9110#section-15.5.16\",\"title\":\"Unsupported Media Type\",\"status\":415,\"traceId\":\"00-f1471613b40a3c5628be926a19ef3cb4-f857674148632a16-01\"}"
+  },
+  {
+    "id": "dominos",
+    "name": "Dominos",
+    "url": "https://frontend.dominos.com.tr:443/api/customer/sendOtpCode",
+    "ok": false,
+    "status": 415,
+    "ms": 110,
+    "viaProxy": false,
+    "response": ""
+  },
+  {
+    "id": "e_bebek",
+    "name": "E-bebek",
+    "url": "https://www.e-bebek.com/api/v1/auth/register/send-otp",
+    "ok": true,
+    "status": 202,
+    "ms": 47,
+    "viaProxy": false,
+    "response": ""
+  },
+  {
+    "id": "massimo_dutti",
+    "name": "Massimo Dutti",
+    "url": "https://www.massimodutti.com/tr/api/auth/register/sendOtp",
+    "ok": true,
+    "status": 200,
+    "ms": 406,
+    "viaProxy": false,
+    "response": ""
+  },
+  {
+    "id": "ayyildiz",
+    "name": "Ayyıldız",
+    "url": "https://api.altinyildizclassics.com/mobileapi2/autapi/CreateSmsOtpForRegister",
+    "ok": true,
+    "status": 200,
+    "ms": 355,
+    "viaProxy": false,
+    "response": "{\"Success\":true,\"Message\":null,\"invitationMessage\":null,\"Result\":{\"IsSuccessful\":false,\"ErrorMessage\":\"Yeni Sürüm Gerekli\",\"Gsm\":null,\"ReferenceCode\":null,\"ValidateSeconds\":0,\"Redirect\":false},\"Except"
+  },
+  {
+    "id": "bkm_express",
+    "name": "BKM Express",
+    "url": "https://www.bkmexpress.com.tr/api/v1/otp/send",
+    "ok": true,
+    "status": 200,
+    "ms": 544,
+    "viaProxy": false,
+    "response": ""
+  },
+  {
+    "id": "kfc",
+    "name": "KFC",
+    "url": "https://www.kfc.com.tr/api/v1/auth/register/send-otp",
+    "ok": true,
+    "status": 200,
+    "ms": 307,
+    "viaProxy": false,
+    "response": ""
+  },
+  {
+    "id": "teknosa",
+    "name": "Teknosa",
+    "url": "https://www.teknosa.com/api/v1/auth/register/sendOtp",
+    "ok": false,
+    "status": 403,
+    "ms": 51,
+    "viaProxy": false,
+    "response": ""
+  },
+  {
+    "id": "english_home",
+    "name": "English Home",
+    "url": "https://www.englishhome.com/api/member/saveMemberAndLogin",
+    "ok": true,
+    "status": 200,
+    "ms": 78,
+    "viaProxy": false,
+    "response": "{\"memberId\":0,\"name\":null,\"mail\":null,\"isRedirect\":false,\"redirectUrl\":\"\",\"managementDefaultLang\":null,\"otpRequired\":true,\"smsRequired\":false,\"xidActive\":false,\"favoritesProduct\":[],\"stockAlerts\":[],\""
+  },
+  {
+    "id": "bim",
+    "name": "BİM",
+    "url": "https://bim.veesk.net:443/service/v1.0/account/login",
+    "ok": true,
+    "status": 200,
+    "ms": 220,
+    "viaProxy": false,
+    "response": "{\"status\":false,\"message\":\"Cihazinizdan ya da bagli oldugunuz agdan uygulamamiza olagan disi otomatik erisim yapilmaya calisildigini goruyoruz. Su anda talebinizi gerceklestiremiyoruz, kisa bir süre s"
+  },
+  {
+    "id": "migros",
+    "name": "Migros",
+    "url": "https://rest.migros.com.tr:443/sanalmarket/users/register/otp",
+    "ok": false,
+    "status": 429,
+    "ms": 42,
+    "viaProxy": false,
+    "response": ""
+  },
+  {
+    "id": "lcwaikiki",
+    "name": "LC Waikiki",
+    "url": "https://www.lcwaikiki.com.tr/api/v1/auth/register/send-otp",
+    "ok": true,
+    "status": 200,
+    "ms": 1012,
+    "viaProxy": false,
+    "response": ""
+  },
+  {
+    "id": "oldubil",
+    "name": "Oldubil",
+    "url": "https://api.oldubil.com/api/v1/auth/send-otp",
+    "ok": true,
+    "status": 200,
+    "ms": 1084,
+    "viaProxy": false,
+    "response": ""
+  },
+  {
+    "id": "happy_center",
+    "name": "Happy Center",
+    "url": "https://www.happycenter.com.tr/api/v1/auth/register/sendOtp",
+    "ok": true,
+    "status": 200,
+    "ms": 140,
+    "viaProxy": false,
+    "response": ""
+  },
+  {
+    "id": "file_market",
+    "name": "File Market",
+    "url": "https://api.filemarket.com.tr/v1/otp/send",
+    "ok": true,
+    "status": 202,
+    "ms": 211,
+    "viaProxy": false,
+    "response": "{\"data\":\"200 OK\",\"responseType\":\"SUCCESS\"}"
+  },
+  {
+    "id": "wmf",
+    "name": "WMF",
+    "url": "https://wmf.com.tr/users/register/",
+    "ok": true,
+    "status": 200,
+    "ms": 376,
+    "viaProxy": false,
+    "response": "{}"
+  },
+  {
+    "id": "suiste",
+    "name": "Suiste",
+    "url": "https://suiste.com/api/auth/code",
+    "ok": false,
+    "status": 400,
+    "ms": 390,
+    "viaProxy": false,
+    "response": "{\"code\":\"validation\",\"title\":\"Hata\",\"message\":\"Gsm No gereklidir.\"}"
+  }
+]
