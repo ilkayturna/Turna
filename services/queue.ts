@@ -6,9 +6,9 @@ interface QueueTask {
 }
 
 export class AdaptiveConcurrencyQueue {
-  private maxConcurrent = 5;
-  private staggerDelay = 300;
-  private minEndpointGap = 2000;
+  private maxConcurrent = 10;
+  private staggerDelay = 100;
+  private minEndpointGap = 0;
   private lastRequestTime: Map<string, number> = new Map();
   private consecutiveRateLimits = 0;
 
@@ -47,7 +47,7 @@ export class AdaptiveConcurrencyQueue {
         if (result.status === RequestStatus.RATE_LIMITED || result.status === RequestStatus.FAILED) {
           this.consecutiveRateLimits++;
           if (this.consecutiveRateLimits >= 2) {
-            await this.sleep(1000 + Math.random() * 2000);
+            await this.sleep(500 + Math.random() * 500);
           }
         } else {
           this.consecutiveRateLimits = 0;
