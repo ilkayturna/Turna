@@ -94,7 +94,7 @@ async function callDirect(
           payload = { phone: targetPhone };
       }
 
-      const response = await fetch(service.url, {
+      await fetch(service.url, {
           method: service.method || 'POST',
           headers: {
               'Content-Type': 'application/json',
@@ -102,17 +102,16 @@ async function callDirect(
           },
           body: service.method !== 'GET' ? JSON.stringify(payload) : undefined,
           signal: controller.signal,
-          mode: 'cors',
+          mode: 'no-cors',
       });
 
       clearTimeout(timeoutId);
-      const ok = response.ok || response.status === 202;
       return {
           id: Math.random().toString(36).substr(2, 9),
           timestamp: new Date().toLocaleTimeString(),
           serviceName: service.name,
-          status: ok ? RequestStatus.SUCCESS : RequestStatus.FAILED,
-          message: ok ? `200 OK | direct (browser)` : `${response.status} | direct (browser)`,
+          status: RequestStatus.SENT,
+          message: 'Sent via browser (no-cors)',
           latency: Math.round(performance.now() - startTime),
       };
   } catch {
@@ -121,7 +120,7 @@ async function callDirect(
           timestamp: new Date().toLocaleTimeString(),
           serviceName: service.name,
           status: RequestStatus.FAILED,
-          message: 'CORS blocked (browser)',
+          message: 'Browser request failed',
           latency: Math.round(performance.now() - startTime),
       };
   }
@@ -137,11 +136,11 @@ export const simulateNetworkCall = async (
 
   if (localProxyAvailable) {
       const localResult = await callProxy('http://localhost:3001/api/proxy', service, targetPhone, email, startTime);
-      if (localResult && localResult.status !== RequestStatus.FAILED) return localResult;
+      if (localResult) return localResult;
   }
 
   const vercelResult = await callProxy('/api/proxy', service, targetPhone, email, startTime);
-  if (vercelResult && vercelResult.status !== RequestStatus.FAILED) return vercelResult;
+  if (vercelResult) return vercelResult;
 
   return callDirect(service, targetPhone, email, startTime);
 };
