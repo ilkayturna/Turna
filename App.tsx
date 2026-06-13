@@ -16,8 +16,7 @@ const App: React.FC = () => {
   const [mode, setMode] = useState<SimulationMode>(SimulationMode.SEQUENTIAL);
   const [speed, setSpeed] = useState(500);
 
-  const [useSimulation, setUseSimulation] = useState(false);
-  const [allowAiHealing, setAllowAiHealing] = useState(false);
+
 
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [stats, setStats] = useState<SimulationStats>(INITIAL_STATS);
@@ -73,12 +72,12 @@ const App: React.FC = () => {
     const service = TARGET_ENDPOINTS[sequenceIndexRef.current];
     sequenceIndexRef.current = (sequenceIndexRef.current + 1) % TARGET_ENDPOINTS.length;
     
-    const result = await simulateNetworkCall(service, target, email, useSimulation, allowAiHealing);
+    const result = await simulateNetworkCall(service, target, email);
 
     if (isRunning) {
         addLog(result);
     }
-  }, [target, email, isRunning, limit, stats.totalSent, addLog, useSimulation, allowAiHealing]);
+  }, [target, email, isRunning, limit, stats.totalSent, addLog]);
 
   const runParallelStep = useCallback(() => {
     if (limit !== null && stats.totalSent >= limit) return;
@@ -86,10 +85,10 @@ const App: React.FC = () => {
     TARGET_ENDPOINTS.forEach(async (service) => {
       await new Promise(r => setTimeout(r, Math.random() * 500));
       if (!isRunning) return;
-      const result = await simulateNetworkCall(service, target, email, useSimulation, allowAiHealing);
+      const result = await simulateNetworkCall(service, target, email);
       if (isRunning) addLog(result);
     });
-  }, [target, email, isRunning, limit, stats.totalSent, addLog, useSimulation, allowAiHealing]);
+  }, [target, email, isRunning, limit, stats.totalSent, addLog]);
 
   useEffect(() => {
     if (isRunning) {
@@ -131,8 +130,6 @@ const App: React.FC = () => {
     setLogs([]);
     setStats(INITIAL_STATS);
     setEndpointHealth(TARGET_ENDPOINTS.map(s => ({ id: s.id, name: s.name, status: 'unknown' })));
-    setUseSimulation(false);
-    setAllowAiHealing(false);
 
     const batchSize = 5;
     const results: LogEntry[] = [];
@@ -141,7 +138,7 @@ const App: React.FC = () => {
       const batch = TARGET_ENDPOINTS.slice(i, i + batchSize);
       const batchResults = await Promise.all(
         batch.map(async (service) => {
-          const result = await simulateNetworkCall(service, target, email, false, false);
+          const result = await simulateNetworkCall(service, target, email);
           return result;
         })
       );
@@ -200,27 +197,17 @@ const App: React.FC = () => {
                  <Zap size={20} fill="currentColor" />
                </div>
                <h1 className="text-2xl font-semibold tracking-tight text-white">
-                 SMS API Simulator
-               </h1>
+                  SMS API Sender
+                </h1>
             </div>
             <p className="text-zinc-500 text-sm mt-2 ml-1">
-              Analyze request mechanics, concurrency patterns, and response handling.
+              Send real SMS OTP requests to service endpoints.
             </p>
           </div>
           
-          <div className={`px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2 border transition-all ${
-              allowAiHealing
-              ? 'bg-indigo-950/30 border-indigo-900 text-indigo-400'
-              : useSimulation
-                ? 'bg-zinc-900 border-zinc-700 text-zinc-300'
-                : 'bg-red-950/30 border-red-900 text-red-400'
-          }`}>
-              <div className={`w-1.5 h-1.5 rounded-full ${allowAiHealing ? 'bg-indigo-500' : useSimulation ? 'bg-emerald-500' : 'bg-red-500'}`} />
-              {allowAiHealing 
-                ? "Mode: AI Training Studio" 
-                : useSimulation 
-                  ? "Mode: Safe Simulation" 
-                  : "Mode: Live Backend Proxy"}
+          <div className="px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2 border transition-all bg-red-950/30 border-red-900 text-red-400">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+              Mode: Live Backend Proxy
           </div>
         </header>
 
@@ -246,10 +233,6 @@ const App: React.FC = () => {
                 setMode={setMode}
                 speed={speed}
                 setSpeed={setSpeed}
-                useSimulation={useSimulation}
-                setUseSimulation={setUseSimulation}
-                allowAiHealing={allowAiHealing}
-                setAllowAiHealing={setAllowAiHealing}
                 isTesting={isTesting}
                 onBulkTest={handleBulkTest}
               />

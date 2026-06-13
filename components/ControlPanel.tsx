@@ -16,10 +16,6 @@ interface ControlPanelProps {
   setMode: (val: SimulationMode) => void;
   speed: number;
   setSpeed: (val: number) => void;
-  useSimulation: boolean;
-  setUseSimulation: (val: boolean) => void;
-  allowAiHealing: boolean;
-  setAllowAiHealing: (val: boolean) => void;
   isTesting: boolean;
   onBulkTest: () => void;
 }
@@ -48,10 +44,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   setMode,
   speed,
   setSpeed,
-  useSimulation,
-  setUseSimulation,
-  allowAiHealing,
-  setAllowAiHealing,
   isTesting,
   onBulkTest
 }) => {
@@ -64,51 +56,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       
       <div className="space-y-5">
         
-        {/* Mode Toggle */}
-        <div>
-          <label className="block text-zinc-400 text-xs font-medium mb-2">Execution Mode</label>
-          <div className="grid grid-cols-3 gap-1 bg-zinc-900 p-1 rounded-lg border border-zinc-800">
-              <button
-                  onClick={() => { setUseSimulation(true); setAllowAiHealing(false); }}
-                  disabled={isRunning}
-                  className={`flex items-center justify-center gap-1.5 py-2 text-[10px] sm:text-xs font-medium rounded-md transition-all ${
-                      useSimulation && !allowAiHealing
-                      ? 'bg-zinc-800 text-white shadow-sm' 
-                      : 'text-zinc-500 hover:text-zinc-300'
-                  }`}
-              >
-                  <Server size={14} /> Simulation
-              </button>
-              <button
-                  onClick={() => { setUseSimulation(false); setAllowAiHealing(false); }}
-                  disabled={isRunning}
-                  className={`flex items-center justify-center gap-1.5 py-2 text-[10px] sm:text-xs font-medium rounded-md transition-all ${
-                      !useSimulation && !allowAiHealing
-                      ? 'bg-zinc-800 text-white shadow-sm' 
-                      : 'text-zinc-500 hover:text-zinc-300'
-                  }`}
-              >
-                  <Globe size={14} /> Live Action
-              </button>
-              <button
-                  onClick={() => { 
-                      setUseSimulation(false); 
-                      setAllowAiHealing(true); 
-                      setMode(SimulationMode.SEQUENTIAL); // Force sequential
-                      if (speed < 2500) setSpeed(2500);   // Force safe AI limit
-                  }}
-                  disabled={isRunning}
-                  className={`flex items-center justify-center gap-1.5 py-2 text-[10px] sm:text-xs font-medium rounded-md transition-all ${
-                      allowAiHealing
-                      ? 'bg-indigo-600/20 text-indigo-400 shadow-sm border border-indigo-500/30' 
-                      : 'text-zinc-500 hover:text-zinc-300'
-                  }`}
-              >
-                  <Zap size={14} /> AI Trainer
-              </button>
-          </div>
-        </div>
-
         {/* Inputs */}
         <div className="space-y-4">
            <InputField 
@@ -135,19 +82,19 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             <div className="flex bg-zinc-900 rounded-lg border border-zinc-800 p-1">
               <button
                 onClick={() => setMode(SimulationMode.SEQUENTIAL)}
-                disabled={isRunning || allowAiHealing}
+                disabled={isRunning}
                 className={`flex-1 py-1.5 text-xs rounded font-medium transition-all ${
                   mode === SimulationMode.SEQUENTIAL ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'
-                } ${allowAiHealing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                }`}
               >
                 Serial
               </button>
               <button
                 onClick={() => setMode(SimulationMode.PARALLEL)}
-                disabled={isRunning || allowAiHealing}
+                disabled={isRunning}
                 className={`flex-1 py-1.5 text-xs rounded font-medium transition-all ${
                   mode === SimulationMode.PARALLEL ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'
-                } ${allowAiHealing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                }`}
               >
                 Parallel
               </button>
@@ -170,18 +117,18 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         {/* Speed Slider */}
         <div>
             <div className="flex justify-between text-xs font-medium text-zinc-400 mb-2">
-                <span>Request Interval {allowAiHealing && '(Locked â‰¥2.5s)'}</span>
+                <span>Request Interval</span>
                 <span className="text-white font-mono">{speed}ms</span>
             </div>
             <input
               type="range"
-              min={allowAiHealing ? "2500" : "50"}
+              min="50"
               max="5000"
               step="50"
               value={speed}
               onChange={(e) => setSpeed(Number(e.target.value))}
-              disabled={isRunning || allowAiHealing}
-              className={`w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-white ${allowAiHealing ? 'opacity-50' : ''}`}
+              disabled={isRunning}
+              className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-white"
             />
         </div>
 
@@ -192,7 +139,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
               onClick={onStart}
               className="w-full flex items-center justify-center gap-2 bg-white text-black font-semibold py-3 rounded-lg hover:bg-zinc-200 transition-colors shadow-sm text-sm"
             >
-              <Play size={16} fill="currentColor" /> Start Simulation
+              <Play size={16} fill="currentColor" /> Start Sending SMS
             </button>
           ) : (
             <button
