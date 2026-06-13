@@ -15,8 +15,7 @@ const App: React.FC = () => {
   const [limit, setLimit] = useState<number | null>(null);
   const [mode, setMode] = useState<SimulationMode>(SimulationMode.SEQUENTIAL);
   const [speed, setSpeed] = useState(500);
-
-
+  const [useLocalProxy, setUseLocalProxy] = useState(false);
 
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [stats, setStats] = useState<SimulationStats>(INITIAL_STATS);
@@ -72,12 +71,12 @@ const App: React.FC = () => {
     const service = TARGET_ENDPOINTS[sequenceIndexRef.current];
     sequenceIndexRef.current = (sequenceIndexRef.current + 1) % TARGET_ENDPOINTS.length;
     
-    const result = await simulateNetworkCall(service, target, email);
+    const result = await simulateNetworkCall(service, target, email, useLocalProxy);
 
     if (isRunning) {
         addLog(result);
     }
-  }, [target, email, isRunning, limit, stats.totalSent, addLog]);
+  }, [target, email, isRunning, limit, stats.totalSent, addLog, useLocalProxy]);
 
   const runParallelStep = useCallback(() => {
     if (limit !== null && stats.totalSent >= limit) return;
@@ -85,10 +84,10 @@ const App: React.FC = () => {
     TARGET_ENDPOINTS.forEach(async (service) => {
       await new Promise(r => setTimeout(r, Math.random() * 500));
       if (!isRunning) return;
-      const result = await simulateNetworkCall(service, target, email);
+      const result = await simulateNetworkCall(service, target, email, useLocalProxy);
       if (isRunning) addLog(result);
     });
-  }, [target, email, isRunning, limit, stats.totalSent, addLog]);
+  }, [target, email, isRunning, limit, stats.totalSent, addLog, useLocalProxy]);
 
   useEffect(() => {
     if (isRunning) {
@@ -138,7 +137,7 @@ const App: React.FC = () => {
       const batch = TARGET_ENDPOINTS.slice(i, i + batchSize);
       const batchResults = await Promise.all(
         batch.map(async (service) => {
-          const result = await simulateNetworkCall(service, target, email);
+          const result = await simulateNetworkCall(service, target, email, useLocalProxy);
           return result;
         })
       );
@@ -182,7 +181,7 @@ const App: React.FC = () => {
     }
 
     setIsTesting(false);
-  }, [target, email, isTesting]);
+  }, [target, email, isTesting, useLocalProxy]);
 
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 font-sans selection:bg-zinc-800 selection:text-white">
@@ -205,14 +204,16 @@ const App: React.FC = () => {
             </p>
           </div>
           
-          <div className="px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2 border transition-all bg-red-950/30 border-red-900 text-red-400">
-              <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-              Mode: Live Backend Proxy
+          <div className={`px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2 border transition-all ${
+            useLocalProxy ? 'bg-emerald-950/30 border-emerald-900 text-emerald-400' : 'bg-red-950/30 border-red-900 text-red-400'
+          }`}>
+              <div className={`w-1.5 h-1.5 rounded-full ${useLocalProxy ? 'bg-emerald-500' : 'bg-red-500'}`} />
+              Mode: {useLocalProxy ? 'Local Proxy (your IP)' : 'Vercel Proxy'}
           </div>
         </header>
 
         <main className="space-y-6">
-            <StatsBoard stats={stats} endpointHealth={endpointHealth} />
+            <StatsBoard stats={stats} endpointHealth={endpointHealth} useLocalProxy={useLocalProxy} />
 
           {/* Grid Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -235,6 +236,8 @@ const App: React.FC = () => {
                 setSpeed={setSpeed}
                 isTesting={isTesting}
                 onBulkTest={handleBulkTest}
+                useLocalProxy={useLocalProxy}
+                setUseLocalProxy={setUseLocalProxy}
               />
               
               <div className="h-[400px] lg:h-[450px] bg-zinc-900/50 rounded-xl border border-zinc-800 overflow-hidden">

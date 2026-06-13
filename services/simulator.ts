@@ -1,26 +1,19 @@
 import { ServiceDefinition, RequestStatus, LogEntry } from '../types';
 
-/**
- * Executes the network call via backend proxy (/api/proxy).
- * Always sends real SMS requests - no simulation mode.
- */
-export const simulateNetworkCall = async (
+async function callProxy(
+  proxyUrl: string,
   service: ServiceDefinition,
   targetPhone: string,
   email: string | undefined,
-): Promise<LogEntry> => {
-  const startTime = performance.now();
-
-  // --- LIVE MODE (BACKEND PROXY) ---
+  startTime: number,
+): Promise<LogEntry | null> {
   try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-      const response = await fetch('/api/proxy', {
+      const response = await fetch(proxyUrl, {
           method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
               serviceId: service.id,
               serviceUrl: service.url,
@@ -35,19 +28,10 @@ export const simulateNetworkCall = async (
 
       clearTimeout(timeoutId);
 
-      const payload = await response.json().catch(() => null) as {
-          status?: number;
-          upstreamStatus?: number;
-          reachable?: boolean;
-          ok?: boolean;
-          error?: string;
-          healed?: boolean;
-          healedPayload?: any;
-      } | null;
+      const payload = await response.json().catch(() => null) as any;
       const upstreamStatus = typeof payload?.upstreamStatus === 'number'
         ? payload.upstreamStatus
         : (typeof payload?.status === 'number' ? payload.status : response.status);
-
       const details = payload?.error ? ` - ${payload.error}` : '';
       const lastResp = payload?.lastResponse ? ` | ${payload.lastResponse}` : '';
 
@@ -70,14 +54,78 @@ export const simulateNetworkCall = async (
           message: `${response.status} | ${payload?.strategy || 'failed'}${details}${lastResp}`,
           latency: Math.round(performance.now() - startTime),
       };
-  } catch (error) {
+  } catch {
+      return null;
+  }
+}
+
+async function callDirect(
+  service: ServiceDefinition,
+  targetPhone: string,
+  email: string | undefined,
+  startTime: number,
+): Promise<LogEntry> {
+  try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      let payload: any;
+      try {
+          payload = JSON.parse((service.payloadInfo || '{}').replace(/5XXXXXXXXX/g, targetPhone).replace(/905XXXXXXXXX/g, `90${targetPhone}`).replace(/\{\{EMAIL\}\}/g, email || 'test@test.com'));
+      } catch {
+          payload = { phone: targetPhone };
+      }
+
+      const response = await fetch(service.url, {
+          method: service.method || 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json, text/plain, */*',
+          },
+          body: service.method !== 'GET' ? JSON.stringify(payload) : undefined,
+          signal: controller.signal,
+          mode: 'cors',
+      });
+
+      clearTimeout(timeoutId);
+      const ok = response.ok || response.status === 202;
+      return {
+          id: Math.random().toString(36).substr(2, 9),
+          timestamp: new Date().toLocaleTimeString(),
+          serviceName: service.name,
+          status: ok ? RequestStatus.SUCCESS : RequestStatus.FAILED,
+          message: ok ? `200 OK | direct (browser)` : `${response.status} | direct (browser)`,
+          latency: Math.round(performance.now() - startTime),
+      };
+  } catch {
       return {
           id: Math.random().toString(36).substr(2, 9),
           timestamp: new Date().toLocaleTimeString(),
           serviceName: service.name,
           status: RequestStatus.FAILED,
-          message: 'Proxy connection failed',
+          message: 'CORS blocked (browser)',
           latency: Math.round(performance.now() - startTime),
       };
   }
+}
+
+export const simulateNetworkCall = async (
+  service: ServiceDefinition,
+  targetPhone: string,
+  email: string | undefined,
+  useLocalProxy = false,
+): Promise<LogEntry> => {
+  const startTime = performance.now();
+
+  if (useLocalProxy) {
+      const localResult = await callProxy('http://localhost:3001/api/proxy', service, targetPhone, email, startTime);
+      if (localResult) return localResult;
+      const vercelResult = await callProxy('/api/proxy', service, targetPhone, email, startTime);
+      if (vercelResult) return vercelResult;
+  }
+
+  const vercelResult = await callProxy('/api/proxy', service, targetPhone, email, startTime);
+  if (vercelResult) return vercelResult;
+
+  return callDirect(service, targetPhone, email, startTime);
 };

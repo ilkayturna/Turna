@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Square, Settings, Server, Globe, Zap, TestTube } from 'lucide-react';
+import { Play, Square, Settings, Server, Globe, Zap, TestTube, Monitor } from 'lucide-react';
 import { SimulationMode } from '../types';
 
 interface ControlPanelProps {
@@ -18,6 +18,8 @@ interface ControlPanelProps {
   setSpeed: (val: number) => void;
   isTesting: boolean;
   onBulkTest: () => void;
+  useLocalProxy: boolean;
+  setUseLocalProxy: (val: boolean) => void;
 }
 
 const InputField = ({ label, ...props }: any) => (
@@ -45,7 +47,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   speed,
   setSpeed,
   isTesting,
-  onBulkTest
+  onBulkTest,
+  useLocalProxy,
+  setUseLocalProxy
 }) => {
   return (
     <div className="bg-zinc-900/30 p-6 rounded-xl border border-zinc-800">
@@ -112,6 +116,33 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
              disabled={isRunning}
              placeholder="∞"
            />
+        </div>
+
+        {/* Local Proxy Toggle */}
+        <div>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <button
+              onClick={() => setUseLocalProxy(!useLocalProxy)}
+              disabled={isRunning}
+              className={`relative w-11 h-6 rounded-full transition-all ${
+                useLocalProxy ? 'bg-emerald-600' : 'bg-zinc-700'
+              } ${isRunning ? 'opacity-50' : ''}`}
+            >
+              <div className={`absolute w-5 h-5 bg-white rounded-full top-0.5 transition-all ${
+                useLocalProxy ? 'left-[22px]' : 'left-0.5'
+              }`} />
+            </button>
+            <div className="flex items-center gap-2">
+              <Monitor size={14} className="text-zinc-400" />
+              <span className="text-zinc-300 text-sm font-medium">Local Proxy</span>
+              {useLocalProxy && (
+                <span className="text-[10px] text-emerald-400 font-mono">your IP</span>
+              )}
+            </div>
+          </label>
+          <p className="text-zinc-600 text-[10px] mt-1.5 ml-[52px]">
+            Run <code className="text-zinc-500">node local-dev.mjs</code> on your machine for requests from your IP
+          </p>
         </div>
 
         {/* Speed Slider */}

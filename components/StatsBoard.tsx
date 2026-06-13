@@ -4,6 +4,7 @@ import { SimulationStats, EndpointHealth } from '../types';
 interface StatsBoardProps {
   stats: SimulationStats;
   endpointHealth?: EndpointHealth[];
+  useLocalProxy?: boolean;
 }
 
 const StatCard = ({ title, value, type = "default", subtitle }: any) => {
@@ -17,14 +18,14 @@ const StatCard = ({ title, value, type = "default", subtitle }: any) => {
     <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 flex flex-col justify-between">
       <span className="text-zinc-500 text-xs font-medium uppercase tracking-wider mb-2">{title}</span>
       <span className={`text-2xl font-semibold font-mono tracking-tight ${valueColor}`}>
-        {value.toLocaleString()}
+        {typeof value === 'number' ? value.toLocaleString() : value}
       </span>
       {subtitle && <span className="text-zinc-600 text-[10px] font-mono mt-1">{subtitle}</span>}
     </div>
   );
 };
 
-export const StatsBoard: React.FC<StatsBoardProps> = ({ stats, endpointHealth }) => {
+export const StatsBoard: React.FC<StatsBoardProps> = ({ stats, endpointHealth, useLocalProxy }) => {
   const working = endpointHealth?.filter(h => h.status === 'working').length || 0;
   const dead = endpointHealth?.filter(h => h.status === 'dead').length || 0;
   const limited = endpointHealth?.filter(h => h.status === 'limited').length || 0;
@@ -32,7 +33,7 @@ export const StatsBoard: React.FC<StatsBoardProps> = ({ stats, endpointHealth })
   const total = endpointHealth?.length || 0;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
       <StatCard 
         title="Total Requests" 
         value={stats.totalSent} 
@@ -42,6 +43,7 @@ export const StatsBoard: React.FC<StatsBoardProps> = ({ stats, endpointHealth })
         title="Successful" 
         value={stats.success} 
         type="success"
+        subtitle={total > 0 ? `/ ${total} endpoints` : undefined}
       />
 
       <StatCard 
@@ -70,6 +72,13 @@ export const StatsBoard: React.FC<StatsBoardProps> = ({ stats, endpointHealth })
           subtitle={dead > 0 ? `${dead} dead, ${limited} limited` : `${working} working`}
         />
       )}
+
+      <StatCard 
+        title="Proxy Mode" 
+        value={useLocalProxy ? 'Local' : 'Vercel'} 
+        type={useLocalProxy ? 'success' : 'warning'}
+        subtitle={useLocalProxy ? 'your IP (fast)' : 'datacenter IP (blocked)'}
+      />
     </div>
   );
 };
