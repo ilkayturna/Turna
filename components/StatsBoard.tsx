@@ -5,6 +5,7 @@ interface StatsBoardProps {
   stats: SimulationStats;
   endpointHealth?: EndpointHealth[];
   localProxyAvailable?: boolean | null;
+  currentPool?: number;
 }
 
 const StatCard = ({ title, value, type = "default", subtitle }: any) => {
@@ -25,7 +26,7 @@ const StatCard = ({ title, value, type = "default", subtitle }: any) => {
   );
 };
 
-export const StatsBoard: React.FC<StatsBoardProps> = ({ stats, endpointHealth, localProxyAvailable }) => {
+export const StatsBoard: React.FC<StatsBoardProps> = ({ stats, endpointHealth, localProxyAvailable, currentPool }) => {
   const working = endpointHealth?.filter(h => h.status === 'working').length || 0;
   const dead = endpointHealth?.filter(h => h.status === 'dead').length || 0;
   const limited = endpointHealth?.filter(h => h.status === 'limited').length || 0;
@@ -33,7 +34,7 @@ export const StatsBoard: React.FC<StatsBoardProps> = ({ stats, endpointHealth, l
   const total = endpointHealth?.length || 0;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-8 gap-4">
       <StatCard 
         title="Total Requests" 
         value={stats.totalSent} 
@@ -53,7 +54,7 @@ export const StatsBoard: React.FC<StatsBoardProps> = ({ stats, endpointHealth, l
       />
 
       <StatCard 
-        title="Gateway" 
+        title="Opaque" 
         value={stats.sentOpaque} 
         type="warning"
       />
@@ -78,6 +79,13 @@ export const StatsBoard: React.FC<StatsBoardProps> = ({ stats, endpointHealth, l
         value={localProxyAvailable === true ? 'Local' : localProxyAvailable === false ? 'Vercel' : '...'} 
         type={localProxyAvailable === true ? 'success' : 'warning'}
         subtitle={localProxyAvailable === true ? 'your IP' : localProxyAvailable === false ? 'datacenter IP' : 'detecting'}
+      />
+
+      <StatCard 
+        title="Concurrency Pool" 
+        value={currentPool ?? '-'} 
+        type="info"
+        subtitle="adaptive workers"
       />
     </div>
   );

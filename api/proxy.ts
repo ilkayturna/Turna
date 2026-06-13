@@ -205,9 +205,7 @@ async function attemptStrategies({
         }
         const healedPayload = interpolatePhone(healedSchema, targetPhone, email);
         const healResult = await executeRequest(serviceUrl, serviceMethod, healedPayload, buildRotatingHeaders(origin));
-        healResult.healed = true;
-        healResult.healedPayload = healedSchema;
-        results.push({ attempt: 2, strategy: 'ai_heal', ...healResult });
+        results.push({ attempt: 2, strategy: 'ai_heal', ...healResult, healed: true, healedPayload: healedSchema });
       } catch (err: unknown) {
         results.push({ attempt: 2, strategy: 'ai_heal', success: false, status: 0, data: String(err) });
       }

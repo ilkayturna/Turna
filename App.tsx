@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { SimulationMode, LogEntry, SimulationStats, RequestStatus, EndpointHealth } from './types';
+import { LogEntry, SimulationStats, RequestStatus, EndpointHealth, SpeedLevel } from './types';
 import { TARGET_ENDPOINTS, INITIAL_STATS } from './constants';
 import { simulateNetworkCall, detectLocalProxy } from './services/simulator';
+import { AdaptiveConcurrencyQueue } from './services/queue';
 import { ControlPanel } from './components/ControlPanel';
 import { LogConsole } from './components/LogConsole';
 import { StatsBoard } from './components/StatsBoard';
@@ -13,8 +14,7 @@ const App: React.FC = () => {
   const [target, setTarget] = useState('5343622375');
   const [email, setEmail] = useState('');
   const [limit, setLimit] = useState<number | null>(null);
-  const [mode, setMode] = useState<SimulationMode>(SimulationMode.SEQUENTIAL);
-  const [speed, setSpeed] = useState(500);
+  const [speedLevel, setSpeedLevel] = useState<SpeedLevel>('normal');
   const [localProxyAvailable, setLocalProxyAvailable] = useState<boolean | null>(null);
 
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -24,9 +24,9 @@ const App: React.FC = () => {
     TARGET_ENDPOINTS.map(s => ({ id: s.id, name: s.name, status: 'unknown' }))
   );
   const [isTesting, setIsTesting] = useState(false);
-  
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const sequenceIndexRef = useRef(0);
+  const [currentPool, setCurrentPool] = useState(0);
+
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     detectLocalProxy().then(setLocalProxyAvailable);
@@ -35,7 +35,7 @@ const App: React.FC = () => {
   const addLog = useCallback((log: LogEntry) => {
     setLogs(prev => {
       const newLogs = [...prev, log];
-      if (newLogs.length > 100) newLogs.shift();
+      if (newLogs.length > 200) newLogs.shift();
       return newLogs;
     });
 
@@ -54,73 +54,61 @@ const App: React.FC = () => {
     }, 400);
   }, []);
 
-  useEffect(() => {
-    if (isRunning && limit !== null && stats.totalSent >= limit) {
-      setIsRunning(false);
-      const completionLog: LogEntry = {
-        id: 'sys-end',
-        timestamp: new Date().toLocaleTimeString(),
-        serviceName: 'SYSTEM',
-        status: RequestStatus.SUCCESS,
-        message: `Request limit of ${limit} reached. Process terminated.`,
-        latency: 0
-      };
-      setLogs(prev => [...prev, completionLog]);
-    }
-  }, [stats.totalSent, limit, isRunning]);
-
-  const runSequentialStep = useCallback(async () => {
-    if (limit !== null && stats.totalSent >= limit) return;
-
-    const service = TARGET_ENDPOINTS[sequenceIndexRef.current];
-    sequenceIndexRef.current = (sequenceIndexRef.current + 1) % TARGET_ENDPOINTS.length;
-    
-    const result = await simulateNetworkCall(service, target, email, localProxyAvailable === true);
-
-    if (isRunning) {
-        addLog(result);
-    }
-  }, [target, email, isRunning, limit, stats.totalSent, addLog, localProxyAvailable]);
-
-  const runParallelStep = useCallback(() => {
-    if (limit !== null && stats.totalSent >= limit) return;
-
-    TARGET_ENDPOINTS.forEach(async (service) => {
-      await new Promise(r => setTimeout(r, Math.random() * 500));
-      if (!isRunning) return;
-      const result = await simulateNetworkCall(service, target, email, localProxyAvailable === true);
-      if (isRunning) addLog(result);
-    });
-  }, [target, email, isRunning, limit, stats.totalSent, addLog, localProxyAvailable]);
-
-  useEffect(() => {
-    if (isRunning) {
-      if (mode === SimulationMode.SEQUENTIAL) {
-        intervalRef.current = setInterval(runSequentialStep, speed);
-      } else {
-        intervalRef.current = setInterval(runParallelStep, speed * 2); 
-      }
-    } else {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [isRunning, mode, speed, runSequentialStep, runParallelStep]);
-
-  const handleStart = () => {
+  const handleStart = useCallback(async () => {
     if (!target) {
       alert("Please enter a valid target phone number.");
       return;
     }
-    if (stats.totalSent > 0 && !isRunning) {
-        setStats(INITIAL_STATS);
-        setLogs([]);
-    }
+
+    setStats(INITIAL_STATS);
+    setLogs([]);
+    setEndpointHealth(TARGET_ENDPOINTS.map(s => ({ id: s.id, name: s.name, status: 'unknown' })));
     setIsRunning(true);
+
+    const abort = new AbortController();
+    abortRef.current = abort;
+
+    const endpoints = limit ? TARGET_ENDPOINTS.slice(0, limit) : TARGET_ENDPOINTS;
+
+    const queue = new AdaptiveConcurrencyQueue(speedLevel, (pool) => {
+      setCurrentPool(pool);
+    });
+
+    const tasks = endpoints.map(service => ({
+      id: service.id,
+      execute: () => simulateNetworkCall(service, target, email, localProxyAvailable === true),
+    }));
+
+    const results = await queue.run(tasks, abort.signal);
+
+    if (!abort.signal.aborted) {
+      for (const result of results) {
+        addLog(result);
+
+        setEndpointHealth(prev => {
+          const updated = [...prev];
+          const idx = updated.findIndex(e => e.name === result.serviceName);
+          if (idx >= 0) {
+            const matched = TARGET_ENDPOINTS.find(s => s.name === result.serviceName);
+            updated[idx] = {
+              ...updated[idx],
+              status: result.status === RequestStatus.SUCCESS ? 'working' : matched?.status === 'limited' ? 'limited' : 'dead',
+              upstreamStatus: parseInt(result.message.match(/(\d+)/)?.[0] || '0')
+            };
+          }
+          return updated;
+        });
+      }
+    }
+
+    setIsRunning(false);
+  }, [target, email, limit, speedLevel, localProxyAvailable, addLog]);
+
+  const handleStop = () => {
+    abortRef.current?.abort();
+    setIsRunning(false);
   };
 
-  const handleStop = () => setIsRunning(false);
   const handleClearLogs = () => {
     setLogs([]);
     setStats(INITIAL_STATS);
@@ -134,58 +122,43 @@ const App: React.FC = () => {
     setStats(INITIAL_STATS);
     setEndpointHealth(TARGET_ENDPOINTS.map(s => ({ id: s.id, name: s.name, status: 'unknown' })));
 
-    const batchSize = 5;
-    const results: LogEntry[] = [];
+    const queue = new AdaptiveConcurrencyQueue('aggressive');
+    const tasks = TARGET_ENDPOINTS.map(service => ({
+      id: service.id,
+      execute: () => simulateNetworkCall(service, target, email, localProxyAvailable === true),
+    }));
 
-    for (let i = 0; i < TARGET_ENDPOINTS.length; i += batchSize) {
-      const batch = TARGET_ENDPOINTS.slice(i, i + batchSize);
-      const batchResults = await Promise.all(
-        batch.map(async (service) => {
-          const result = await simulateNetworkCall(service, target, email, localProxyAvailable === true);
-          return result;
-        })
-      );
+    const results = await queue.run(tasks);
 
-      for (const result of batchResults) {
-        results.push(result);
-        setLogs(prev => {
-          const newLogs = [...prev, result];
-          if (newLogs.length > 200) newLogs.shift();
-          return newLogs;
-        });
-        setStats(prev => {
-          const ns = { ...prev, totalSent: prev.totalSent + 1 };
-          if (result.status === RequestStatus.SUCCESS) ns.success++;
-          if (result.status === RequestStatus.FAILED) ns.failed++;
-          if (result.status === RequestStatus.RATE_LIMITED) ns.rateLimited++;
-          if (result.status === RequestStatus.SENT) ns.sentOpaque++;
-          return ns;
-        });
-        setActiveServices(prev => [...prev, result.serviceName]);
-      }
+    for (const result of results) {
+      addLog(result);
 
-      // endpoint health update
       setEndpointHealth(prev => {
         const updated = [...prev];
-        for (const r of batchResults) {
-          const idx = updated.findIndex(e => e.name === r.serviceName);
-          if (idx >= 0) {
-            const matched = TARGET_ENDPOINTS.find(s => s.name === r.serviceName);
-            updated[idx] = {
-              ...updated[idx],
-              status: r.status === RequestStatus.SUCCESS ? 'working' : matched?.status === 'limited' ? 'limited' : 'dead',
-              upstreamStatus: parseInt(r.message.match(/(\d+)/)?.[0] || '0')
-            };
-          }
+        const idx = updated.findIndex(e => e.name === result.serviceName);
+        if (idx >= 0) {
+          const matched = TARGET_ENDPOINTS.find(s => s.name === result.serviceName);
+          updated[idx] = {
+            ...updated[idx],
+            status: result.status === RequestStatus.SUCCESS ? 'working' : matched?.status === 'limited' ? 'limited' : 'dead',
+            upstreamStatus: parseInt(result.message.match(/(\d+)/)?.[0] || '0')
+          };
         }
         return updated;
       });
 
-      await new Promise(r => setTimeout(r, 200));
+      setStats(prev => {
+        const ns = { ...prev, totalSent: prev.totalSent + 1 };
+        if (result.status === RequestStatus.SUCCESS) ns.success++;
+        if (result.status === RequestStatus.FAILED) ns.failed++;
+        if (result.status === RequestStatus.RATE_LIMITED) ns.rateLimited++;
+        if (result.status === RequestStatus.SENT) ns.sentOpaque++;
+        return ns;
+      });
     }
 
     setIsTesting(false);
-  }, [target, email, isTesting, localProxyAvailable]);
+  }, [target, email, localProxyAvailable, addLog]);
 
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 font-sans selection:bg-zinc-800 selection:text-white">
@@ -204,7 +177,7 @@ const App: React.FC = () => {
                 </h1>
             </div>
             <p className="text-zinc-500 text-sm mt-2 ml-1">
-              Send real SMS OTP requests to service endpoints.
+              Send real SMS OTP requests to {TARGET_ENDPOINTS.length} service endpoints.
             </p>
           </div>
           
@@ -217,7 +190,7 @@ const App: React.FC = () => {
         </header>
 
         <main className="space-y-6">
-            <StatsBoard stats={stats} endpointHealth={endpointHealth} localProxyAvailable={localProxyAvailable} />
+            <StatsBoard stats={stats} endpointHealth={endpointHealth} localProxyAvailable={localProxyAvailable} currentPool={currentPool} />
 
           {/* Grid Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -234,10 +207,8 @@ const App: React.FC = () => {
                 setEmail={setEmail}
                 limit={limit}
                 setLimit={setLimit}
-                mode={mode}
-                setMode={setMode}
-                speed={speed}
-                setSpeed={setSpeed}
+                speedLevel={speedLevel}
+                setSpeedLevel={setSpeedLevel}
                 isTesting={isTesting}
                 onBulkTest={handleBulkTest}
                 localProxyAvailable={localProxyAvailable}

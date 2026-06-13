@@ -1,6 +1,6 @@
 import React from 'react';
 import { Play, Square, Settings, Server, Globe, Zap, TestTube, Monitor } from 'lucide-react';
-import { SimulationMode } from '../types';
+import { SpeedLevel, SPEED_CONFIG } from '../types';
 
 interface ControlPanelProps {
   isRunning: boolean;
@@ -12,10 +12,8 @@ interface ControlPanelProps {
   setEmail: (val: string) => void;
   limit: number | null;
   setLimit: (val: number | null) => void;
-  mode: SimulationMode;
-  setMode: (val: SimulationMode) => void;
-  speed: number;
-  setSpeed: (val: number) => void;
+  speedLevel: SpeedLevel;
+  setSpeedLevel: (val: SpeedLevel) => void;
   isTesting: boolean;
   onBulkTest: () => void;
   localProxyAvailable: boolean | null;
@@ -31,6 +29,13 @@ const InputField = ({ label, ...props }: any) => (
   </div>
 );
 
+const SPEED_LABELS: Record<SpeedLevel, string> = {
+  safe: 'Safe',
+  normal: 'Normal',
+  aggressive: 'Aggressive',
+  max: 'Max',
+};
+
 export const ControlPanel: React.FC<ControlPanelProps> = ({
   isRunning,
   onStart,
@@ -41,10 +46,8 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   setEmail,
   limit,
   setLimit,
-  mode,
-  setMode,
-  speed,
-  setSpeed,
+  speedLevel,
+  setSpeedLevel,
   isTesting,
   onBulkTest,
   localProxyAvailable
@@ -77,62 +80,40 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
            />
         </div>
 
-        {/* Settings Grid */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-zinc-400 text-xs font-medium mb-2">Concurrency Mode</label>
-            <div className="flex bg-zinc-900 rounded-lg border border-zinc-800 p-1">
-              <button
-                onClick={() => setMode(SimulationMode.SEQUENTIAL)}
-                disabled={isRunning}
-                className={`flex-1 py-1.5 text-xs rounded font-medium transition-all ${
-                  mode === SimulationMode.SEQUENTIAL ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'
-                }`}
-              >
-                Serial
-              </button>
-              <button
-                onClick={() => setMode(SimulationMode.PARALLEL)}
-                disabled={isRunning}
-                className={`flex-1 py-1.5 text-xs rounded font-medium transition-all ${
-                  mode === SimulationMode.PARALLEL ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'
-                }`}
-              >
-                Parallel
-              </button>
-            </div>
-          </div>
-
-          <InputField 
-             label="Request Limit" 
-             type="number"
-             value={limit || ''}
-             onChange={(e: any) => {
-                const val = parseInt(e.target.value);
-                setLimit(isNaN(val) || val <= 0 ? null : val);
-             }}
-             disabled={isRunning}
-             placeholder="∞"
-           />
-        </div>
-
-        {/* Speed Slider */}
+        {/* Speed Level Selector */}
         <div>
-            <div className="flex justify-between text-xs font-medium text-zinc-400 mb-2">
-                <span>Request Interval</span>
-                <span className="text-white font-mono">{speed}ms</span>
-            </div>
-            <input
-              type="range"
-              min="50"
-              max="5000"
-              step="50"
-              value={speed}
-              onChange={(e) => setSpeed(Number(e.target.value))}
-              disabled={isRunning}
-              className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-white"
-            />
+          <label className="block text-zinc-400 text-xs font-medium mb-2">Speed Level</label>
+          <div className="grid grid-cols-4 gap-1 bg-zinc-900 rounded-lg border border-zinc-800 p-1">
+            {(Object.keys(SPEED_CONFIG) as SpeedLevel[]).map(level => (
+              <button
+                key={level}
+                onClick={() => setSpeedLevel(level)}
+                disabled={isRunning}
+                className={`py-1.5 text-xs rounded font-medium transition-all ${
+                  speedLevel === level ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'
+                }`}
+              >
+                {SPEED_LABELS[level]}
+              </button>
+            ))}
+          </div>
+          <p className="text-zinc-600 text-[10px] mt-1.5 font-mono">
+            {SPEED_CONFIG[speedLevel].maxConcurrent} concurrent · {SPEED_CONFIG[speedLevel].batchDelay}ms delay · {SPEED_CONFIG[speedLevel].minEndpointGap}ms gap
+          </p>
         </div>
+
+        {/* Request Limit */}
+        <InputField 
+           label="Request Limit" 
+           type="number"
+           value={limit || ''}
+           onChange={(e: any) => {
+              const val = parseInt(e.target.value);
+              setLimit(isNaN(val) || val <= 0 ? null : val);
+           }}
+           disabled={isRunning}
+           placeholder="∞"
+         />
 
         {/* Local Proxy Status */}
         <div className="flex items-center gap-2 bg-zinc-900/50 rounded-lg px-3 py-2.5 border border-zinc-800">
