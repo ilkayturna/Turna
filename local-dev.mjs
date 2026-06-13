@@ -1,15 +1,10 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import { createClient } from '@supabase/supabase-js';
 import Groq from 'groq-sdk';
 import axios from 'axios';
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
-const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 const groqApiKey = process.env.GROQ_API_KEY || '';
 const groq = groqApiKey ? new Groq({ apiKey: groqApiKey }) : null;
@@ -109,14 +104,6 @@ async function attemptStrategies({ serviceUrl, serviceMethod, targetPhone, email
       healResult.healedPayload = healedSchema;
       results.push({ attempt: 2, strategy: 'ai_heal', ...healResult });
       if (healResult.success) {
-        try {
-          await supabase.from('endpoints').update({
-            payload_schema: healedSchema,
-            status: 'working',
-            is_auto_healed: true,
-            last_healed_at: new Date().toISOString()
-          }).eq('id', serviceId);
-        } catch {}
         return results;
       }
     } catch (err) {
@@ -262,17 +249,10 @@ app.post('/api/proxy', async (req, res) => {
   }
 
   try {
-    let payloadToUse = initialPayload || { phone: targetPhone };
-
-    const { data: endpointData } = await supabase
-      .from('endpoints')
-      .select('payload_schema')
-      .eq('id', serviceId)
-      .maybeSingle();
-
-    if (endpointData && endpointData.payload_schema) {
-      payloadToUse = interpolatePhone(endpointData.payload_schema, targetPhone, email);
-    }
+    let payloadToUse = initialPayload
+      ? (typeof initialPayload === 'string' ? JSON.parse(initialPayload) : initialPayload)
+      : { phone: targetPhone };
+    payloadToUse = interpolatePhone(payloadToUse, targetPhone, email);
 
     const attempts = await attemptStrategies({
       serviceUrl, serviceMethod, targetPhone, email, payloadToUse, customHeaders: req.body.serviceHeaders

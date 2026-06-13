@@ -28,6 +28,7 @@ export const simulateNetworkCall = async (
               serviceHeaders: service.headers || {},
               targetPhone,
               email: email || '',
+              initialPayload: service.payloadInfo || undefined,
           }),
           signal: controller.signal,
       });

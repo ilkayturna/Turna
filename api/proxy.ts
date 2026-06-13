@@ -1,14 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClient } from '@supabase/supabase-js';
 import axios, { AxiosError } from 'axios';
 
 if (process.env.NODE_ENV !== 'production') {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 }
-
-const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 const STD_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
@@ -203,17 +198,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        let payloadToUse = initialPayload || { phone: targetPhone };
-
-        const { data: endpointData } = await supabase
-            .from('endpoints')
-            .select('payload_schema')
-            .eq('id', serviceId)
-            .maybeSingle();
-
-        if (endpointData && endpointData.payload_schema) {
-            payloadToUse = interpolatePhone(endpointData.payload_schema, targetPhone, email);
-        }
+        let payloadToUse = initialPayload
+          ? (typeof initialPayload === 'string' ? JSON.parse(initialPayload) : initialPayload)
+          : { phone: targetPhone };
+        payloadToUse = interpolatePhone(payloadToUse, targetPhone, email);
 
         const attempts = await attemptStrategies({
           serviceId, serviceUrl, serviceMethod: serviceMethod || 'POST', targetPhone, email: email || '', payloadToUse, customHeaders: serviceHeaders
