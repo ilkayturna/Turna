@@ -6,17 +6,13 @@ interface QueueTask {
 }
 
 export class AdaptiveConcurrencyQueue {
-  private maxConcurrent = 10;
-  private staggerDelay = 100;
-  private minEndpointGap = 0;
+  private maxConcurrent = 8;
+  private staggerDelay = 400;
+  private minEndpointGap = 600;
   private lastRequestTime: Map<string, number> = new Map();
   private consecutiveRateLimits = 0;
 
-  async run(
-    tasks: QueueTask[],
-    signal?: AbortSignal,
-    onResult?: (result: LogEntry) => void
-  ): Promise<LogEntry[]> {
+  async run(tasks: QueueTask[], signal?: AbortSignal, onResult?: (result: LogEntry) => void): Promise<LogEntry[]> {
     const shuffled = [...tasks].sort(() => Math.random() - 0.5);
     const results: LogEntry[] = [];
     let index = 0;
@@ -37,7 +33,7 @@ export class AdaptiveConcurrencyQueue {
         this.lastRequestTime.set(task.id, Date.now());
 
         if (index > 1) {
-          await this.sleep(Math.random() * this.staggerDelay);
+          await this.sleep(this.staggerDelay + Math.random() * 300);
         }
 
         const result = await task.execute();
@@ -47,10 +43,14 @@ export class AdaptiveConcurrencyQueue {
         if (result.status === RequestStatus.RATE_LIMITED || result.status === RequestStatus.FAILED) {
           this.consecutiveRateLimits++;
           if (this.consecutiveRateLimits >= 2) {
-            await this.sleep(500 + Math.random() * 500);
+            this.maxConcurrent = Math.max(3, this.maxConcurrent - 1);
+            this.minEndpointGap = Math.min(2000, this.minEndpointGap + 200);
+            await this.sleep(800 + Math.random() * 1200);
           }
         } else {
           this.consecutiveRateLimits = 0;
+          if (this.maxConcurrent < 8) this.maxConcurrent++;
+          if (this.minEndpointGap > 600) this.minEndpointGap -= 100;
         }
       }
     };

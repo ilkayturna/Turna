@@ -1,4 +1,4 @@
-import { ServiceDefinition, Certificate } from './types';
+import { ServiceDefinition } from './types';
 
 export const TARGET_ENDPOINTS: ServiceDefinition[] = [
   {
@@ -16,7 +16,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     url: 'https://www.onurmarket.com/api/v1/auth/register/sendOtp',
     method: 'POST',
     payloadInfo: '{"phone": "5XXXXXXXXX"}',
-    status: 'limited',
+    status: 'working',
     category: 'Market',
   },
   {
@@ -29,21 +29,12 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     category: 'Dijital Hizmetler',
   },
   {
-    id: 'suiste',
-    name: 'Suiste',
-    url: 'https://suiste.com/api/auth/code',
-    method: 'POST',
-    payloadInfo: '{"gsm": "5XXXXXXXXX", "action": "register"}',
-    status: 'working',
-    category: 'Dijital Hizmetler',
-  },
-  {
     id: 'e_bebek',
     name: 'E-bebek',
     url: 'https://www.e-bebek.com/api/v1/auth/register/send-otp',
     method: 'POST',
     payloadInfo: '{"phone": "5XXXXXXXXX", "email": "{{EMAIL}}"}',
-    status: 'limited',
+    status: 'working',
     category: 'Bebek & Çocuk',
   },
   {
@@ -52,7 +43,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     url: 'https://www.bkmexpress.com.tr/api/v1/otp/send',
     method: 'POST',
     payloadInfo: '{"phone": "905XXXXXXXXX"}',
-    status: 'limited',
+    status: 'working',
     category: 'Finans',
   },
   {
@@ -61,7 +52,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     url: 'https://www.shopandfly.com.tr/api/v1/otp/send',
     method: 'POST',
     payloadInfo: '{"phone": "905XXXXXXXXX"}',
-    status: 'limited',
+    status: 'working',
     category: 'Finans',
   },
   {
@@ -70,7 +61,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     url: 'https://www.teb.com.tr/api/v1/otp/send',
     method: 'POST',
     payloadInfo: '{"phone": "905XXXXXXXXX"}',
-    status: 'limited',
+    status: 'working',
     category: 'Finans',
   },
   {
@@ -79,7 +70,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     url: 'https://www.kfc.com.tr/api/v1/auth/register/send-otp',
     method: 'POST',
     payloadInfo: '{"phone": "5XXXXXXXXX"}',
-    status: 'limited',
+    status: 'working',
     category: 'Yemek',
   },
   {
@@ -88,7 +79,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     url: 'https://www.sportive.com.tr/api/v1/auth/register/send-otp',
     method: 'GET',
     payloadInfo: '{}',
-    status: 'limited',
+    status: 'working',
     category: 'Spor',
   },
   {
@@ -97,7 +88,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     url: 'https://api.oldubil.com/api/v1/auth/send-otp',
     method: 'POST',
     payloadInfo: '{"phone": "5XXXXXXXXX"}',
-    status: 'limited',
+    status: 'working',
     category: 'Finans',
   },
   {
@@ -106,7 +97,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     url: 'https://www.lcwaikiki.com.tr/api/v1/auth/register/send-otp',
     method: 'POST',
     payloadInfo: '{"phone": "905XXXXXXXXX"}',
-    status: 'limited',
+    status: 'working',
     category: 'Giyim & Ev Eşyası',
   },
   {
@@ -115,7 +106,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     url: 'https://www.bambi.com.tr/api/v1/auth/register/send-otp',
     method: 'POST',
     payloadInfo: '{"phone": "5XXXXXXXXX"}',
-    status: 'limited',
+    status: 'working',
     category: 'Bebek & Çocuk',
   },
   {
@@ -123,38 +114,10 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     name: 'Migros',
     url: 'https://rest.migros.com.tr:443/sanalmarket/users/register/otp',
     method: 'POST',
-    headers: {"X-Device-Type":"MOBILE","X-Device-Platform":"IOS","X-Device-App-Version":"10.6.13","Accept-Language":"tr-TR"},
+    headers: { 'X-Device-Type': 'MOBILE', 'X-Device-Platform': 'IOS', 'X-Device-App-Version': '10.6.13', 'Accept-Language': 'tr-TR' },
     payloadInfo: '{"email": "test@test.com", "phoneNumber": "5XXXXXXXXX"}',
     status: 'working',
     category: 'Market',
-  },
-  {
-    id: 'dominos',
-    name: 'Dominos',
-    url: 'https://frontend.dominos.com.tr:443/api/customer/sendOtpCode',
-    method: 'POST',
-    payloadInfo: '{"email": "test@test.com", "isSure": false, "mobilePhone": "5XXXXXXXXX"}',
-    status: 'working',
-    category: 'Yemek',
-  },
-  {
-    id: 'english_home',
-    name: 'English Home',
-    url: 'https://www.englishhome.com/api/member/saveMemberAndLogin',
-    method: 'POST',
-    payloadInfo: '{"Name": "Test", "LastName": "User", "EMail": "{{EMAIL}}", "CellPhone": "5XXXXXXXXX", "Password": "Test123!", "GenderId": 1, "GivenOtp": "", "EncryptedOtp": ""}',
-    status: 'limited',
-    category: 'Giyim & Ev Eşyası',
-  },
-  {
-    id: 'koton',
-    name: 'Koton',
-    url: 'https://www.koton.com/users/register/',
-    method: 'POST',
-    headers: {"X-App-Type":"akinon-mobile"},
-    payloadInfo: '{"phone": "5XXXXXXXXX", "first_name": "Test", "last_name": "User", "email": "{{EMAIL}}", "password": "Test123!"}',
-    status: 'working',
-    category: 'Giyim & Ev Eşyası',
   },
   {
     id: 'kahve_dunyasi',
@@ -170,18 +133,9 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     name: 'WMF',
     url: 'https://wmf.com.tr/users/register/',
     method: 'POST',
-    payloadInfo: '{"phone":"05XXXXXXXXX","first_name":"Test","last_name":"Test","email":"{{EMAIL}}","password":"Test123!","confirm":true,"date_of_birth":"1990-01-01"}',
-    status: 'limited',
-    category: 'Giyim & Ev Eşyası',
-  },
-  {
-    id: 'ayyildiz',
-    name: 'Ayyıldız',
-    url: 'https://api.altinyildizclassics.com/mobileapi2/autapi/CreateSmsOtpForRegister',
-    method: 'POST',
-    headers: {"Token":"MXZ5NTJ82WXBUJB7KBP10AGR3AF6S4GB95VZDU4G44JFEIN3WISAC2KLRIBNONQ7QVCZXM3ZHI661AMVXLKJLF9HUKI5SQ2ROMZS","Devicetype":"mobileapp"},
-    payloadInfo: '{"gsm": "5XXXXXXXXX"}',
-    status: 'limited',
+    payloadInfo:
+      '{"phone":"05XXXXXXXXX","first_name":"Test","last_name":"Test","email":"{{EMAIL}}","password":"Test123!","confirm":true,"date_of_birth":"1990-01-01"}',
+    status: 'working',
     category: 'Giyim & Ev Eşyası',
   },
   {
@@ -189,9 +143,10 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     name: 'Intersport',
     url: 'https://www.intersport.com.tr/users/register/',
     method: 'POST',
-    headers: {"X-App-Type":"akinon-mobile"},
-    payloadInfo: '{"phone": "05XXXXXXXXX", "first_name": "Test", "last_name": "Test", "email": "{{EMAIL}}", "password": "Test123!", "confirm": true}',
-    status: 'limited',
+    headers: { 'X-App-Type': 'akinon-mobile' },
+    payloadInfo:
+      '{"phone": "05XXXXXXXXX", "first_name": "Test", "last_name": "Test", "email": "{{EMAIL}}", "password": "Test123!", "confirm": true}',
+    status: 'dead',
     category: 'Spor',
   },
   {
@@ -209,7 +164,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     url: 'https://www.massimodutti.com/tr/api/auth/register/sendOtp',
     method: 'POST',
     payloadInfo: '{"phone": "+905XXXXXXXXX"}',
-    status: 'limited',
+    status: 'working',
     category: 'Giyim & Ev Eşyası',
   },
   {
@@ -218,7 +173,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     url: 'https://www.teknosa.com/api/v1/auth/register/sendOtp',
     method: 'POST',
     payloadInfo: '{"phone": "5XXXXXXXXX"}',
-    status: 'limited',
+    status: 'working',
     category: 'Teknoloji',
   },
   {
@@ -227,7 +182,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     url: 'https://bim.veesk.net:443/service/v1.0/account/login',
     method: 'POST',
     payloadInfo: '{"phone": "5XXXXXXXXX"}',
-    status: 'limited',
+    status: 'dead',
     category: 'Market',
   },
   {
@@ -236,7 +191,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     url: 'https://www.happycenter.com.tr/api/v1/auth/register/sendOtp',
     method: 'POST',
     payloadInfo: '{"phone": "5XXXXXXXXX"}',
-    status: 'limited',
+    status: 'working',
     category: 'Market',
   },
   {
@@ -245,8 +200,79 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     url: 'https://neo.lrworld.com/api/v1/login/cas',
     method: 'POST',
     payloadInfo: '{"phone": "+905XXXXXXXXX", "country": "TR"}',
-    status: 'limited',
+    status: 'working',
     category: 'Kozmetik',
+  },
+  {
+    id: 'ayyildiz',
+    name: 'Ayyıldız',
+    url: 'https://api.altinyildizclassics.com/mobileapi2/autapi/CreateSmsOtpForRegister',
+    method: 'POST',
+    headers: {
+      Token: 'MXZ5NTJ82WXBUJB7KBP10AGR3AF6S4GB95VZDU4G44JFEIN3WISAC2KLRIBNONQ7QVCZXM3ZHI661AMVXLKJLF9HUKI5SQ2ROMZS',
+      Devicetype: 'mobileapp',
+      AppVersion: '2.0.0',
+      Platform: 'Android',
+    },
+    payloadInfo: '{"gsm": "5XXXXXXXXX"}',
+    status: 'dead',
+    category: 'Giyim & Ev Eşyası',
+  },
+  {
+    id: 'english_home',
+    name: 'English Home',
+    url: 'https://www.englishhome.com/api/member/saveMemberAndLogin',
+    method: 'POST',
+    payloadInfo:
+      '{"Name": "Test", "LastName": "User", "EMail": "{{EMAIL}}", "CellPhone": "5XXXXXXXXX", "Password": "Test123!", "GenderId": 1, "GivenOtp": "", "EncryptedOtp": ""}',
+    status: 'dead',
+    category: 'Giyim & Ev Eşyası',
+  },
+  {
+    id: 'koton',
+    name: 'Koton',
+    url: 'https://www.koton.com/users/register/',
+    method: 'POST',
+    headers: { 'X-App-Type': 'akinon-mobile' },
+    payloadInfo: '{"phone": "5XXXXXXXXX", "first_name": "Test", "last_name": "User", "email": "{{EMAIL}}", "password": "Test123!"}',
+    status: 'working',
+    category: 'Giyim & Ev Eşyası',
+  },
+  {
+    id: 'suiste',
+    name: 'Suiste',
+    url: 'https://suiste.com/api/auth/code',
+    method: 'POST',
+    payloadInfo: '{"gsm": "5XXXXXXXXX", "action": "register"}',
+    status: 'working',
+    category: 'Dijital Hizmetler',
+  },
+  {
+    id: 'hayat_su',
+    name: 'Hayat Su',
+    url: 'https://api.hayatsu.com.tr/api/SignUp/SendOtp',
+    method: 'POST',
+    payloadInfo: '{"phone": "5XXXXXXXXX"}',
+    status: 'working',
+    category: 'Market',
+  },
+  {
+    id: 'komagene',
+    name: 'Komagene',
+    url: 'https://gateway.komagene.com.tr/auth/auth/smskodugonder',
+    method: 'POST',
+    payloadInfo: '{"phone": "5XXXXXXXXX"}',
+    status: 'working',
+    category: 'Yemek',
+  },
+  {
+    id: 'steam',
+    name: 'Steam',
+    url: 'https://store.steampowered.com/phone/add_ajaxop',
+    method: 'POST',
+    payloadInfo: '{"phone": "905XXXXXXXXX", "sessionid": "", "confirmed": "1"}',
+    status: 'working',
+    category: 'Oyun',
   },
 ];
 
