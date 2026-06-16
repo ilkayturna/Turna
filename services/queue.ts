@@ -6,7 +6,7 @@ interface QueueTask {
 }
 
 export class AdaptiveConcurrencyQueue {
-  private maxConcurrent = 12;
+  private maxConcurrent = 30;
   private staggerDelay = 0;
   private minEndpointGap = 0;
   private lastRequestTime: Map<string, number> = new Map();
@@ -38,17 +38,18 @@ export class AdaptiveConcurrencyQueue {
 
         if (result.status === RequestStatus.RATE_LIMITED || result.status === RequestStatus.FAILED) {
           this.consecutiveRateLimits++;
-          if (this.consecutiveRateLimits >= 3) {
-            this.maxConcurrent = Math.max(4, this.maxConcurrent - 1);
-            await this.sleep(500);
+          if (this.consecutiveRateLimits >= 5) {
+            this.maxConcurrent = Math.max(10, this.maxConcurrent - 2);
+            await this.sleep(300);
           }
         } else {
           this.consecutiveRateLimits = 0;
-          if (this.maxConcurrent < 12) this.maxConcurrent++;
+          if (this.maxConcurrent < 30) this.maxConcurrent++;
         }
       }
     };
 
+    // TURBO MODE: All endpoints fire at once
     const safePool = Math.min(this.maxConcurrent, shuffled.length);
     const workers = Array.from({ length: safePool }, () => executeNext());
     await Promise.all(workers);

@@ -56,20 +56,37 @@ function isGenuineSuccess(data: any): boolean {
   if (hardFail.some(p => str.includes(p))) return false;
   const hardSuccess = [
     '"responsetype":"success"', 'sms gönderildi', 'sms gonderildi', 'claimid',
-    '"processstatus":"success"', '"successful":true',
+    '"processstatus":"success"', '"successful":true', '"resultstatus":"success"',
+    '"result":"sms sended succesfully!"', '"result":true', '"processstatus":"success"',
   ];
   if (hardSuccess.some(p => str.includes(p))) return true;
   return true;
+}
+
+function formatBody(payload: any, contentType: string): string | undefined {
+  if (contentType.includes('application/x-www-form-urlencoded')) {
+    if (typeof payload === 'string') return payload;
+    try { return new URLSearchParams(payload).toString(); } catch { return JSON.stringify(payload); }
+  }
+  if (contentType.includes('multipart/form-data')) {
+    if (typeof payload === 'string') return payload;
+    // For multipart, send as JSON and hope for the best
+    return JSON.stringify(payload);
+  }
+  // Default: JSON
+  return typeof payload === 'string' ? payload : JSON.stringify(payload);
 }
 
 async function tryFetch(url: string, method: string, payload: any, headers: any, timeout = 10000): Promise<{ ok: boolean; status: number; data: any; raw: string }> {
   try {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), timeout);
+    const contentType = headers['Content-Type'] || 'application/json';
+    const body = formatBody(payload, contentType);
     const resp = await fetch(url, {
       method,
       headers,
-      body: method !== 'GET' ? JSON.stringify(payload) : undefined,
+      body: method !== 'GET' ? body : undefined,
       signal: ctrl.signal,
     });
     clearTimeout(timer);
@@ -117,13 +134,13 @@ async function attemptStrategies(opts: {
   results.push({ attempt: 4, strategy: '90_format', ...r4 });
   if (r4.ok) return results;
 
-  // Strategy 5: Smart phone field variants (fast - no delay)
+  // Strategy 5: Smart phone field variants
   const phoneFormats = [opts.targetPhone, `0${opts.targetPhone}`, `90${opts.targetPhone}`, `+90${opts.targetPhone}`];
   for (const field of PHONE_FIELDS.slice(0, 6)) {
     for (const fmt of phoneFormats) {
       const payload: any = {};
       for (const k of Object.keys(opts.payloadToUse)) {
-        if (k !== 'phone' && k !== 'mobilePhone' && k !== 'phoneNumber' && k !== 'mobilePhoneNumber' && k !== 'gsm' && k !== 'telephone') {
+        if (!PHONE_FIELDS.includes(k)) {
           payload[k] = opts.payloadToUse[k];
         }
       }
@@ -138,7 +155,6 @@ async function attemptStrategies(opts: {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');

