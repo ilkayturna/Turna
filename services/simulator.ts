@@ -17,6 +17,13 @@ export async function detectLocalProxy(): Promise<boolean> {
   }
 }
 
+function generateRandomEmail(): string {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let user = '';
+  for (let i = 0; i < 10; i++) user += chars[Math.floor(Math.random() * chars.length)];
+  return `${user}@mailinator.com`;
+}
+
 async function callProxy(
   proxyUrl: string,
   service: ServiceDefinition,
@@ -26,6 +33,7 @@ async function callProxy(
 ): Promise<LogEntry | null> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 20000);
+  const uniqueEmail = email && email.trim() ? email : generateRandomEmail();
   try {
     const response = await fetch(proxyUrl, {
       method: 'POST',
@@ -36,7 +44,7 @@ async function callProxy(
         serviceMethod: service.method,
         serviceHeaders: service.headers || {},
         targetPhone,
-        email: email || '',
+        email: uniqueEmail,
         initialPayload: service.payloadInfo || undefined,
         fastFail: service.fastFail || false,
       }),
@@ -89,6 +97,7 @@ async function callDirect(
 ): Promise<LogEntry> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000);
+  const uniqueEmail = email && email.trim() ? email : generateRandomEmail();
   try {
     let payload: Record<string, unknown>;
     try {
@@ -96,7 +105,7 @@ async function callDirect(
         (service.payloadInfo || '{}')
           .replace(/5XXXXXXXXX/g, targetPhone)
           .replace(/905XXXXXXXXX/g, `90${targetPhone}`)
-          .replace(/\{\{EMAIL\}\}/g, email || 'test@test.com'),
+          .replace(/\{\{EMAIL\}\}/g, uniqueEmail),
       );
     } catch {
       payload = { phone: targetPhone } as Record<string, unknown>;

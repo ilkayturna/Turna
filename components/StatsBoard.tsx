@@ -7,12 +7,18 @@ interface StatsBoardProps {
   localProxyAvailable?: boolean | null;
 }
 
-const StatCard = ({ title, value, type = "default", subtitle }: any) => {
-  let valueColor = "text-white";
-  if (type === "success") valueColor = "text-emerald-500";
-  if (type === "error") valueColor = "text-rose-500";
-  if (type === "warning") valueColor = "text-amber-500";
-  if (type === "info") valueColor = "text-sky-400";
+interface StatCardProps {
+  title: string;
+  value: number | string;
+  type?: 'default' | 'success' | 'error' | 'warning' | 'info';
+  subtitle?: string;
+}
+const StatCard = ({ title, value, type = 'default', subtitle }: StatCardProps) => {
+  let valueColor = 'text-white';
+  if (type === 'success') valueColor = 'text-emerald-500';
+  if (type === 'error') valueColor = 'text-rose-500';
+  if (type === 'warning') valueColor = 'text-amber-500';
+  if (type === 'info') valueColor = 'text-sky-400';
 
   return (
     <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 flex flex-col justify-between">
@@ -34,48 +40,28 @@ export const StatsBoard: React.FC<StatsBoardProps> = ({ stats, endpointHealth, l
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
-      <StatCard 
-        title="Total Requests" 
-        value={stats.totalSent} 
-      />
+      <StatCard title="Total Requests" value={stats.totalSent} />
 
-      <StatCard 
-        title="Successful" 
-        value={stats.success} 
-        type="success"
-        subtitle={total > 0 ? `/ ${total} endpoints` : undefined}
-      />
+      <StatCard title="Successful" value={stats.success} type="success" subtitle={total > 0 ? `/ ${total} endpoints` : undefined} />
 
-      <StatCard 
-        title="Failed" 
-        value={stats.failed} 
-        type="error"
-      />
+      <StatCard title="Failed" value={stats.failed} type="error" />
 
-      <StatCard 
-        title="Opaque" 
-        value={stats.sentOpaque} 
-        type="warning"
-      />
+      <StatCard title="Opaque" value={stats.sentOpaque} type="warning" />
 
-      <StatCard 
-        title="Rate Limited" 
-        value={stats.rateLimited} 
-        type="warning"
-      />
+      <StatCard title="Rate Limited" value={stats.rateLimited} type="warning" />
 
       {total > 0 && (
-        <StatCard 
-          title="Endpoint Health" 
-          value={total - dead - unknown} 
+        <StatCard
+          title="Endpoint Health"
+          value={total - dead - unknown}
           type="info"
           subtitle={dead > 0 ? `${dead} dead, ${limited} limited` : `${working} working`}
         />
       )}
 
-      <StatCard 
-        title="Proxy Mode" 
-        value={localProxyAvailable === true ? 'Local' : localProxyAvailable === false ? 'Vercel' : '...'} 
+      <StatCard
+        title="Proxy Mode"
+        value={localProxyAvailable === true ? 'Local' : localProxyAvailable === false ? 'Vercel' : '...'}
         type={localProxyAvailable === true ? 'success' : 'warning'}
         subtitle={localProxyAvailable === true ? 'your IP' : localProxyAvailable === false ? 'datacenter IP' : 'detecting'}
       />

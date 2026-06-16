@@ -27,6 +27,13 @@ function buildHeaders(origin?: string): Record<string, string> {
   return h;
 }
 
+function generateRandomEmail(): string {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let user = '';
+  for (let i = 0; i < 10; i++) user += chars[Math.floor(Math.random() * chars.length)];
+  return `${user}@mailinator.com`;
+}
+
 function interpolatePhone(schema: any, phone: string, email?: string): any {
   let str = JSON.stringify(schema);
   str = str.replace(/905XXXXXXXXX/g, `90${phone}`);
@@ -34,7 +41,7 @@ function interpolatePhone(schema: any, phone: string, email?: string): any {
   str = str.replace(/5XXXXXXXXX/g, phone);
   str = str.replace(/\+905XXXXXXXXX/g, `+90${phone}`);
   str = str.replace(/\{\{PHONE\}\}/g, phone);
-  str = str.replace(/\{\{EMAIL\}\}/g, email || 'test@test.com');
+  str = str.replace(/\{\{EMAIL\}\}/g, email && email.trim() ? email : generateRandomEmail());
   return JSON.parse(str);
 }
 
