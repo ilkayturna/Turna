@@ -1,0 +1,335 @@
+﻿[
+    {
+        "id":  "onur_market",
+        "name":  "Onur Market",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:5XX",
+        "status":  200,
+        "body":  "\u003c!DOCTYPE html\u003e\r\n\u003chtml lang=\"tr\"\u003e\r\n\u003chead\u003e\r\n\u003ctitle\u003eOnur Market | Kurumsal\u003c/title\u003e\r\n\u003cmeta charset=\"UTF-8\" /\u003e\r\n\u003cmeta name=\"Description\" content=\"\" /\u003e\r\n\u003cmeta name=\"Keywords\" content=\"\" /\u003e\r\n\u003cmeta name=\"vie"
+    },
+    {
+        "id":  "onur_market",
+        "name":  "Onur Market",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:905XX",
+        "status":  200,
+        "body":  "\u003c!DOCTYPE html\u003e\r\n\u003chtml lang=\"tr\"\u003e\r\n\u003chead\u003e\r\n\u003ctitle\u003eOnur Market | Kurumsal\u003c/title\u003e\r\n\u003cmeta charset=\"UTF-8\" /\u003e\r\n\u003cmeta name=\"Description\" content=\"\" /\u003e\r\n\u003cmeta name=\"Keywords\" content=\"\" /\u003e\r\n\u003cmeta name=\"vie"
+    },
+    {
+        "id":  "onur_market",
+        "name":  "Onur Market",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:+905XX",
+        "status":  200,
+        "body":  "\u003c!DOCTYPE html\u003e\r\n\u003chtml lang=\"tr\"\u003e\r\n\u003chead\u003e\r\n\u003ctitle\u003eOnur Market | Kurumsal\u003c/title\u003e\r\n\u003cmeta charset=\"UTF-8\" /\u003e\r\n\u003cmeta name=\"Description\" content=\"\" /\u003e\r\n\u003cmeta name=\"Keywords\" content=\"\" /\u003e\r\n\u003cmeta name=\"vie"
+    },
+    {
+        "id":  "onur_market",
+        "name":  "Onur Market",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:05XX",
+        "status":  200,
+        "body":  "\u003c!DOCTYPE html\u003e\r\n\u003chtml lang=\"tr\"\u003e\r\n\u003chead\u003e\r\n\u003ctitle\u003eOnur Market | Kurumsal\u003c/title\u003e\r\n\u003cmeta charset=\"UTF-8\" /\u003e\r\n\u003cmeta name=\"Description\" content=\"\" /\u003e\r\n\u003cmeta name=\"Keywords\" content=\"\" /\u003e\r\n\u003cmeta name=\"vie"
+    },
+    {
+        "id":  "onur_market",
+        "name":  "Onur Market",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "mobilePhone",
+        "status":  200,
+        "body":  "\u003c!DOCTYPE html\u003e\r\n\u003chtml lang=\"tr\"\u003e\r\n\u003chead\u003e\r\n\u003ctitle\u003eOnur Market | Kurumsal\u003c/title\u003e\r\n\u003cmeta charset=\"UTF-8\" /\u003e\r\n\u003cmeta name=\"Description\" content=\"\" /\u003e\r\n\u003cmeta name=\"Keywords\" content=\"\" /\u003e\r\n\u003cmeta name=\"vie"
+    },
+    {
+        "id":  "onur_market",
+        "name":  "Onur Market",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phoneNumber",
+        "status":  200,
+        "body":  "\u003c!DOCTYPE html\u003e\r\n\u003chtml lang=\"tr\"\u003e\r\n\u003chead\u003e\r\n\u003ctitle\u003eOnur Market | Kurumsal\u003c/title\u003e\r\n\u003cmeta charset=\"UTF-8\" /\u003e\r\n\u003cmeta name=\"Description\" content=\"\" /\u003e\r\n\u003cmeta name=\"Keywords\" content=\"\" /\u003e\r\n\u003cmeta name=\"vie"
+    },
+    {
+        "id":  "sportive",
+        "name":  "Sportive",
+        "reason":  "ERROR",
+        "success":  false,
+        "test":  "phone:5XX",
+        "status":  "ERROR",
+        "body":  "Uzak sunucu hata döndürdü: (405) Metoda İzin Verilmiyor."
+    },
+    {
+        "id":  "sportive",
+        "name":  "Sportive",
+        "reason":  "ERROR",
+        "success":  false,
+        "test":  "phone:905XX",
+        "status":  "ERROR",
+        "body":  "Uzak sunucu hata döndürdü: (405) Metoda İzin Verilmiyor."
+    },
+    {
+        "id":  "sportive",
+        "name":  "Sportive",
+        "reason":  "ERROR",
+        "success":  false,
+        "test":  "phoneNumber",
+        "status":  "ERROR",
+        "body":  "Uzak sunucu hata döndürdü: (405) Metoda İzin Verilmiyor."
+    },
+    {
+        "id":  "shopandfly",
+        "name":  "Shop\u0026Fly",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:5XX",
+        "status":  200,
+        "body":  "\r\n\u003c!DOCTYPE html\u003e\r\n\u003chtml lang=\"tr\"\u003e\r\n\u003chead\u003e\r\n    \u003ctitle\u003eShop\u0026amp;Fly\u003c/title\u003e\r\n    \u003c!-- Required meta tags --\u003e\r\n    \u003cmeta charset=\"utf-8\"\u003e\r\n    \u003cmeta name=\"viewport\" content=\"width=device-width, initia"
+    },
+    {
+        "id":  "shopandfly",
+        "name":  "Shop\u0026Fly",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:905XX",
+        "status":  200,
+        "body":  "\r\n\u003c!DOCTYPE html\u003e\r\n\u003chtml lang=\"tr\"\u003e\r\n\u003chead\u003e\r\n    \u003ctitle\u003eShop\u0026amp;Fly\u003c/title\u003e\r\n    \u003c!-- Required meta tags --\u003e\r\n    \u003cmeta charset=\"utf-8\"\u003e\r\n    \u003cmeta name=\"viewport\" content=\"width=device-width, initia"
+    },
+    {
+        "id":  "shopandfly",
+        "name":  "Shop\u0026Fly",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:+905XX",
+        "status":  200,
+        "body":  "\r\n\u003c!DOCTYPE html\u003e\r\n\u003chtml lang=\"tr\"\u003e\r\n\u003chead\u003e\r\n    \u003ctitle\u003eShop\u0026amp;Fly\u003c/title\u003e\r\n    \u003c!-- Required meta tags --\u003e\r\n    \u003cmeta charset=\"utf-8\"\u003e\r\n    \u003cmeta name=\"viewport\" content=\"width=device-width, initia"
+    },
+    {
+        "id":  "teb",
+        "name":  "TEB",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:5XX",
+        "status":  200,
+        "body":  "\u003c!DOCTYPE html\u003e\r\n\u003chtml xmlns=\"http://www.w3.org/1999/xhtml\"\u003e\r\n\u003chead\u003e\r\n    \u003cmeta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" /\u003e\r\n    \u003cmeta property=\"og:title\" content=\"Türk Ekonomi Ban"
+    },
+    {
+        "id":  "teb",
+        "name":  "TEB",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:905XX",
+        "status":  200,
+        "body":  "\u003c!DOCTYPE html\u003e\r\n\u003chtml xmlns=\"http://www.w3.org/1999/xhtml\"\u003e\r\n\u003chead\u003e\r\n    \u003cmeta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" /\u003e\r\n    \u003cmeta property=\"og:title\" content=\"Türk Ekonomi Ban"
+    },
+    {
+        "id":  "bkm_express",
+        "name":  "BKM Express",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:5XX",
+        "status":  200,
+        "body":  "\u003c!DOCTYPE html\u003e\n\u003c!--[if lt IE 7]\u003e\n\u003chtml class=\"no-js lt-ie9 lt-ie8 lt-ie7\" lang=\"en\"\u003e \u003c![endif]--\u003e\n\u003c!--[if IE 7]\u003e\n\u003chtml class=\"no-js lt-ie9 lt-ie8\" lang=\"en\"\u003e \u003c![endif]--\u003e\n\u003c!--[if IE 8]\u003e\n\u003chtml class=\""
+    },
+    {
+        "id":  "bkm_express",
+        "name":  "BKM Express",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:905XX",
+        "status":  200,
+        "body":  "\u003c!DOCTYPE html\u003e\n\u003c!--[if lt IE 7]\u003e\n\u003chtml class=\"no-js lt-ie9 lt-ie8 lt-ie7\" lang=\"en\"\u003e \u003c![endif]--\u003e\n\u003c!--[if IE 7]\u003e\n\u003chtml class=\"no-js lt-ie9 lt-ie8\" lang=\"en\"\u003e \u003c![endif]--\u003e\n\u003c!--[if IE 8]\u003e\n\u003chtml class=\""
+    },
+    {
+        "id":  "kfc",
+        "name":  "KFC",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:5XX",
+        "status":  200,
+        "body":  "\u003c!doctype html\u003e \u003chtml lang=\"tr\"\u003e \u003chead\u003e \u003cbase href=\"https://www.kfc.com.tr/\"\u003e \u003cmeta charset=\"utf-8\" /\u003e \u003cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" /\u003e \u003cmeta name=\"content-language\" content=\"tr"
+    },
+    {
+        "id":  "kfc",
+        "name":  "KFC",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:905XX",
+        "status":  200,
+        "body":  "\u003c!doctype html\u003e \u003chtml lang=\"tr\"\u003e \u003chead\u003e \u003cbase href=\"https://www.kfc.com.tr/\"\u003e \u003cmeta charset=\"utf-8\" /\u003e \u003cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" /\u003e \u003cmeta name=\"content-language\" content=\"tr"
+    },
+    {
+        "id":  "lr",
+        "name":  "LR",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:+905XX+country",
+        "status":  200,
+        "body":  "\u003c!DOCTYPE html\u003e\u003chtml\u003e\n\n\u003chead\u003e\n\u003ctitle\u003eLR Account Management\u003c/title\u003e\n\u003cmeta charset=\"UTF-8\" /\u003e\u003cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" /\u003e\u003cmeta name=\"viewport\" content=\"width=device-width, ini"
+    },
+    {
+        "id":  "lr",
+        "name":  "LR",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:905XX",
+        "status":  200,
+        "body":  "\u003c!DOCTYPE html\u003e\u003chtml\u003e\n\n\u003chead\u003e\n\u003ctitle\u003eLR Account Management\u003c/title\u003e\n\u003cmeta charset=\"UTF-8\" /\u003e\u003cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" /\u003e\u003cmeta name=\"viewport\" content=\"width=device-width, ini"
+    },
+    {
+        "id":  "massimo_dutti",
+        "name":  "Massimo Dutti",
+        "reason":  "ERROR",
+        "success":  false,
+        "test":  "phone:+905XX",
+        "status":  "ERROR",
+        "body":  "Method invocation failed because [System.Byte[]] does not contain a method named \u0027Substring\u0027."
+    },
+    {
+        "id":  "massimo_dutti",
+        "name":  "Massimo Dutti",
+        "reason":  "ERROR",
+        "success":  false,
+        "test":  "phone:905XX",
+        "status":  "ERROR",
+        "body":  "Method invocation failed because [System.Byte[]] does not contain a method named \u0027Substring\u0027."
+    },
+    {
+        "id":  "massimo_dutti",
+        "name":  "Massimo Dutti",
+        "reason":  "ERROR",
+        "success":  false,
+        "test":  "phone:5XX",
+        "status":  "ERROR",
+        "body":  "Method invocation failed because [System.Byte[]] does not contain a method named \u0027Substring\u0027."
+    },
+    {
+        "id":  "e_bebek",
+        "name":  "E-bebek",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:5XX",
+        "status":  200,
+        "body":  "\u003c!DOCTYPE html\u003e\n\u003chtml lang=\"tr\"\u003e\n\u003chead\u003e\n    \u003cmeta charset=\"UTF-8\"\u003e\n    \u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\u003e\n    \u003ctitle\u003eSayfa BulunamadÄ± - E-bebek\u003c/title\u003e\n    \u003cstyle\u003e"
+    },
+    {
+        "id":  "e_bebek",
+        "name":  "E-bebek",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:905XX",
+        "status":  200,
+        "body":  "\u003c!DOCTYPE html\u003e\n\u003chtml lang=\"tr\"\u003e\n\u003chead\u003e\n    \u003cmeta charset=\"UTF-8\"\u003e\n    \u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\u003e\n    \u003ctitle\u003eSayfa BulunamadÄ± - E-bebek\u003c/title\u003e\n    \u003cstyle\u003e"
+    },
+    {
+        "id":  "e_bebek",
+        "name":  "E-bebek",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone+email",
+        "status":  200,
+        "body":  "\u003c!DOCTYPE html\u003e\n\u003chtml lang=\"tr\"\u003e\n\u003chead\u003e\n    \u003cmeta charset=\"UTF-8\"\u003e\n    \u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\u003e\n    \u003ctitle\u003eSayfa BulunamadÄ± - E-bebek\u003c/title\u003e\n    \u003cstyle\u003e"
+    },
+    {
+        "id":  "lcwaikiki",
+        "name":  "LC Waikiki",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:905XX",
+        "status":  200,
+        "body":  "\r\n\r\n\r\n\u003c!DOCTYPE html\u003e\r\n\u003chtml dir=ltr lang=\"tr-TR\"\u003e\r\n\u003chead\u003e\r\n\r\n    \u003cscript src=\u0027/Resource/Scripts/polyfills-bundle?v=ciBmHOuFOnSqn0kzICLihLc8ILwNm9PUxpqYtFViftM1\u0027 defer\u003e\u003c/script\u003e\r\n\r\n    \r\n\r\n    \u003cscript"
+    },
+    {
+        "id":  "lcwaikiki",
+        "name":  "LC Waikiki",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:5XX",
+        "status":  200,
+        "body":  "\r\n\r\n\r\n\u003c!DOCTYPE html\u003e\r\n\u003chtml dir=ltr lang=\"tr-TR\"\u003e\r\n\u003chead\u003e\r\n\r\n    \u003cscript src=\u0027/Resource/Scripts/polyfills-bundle?v=ciBmHOuFOnSqn0kzICLihLc8ILwNm9PUxpqYtFViftM1\u0027 defer\u003e\u003c/script\u003e\r\n\r\n    \r\n\r\n    \u003cscript"
+    },
+    {
+        "id":  "oldubil",
+        "name":  "Oldubil",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:5XX",
+        "status":  200,
+        "body":  "\u003c!DOCTYPE html\u003e\u003chtml\u003e\u003chead\u003e\u003cmeta charSet=\"utf-8\"/\u003e\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/\u003e\u003ctitle\u003eOldubil! | Anasayfa\u003c/title\u003e\u003cmeta name=\"description\" content=\"OlduBil, Mast"
+    },
+    {
+        "id":  "oldubil",
+        "name":  "Oldubil",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:905XX",
+        "status":  200,
+        "body":  "\u003c!DOCTYPE html\u003e\u003chtml\u003e\u003chead\u003e\u003cmeta charSet=\"utf-8\"/\u003e\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/\u003e\u003ctitle\u003eOldubil! | Anasayfa\u003c/title\u003e\u003cmeta name=\"description\" content=\"OlduBil, Mast"
+    },
+    {
+        "id":  "happy_center",
+        "name":  "Happy Center",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:5XX",
+        "status":  200,
+        "body":  "\n\u003c!DOCTYPE html\u003e\n\u003chtml\u003e\r\n\u003chead\u003e\r\n    \u003cmeta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"\u003e\r\n\n    \u003cmeta charset=\"utf-8\"\u003e\r\n    \u003cmeta name=\"viewport\" content=\"width=device-width\" /\u003e\r\n    \u003ct"
+    },
+    {
+        "id":  "happy_center",
+        "name":  "Happy Center",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:905XX",
+        "status":  200,
+        "body":  "\n\u003c!DOCTYPE html\u003e\n\u003chtml\u003e\r\n\u003chead\u003e\r\n    \u003cmeta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"\u003e\r\n\n    \u003cmeta charset=\"utf-8\"\u003e\r\n    \u003cmeta name=\"viewport\" content=\"width=device-width\" /\u003e\r\n    \u003ct"
+    },
+    {
+        "id":  "komagene",
+        "name":  "Komagene",
+        "reason":  "ERROR",
+        "success":  false,
+        "test":  "phone:5XX",
+        "status":  "ERROR",
+        "body":  "Uzak sunucu hata döndürdü: (401) Onaylanmadı."
+    },
+    {
+        "id":  "komagene",
+        "name":  "Komagene",
+        "reason":  "ERROR",
+        "success":  false,
+        "test":  "phone:905XX",
+        "status":  "ERROR",
+        "body":  "Uzak sunucu hata döndürdü: (401) Onaylanmadı."
+    },
+    {
+        "id":  "komagene",
+        "name":  "Komagene",
+        "reason":  "ERROR",
+        "success":  false,
+        "test":  "gsm",
+        "status":  "ERROR",
+        "body":  "Uzak sunucu hata döndürdü: (401) Onaylanmadı."
+    },
+    {
+        "id":  "hayat_su",
+        "name":  "Hayat Su",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:5XX",
+        "status":  200,
+        "body":  "{\"is_success\":false,\"title\":\"\",\"error_code\":\"400\",\"message\":\"Geçersiz istek imzası.\",\"merchantPaymentId\":\"\",\"total_rows\":0,\"page_number\":0,\"rows_count\":1,\"total_page\":0}"
+    },
+    {
+        "id":  "hayat_su",
+        "name":  "Hayat Su",
+        "reason":  "OTHER",
+        "success":  false,
+        "test":  "phone:905XX",
+        "status":  200,
+        "body":  "{\"is_success\":false,\"title\":\"\",\"error_code\":\"400\",\"message\":\"Geçersiz istek imzası.\",\"merchantPaymentId\":\"\",\"total_rows\":0,\"page_number\":0,\"rows_count\":1,\"total_page\":0}"
+    }
+]
