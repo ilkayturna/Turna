@@ -113,7 +113,8 @@ const App: React.FC = () => {
 
     const endpoints = limit ? TARGET_ENDPOINTS.slice(0, limit) : TARGET_ENDPOINTS;
 
-    // TURBO LOOP MODE: all endpoints fire at once, repeat forever
+    // TURBO LOOP MODE: one queue instance persists cooldowns across cycles
+    const queue = new AdaptiveConcurrencyQueue();
     let cycle = 0;
     while (!abort.signal.aborted) {
       cycle++;
@@ -121,7 +122,6 @@ const App: React.FC = () => {
       cycleStartRef.current = Date.now();
       cycleSmsRef.current = 0;
 
-      const queue = new AdaptiveConcurrencyQueue();
       const tasks = endpoints.map(service => ({
         id: service.id + '_c' + cycle,
         endpointId: service.id,
@@ -130,7 +130,8 @@ const App: React.FC = () => {
 
       await queue.run(tasks, abort.signal, addResult);
 
-      // ZERO GAP — hemen bir sonraki cycle'a geç
+      // tiny gap then next cycle
+      await new Promise(r => setTimeout(r, 100));
     }
 
     setIsRunning(false);

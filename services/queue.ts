@@ -8,13 +8,10 @@ interface QueueTask {
 
 interface EndpointCooldown {
   until: number;
-  duration: number;
   banCount: number;
 }
 
-// Parse Turkish rate-limit messages to extract wait time
 function parseRateLimit(response: string): number | null {
-  // "Lütfen 2 dakika 23 saniye sonra tekrar deneyiniz"
   const minMatch = response.match(/(\d+)\s*dakika/);
   const secMatch = response.match(/(\d+)\s*saniye/);
   if (minMatch || secMatch) {
@@ -28,7 +25,6 @@ function parseRateLimit(response: string): number | null {
 export class AdaptiveConcurrencyQueue {
   private maxConcurrent = 50;
   private cooldowns: Map<string, EndpointCooldown> = new Map();
-  private consecutiveRateLimits = 0;
 
   async run(tasks: QueueTask[], signal?: AbortSignal, onResult?: (result: LogEntry) => void): Promise<LogEntry[]> {
     const results: LogEntry[] = [];
@@ -36,53 +32,45 @@ export class AdaptiveConcurrencyQueue {
 
     const executeNext = async (): Promise<void> => {
       while (!signal?.aborted) {
-        // CYCLE: restart from beginning for continuous flood
         if (index >= tasks.length) {
-          index = 0;
-          await this.sleep(100); // tiny gap between cycles
+          // ALL tasks done in this cycle — report and wait
+          await this.sleep(50);
+          return;
         }
 
         const task = tasks[index++];
 
-        // Check cooldown — skip if rate-limited
+        // Check cooldown
         const cooldown = this.cooldowns.get(task.endpointId);
         if (cooldown && Date.now() < cooldown.until) {
-          continue; // skip, don't even try
+          continue; // skip, but index already advanced
         }
 
         const result = await task.execute();
         results.push(result);
         onResult?.(result);
 
-        if (result.status === RequestStatus.RATE_LIMITED) {
-          // Parse actual wait time from response
-          const waitTime = parseRateLimit(result.message) || 30000;
+        // Handle rate limiting
+        const msg = result.message.toLowerCase();
+        const isRateLimited =
+          result.status === RequestStatus.RATE_LIMITED ||
+          msg.includes('cok fazla istek') ||
+          msg.includes('çok fazla istek') ||
+          msg.includes('lütfen') && msg.includes('tekrar deneyiniz');
+
+        if (isRateLimited) {
+          const waitTime = parseRateLimit(result.message) || 120000;
           const banCount = (this.cooldowns.get(task.endpointId)?.banCount || 0) + 1;
-          // Add 5s buffer to avoid hitting the limit exactly
           this.cooldowns.set(task.endpointId, {
             until: Date.now() + waitTime + 5000,
-            duration: waitTime,
             banCount,
           });
-        } else if (result.status === RequestStatus.FAILED) {
-          // Check if it's a rate-limit in disguise (Koton/Evidea style)
-          const msg = result.message.toLowerCase();
-          if (msg.includes('cok fazla istek') || msg.includes('lütfen') || msg.includes('tekrar deneyiniz')) {
-            const waitTime = parseRateLimit(result.message) || 120000;
-            this.cooldowns.set(task.endpointId, {
-              until: Date.now() + waitTime + 5000,
-              duration: waitTime,
-              banCount: 1,
-            });
-          }
-        } else {
-          // Success — clear cooldown
+        } else if (result.status === RequestStatus.SUCCESS) {
           this.cooldowns.delete(task.endpointId);
         }
       }
     };
 
-    // TURBO MODE: Fire everything at once
     const safePool = Math.min(this.maxConcurrent, tasks.length);
     const workers = Array.from({ length: safePool }, () => executeNext());
     await Promise.all(workers);
