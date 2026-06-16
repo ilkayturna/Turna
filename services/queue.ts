@@ -6,9 +6,9 @@ interface QueueTask {
 }
 
 export class AdaptiveConcurrencyQueue {
-  private maxConcurrent = 8;
-  private staggerDelay = 200;
-  private minEndpointGap = 300;
+  private maxConcurrent = 12;
+  private staggerDelay = 0;
+  private minEndpointGap = 0;
   private lastRequestTime: Map<string, number> = new Map();
   private consecutiveRateLimits = 0;
 
@@ -27,14 +27,10 @@ export class AdaptiveConcurrencyQueue {
         const waitTime = this.minEndpointGap - (now - lastTime);
 
         if (waitTime > 0) {
-          await this.sleep(waitTime + Math.random() * 200);
+          await this.sleep(waitTime);
         }
 
         this.lastRequestTime.set(task.id, Date.now());
-
-        if (index > 1) {
-          await this.sleep(this.staggerDelay + Math.random() * 300);
-        }
 
         const result = await task.execute();
         results.push(result);
@@ -42,15 +38,13 @@ export class AdaptiveConcurrencyQueue {
 
         if (result.status === RequestStatus.RATE_LIMITED || result.status === RequestStatus.FAILED) {
           this.consecutiveRateLimits++;
-          if (this.consecutiveRateLimits >= 2) {
-            this.maxConcurrent = Math.max(3, this.maxConcurrent - 1);
-            this.minEndpointGap = Math.min(2000, this.minEndpointGap + 200);
-            await this.sleep(800 + Math.random() * 1200);
+          if (this.consecutiveRateLimits >= 3) {
+            this.maxConcurrent = Math.max(4, this.maxConcurrent - 1);
+            await this.sleep(500);
           }
         } else {
           this.consecutiveRateLimits = 0;
-          if (this.maxConcurrent < 8) this.maxConcurrent++;
-          if (this.minEndpointGap > 600) this.minEndpointGap -= 100;
+          if (this.maxConcurrent < 12) this.maxConcurrent++;
         }
       }
     };

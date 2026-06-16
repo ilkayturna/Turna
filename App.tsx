@@ -23,6 +23,7 @@ const App: React.FC = () => {
     TARGET_ENDPOINTS.map(s => ({ id: s.id, name: s.name, status: 'unknown' })),
   );
   const [isTesting, setIsTesting] = useState(false);
+  const [cycleCount, setCycleCount] = useState(0);
 
   const abortRef = useRef<AbortController | null>(null);
   const bulkAbortRef = useRef<AbortController | null>(null);
@@ -35,7 +36,7 @@ const App: React.FC = () => {
   const addLog = useCallback((log: LogEntry) => {
     setLogs(prev => {
       const newLogs = [...prev, log];
-      if (newLogs.length > 200) newLogs.shift();
+      if (newLogs.length > 500) newLogs.shift();
       return newLogs;
     });
 
@@ -93,6 +94,7 @@ const App: React.FC = () => {
     setStats(INITIAL_STATS);
     setLogs([]);
     setEndpointHealth(TARGET_ENDPOINTS.map(s => ({ id: s.id, name: s.name, status: 'unknown' })));
+    setCycleCount(0);
     setIsRunning(true);
 
     const abort = new AbortController();
@@ -100,13 +102,26 @@ const App: React.FC = () => {
 
     const endpoints = limit ? TARGET_ENDPOINTS.slice(0, limit) : TARGET_ENDPOINTS;
 
-    const queue = new AdaptiveConcurrencyQueue();
-    const tasks = endpoints.map(service => ({
-      id: service.id,
-      execute: () => simulateNetworkCall(service, target, email, localProxyAvailable === true),
-    }));
+    // AGGRESSIVE LOOP MODE: keep cycling until aborted
+    let cycle = 0;
+    while (!abort.signal.aborted) {
+      cycle++;
+      setCycleCount(cycle);
 
-    await queue.run(tasks, abort.signal, addResult);
+      const queue = new AdaptiveConcurrencyQueue();
+      const tasks = endpoints.map(service => ({
+        id: service.id + '_c' + cycle,
+        execute: () => simulateNetworkCall(service, target, email, localProxyAvailable === true),
+      }));
+
+      await queue.run(tasks, abort.signal, addResult);
+
+      // tiny gap between cycles to prevent complete lockup
+      if (!abort.signal.aborted) {
+        await new Promise(r => setTimeout(r, 200));
+      }
+    }
+
     setIsRunning(false);
   }, [isRunning, isTesting, target, email, limit, localProxyAvailable, addResult]);
 
@@ -121,6 +136,7 @@ const App: React.FC = () => {
     setLogs([]);
     setStats(INITIAL_STATS);
     setEndpointHealth(TARGET_ENDPOINTS.map(s => ({ id: s.id, name: s.name, status: 'unknown' })));
+    setCycleCount(0);
   };
 
   const handleBulkTest = useCallback(async () => {
@@ -158,8 +174,18 @@ const App: React.FC = () => {
                 <Zap size={20} fill="currentColor" />
               </div>
               <h1 className="text-2xl font-semibold tracking-tight text-white">SMS API Sender</h1>
+              {isRunning && (
+                <span className="px-2 py-0.5 bg-red-900/50 border border-red-700 rounded text-xs text-red-400 font-mono animate-pulse">
+                  CYCLE {cycleCount}
+                </span>
+              )}
             </div>
-            <p className="text-zinc-500 text-sm mt-2 ml-1">Send real SMS OTP requests to {TARGET_ENDPOINTS.length} service endpoints.</p>
+            <p className="text-zinc-500 text-sm mt-2 ml-1">
+              {isRunning
+                ? `Aggressive mode active — cycling ${limit ? TARGET_ENDPOINTS.slice(0, limit).length : TARGET_ENDPOINTS.length} endpoints continuously`
+                : `Send real SMS OTP requests to ${TARGET_ENDPOINTS.length} service endpoints.`
+              }
+            </p>
           </div>
 
           <div
