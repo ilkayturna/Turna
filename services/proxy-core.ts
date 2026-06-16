@@ -99,7 +99,6 @@ export function isGenuineSuccess(data: any): boolean {
   const str = JSON.stringify(data).toLowerCase();
 
   const hardFail = [
-    '"status":false',
     '"issuccessful":false',
     '"smsrequired":false',
     '"success":false',
