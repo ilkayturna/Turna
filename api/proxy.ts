@@ -141,22 +141,24 @@ async function attemptStrategies(opts: {
   results.push({ attempt: 4, strategy: '90_format', ...r4 });
   if (r4.ok) return results;
 
-  // Strategy 5: Smart phone field variants
-  const phoneFormats = [opts.targetPhone, `0${opts.targetPhone}`, `90${opts.targetPhone}`, `+90${opts.targetPhone}`];
-  for (const field of PHONE_FIELDS.slice(0, 6)) {
-    for (const fmt of phoneFormats) {
-      const payload: any = {};
-      for (const k of Object.keys(opts.payloadToUse)) {
-        if (!PHONE_FIELDS.includes(k)) {
-          payload[k] = opts.payloadToUse[k];
+    // Strategy 5: Try only the most common phone field with 2 formats
+    const commonFields = PHONE_FIELDS.filter(f => Object.keys(opts.payloadToUse).some(k => k.toLowerCase().includes(f.toLowerCase()) || f.toLowerCase().includes(k.toLowerCase())));
+    const fieldsToTry = commonFields.length > 0 ? commonFields.slice(0, 1) : PHONE_FIELDS.slice(0, 2);
+    const phoneFormats = [opts.targetPhone, `90${opts.targetPhone}`];
+    for (const field of fieldsToTry) {
+      for (const fmt of phoneFormats) {
+        const payload: any = {};
+        for (const k of Object.keys(opts.payloadToUse)) {
+          if (!PHONE_FIELDS.includes(k)) {
+            payload[k] = opts.payloadToUse[k];
+          }
         }
+        payload[field] = fmt;
+        const r = await tryFetch(opts.serviceUrl, opts.serviceMethod, payload, headers);
+        results.push({ attempt: results.length + 1, strategy: `variant_${field}_${fmt.substring(0, 5)}`, ...r });
+        if (r.ok) return results;
       }
-      payload[field] = fmt;
-      const r = await tryFetch(opts.serviceUrl, opts.serviceMethod, payload, headers);
-      results.push({ attempt: results.length + 1, strategy: `variant_${field}_${fmt.substring(0, 5)}`, ...r });
-      if (r.ok) return results;
     }
-  }
 
   return results;
 }
@@ -202,7 +204,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    const last = attempts[attempts.length - 1] || { strategy: 'none', status: 0, data: 'No attempts' };
+    // Find the "best" failure — prefer the direct attempt's error over variant errors
+    const directAttempt = attempts.find(a => a.strategy === 'direct');
+    const last = directAttempt || attempts[attempts.length - 1] || { strategy: 'none', status: 0, data: 'No attempts' };
     return res.status(200).json({
       ok: false,
       upstreamStatus: last.status || 0,

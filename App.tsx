@@ -124,6 +124,7 @@ const App: React.FC = () => {
       const queue = new AdaptiveConcurrencyQueue();
       const tasks = endpoints.map(service => ({
         id: service.id + '_c' + cycle,
+        endpointId: service.id,
         execute: () => simulateNetworkCall(service, target, email, localProxyAvailable === true),
       }));
 
@@ -167,6 +168,7 @@ const App: React.FC = () => {
     const queue = new AdaptiveConcurrencyQueue();
     const tasks = TARGET_ENDPOINTS.map(service => ({
       id: service.id,
+      endpointId: service.id,
       execute: () => simulateNetworkCall(service, target, email, localProxyAvailable === true),
     }));
 
