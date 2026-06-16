@@ -8,7 +8,7 @@ if (process.env.VERCEL_ENV !== 'production') {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { serviceId, serviceUrl, serviceMethod, serviceHeaders, targetPhone, email, initialPayload } = req.body;
+  const { serviceId, serviceUrl, serviceMethod, serviceHeaders, targetPhone, email, initialPayload, fastFail } = req.body;
 
   if (!serviceId || !serviceUrl || !targetPhone) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -29,6 +29,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       email: email || '',
       payloadToUse,
       customHeaders: serviceHeaders,
+      fastFail: fastFail || false,
     });
 
     const successAttempt = attempts.find(a => a.success);

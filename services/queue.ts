@@ -7,8 +7,8 @@ interface QueueTask {
 
 export class AdaptiveConcurrencyQueue {
   private maxConcurrent = 8;
-  private staggerDelay = 400;
-  private minEndpointGap = 600;
+  private staggerDelay = 200;
+  private minEndpointGap = 300;
   private lastRequestTime: Map<string, number> = new Map();
   private consecutiveRateLimits = 0;
 

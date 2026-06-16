@@ -110,6 +110,9 @@ export function isGenuineSuccess(data: any): boolean {
     'ust üste cok fazla istek',
     'cok fazla istek',
     'lutfen 1 dakika',
+    'gecersiz istek imzasi',
+    'geçersiz istek imzası',
+    'captcha',
   ];
   if (hardFail.some(p => str.includes(p))) return false;
 
@@ -119,6 +122,7 @@ export function isGenuineSuccess(data: any): boolean {
     'sms gonderildi',
     'claimid',
     '"data":"200 ok"',
+    '"processstatus":"success"',
   ];
   if (hardSuccess.some(p => str.includes(p))) return true;
 
@@ -174,7 +178,7 @@ export function buildSmartVariants(originalPayload: any, targetPhone: string, em
 }
 
 export async function withBackoff(step: number, fn: () => Promise<any>): Promise<any> {
-  if (step > 1) await sleep(500 + Math.random() * 1000);
+  if (step > 1) await sleep(200 + Math.random() * 300);
   return fn();
 }
 
@@ -231,6 +235,7 @@ export interface AttemptStrategiesOpts {
   customHeaders?: Record<string, string>;
   groqClient?: any;
   groqApiKey?: string;
+  fastFail?: boolean;
 }
 
 export async function attemptStrategies({
@@ -242,6 +247,7 @@ export async function attemptStrategies({
   customHeaders,
   groqClient,
   groqApiKey,
+  fastFail,
 }: AttemptStrategiesOpts): Promise<any[]> {
   const results: any[] = [];
   const origin = new URL(serviceUrl).origin;
@@ -253,6 +259,10 @@ export async function attemptStrategies({
     const r1 = await executeRequest(serviceUrl, serviceMethod, payloadToUse, mergedHeaders);
     results.push({ attempt: 1, strategy: 'direct', ...r1 });
   });
+
+  // Fast fail: for dead endpoints, only try once and return immediately
+  if (fastFail) return results;
+
   if (results[0]?.success) return results;
 
   // 2 — AI Healing

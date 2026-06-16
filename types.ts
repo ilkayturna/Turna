@@ -11,11 +11,12 @@ export interface ServiceDefinition {
   name: string;
   url: string;
   method: 'POST' | 'GET';
-  // Removed failureRate - We are doing live requests now
-  headers?: Record<string, string>; 
-  payloadInfo?: string; 
+  headers?: Record<string, string>;
+  payloadInfo?: string;
   category?: string;
   status?: string;
+  /** If true, only try direct strategy (skip AI heal, variants, CSRF) — for endpoints known to work with exact payload */
+  fastFail?: boolean;
 }
 
 export interface LogEntry {
@@ -40,13 +41,4 @@ export interface EndpointHealth {
   name: string;
   status: 'unknown' | 'working' | 'dead' | 'limited';
   upstreamStatus?: number;
-}
-
-export interface Certificate {
-  id: string;
-  title: string;
-  issuer: string;
-  date: string;
-  url: string;
-  count?: number;
 }

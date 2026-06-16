@@ -38,6 +38,7 @@ async function callProxy(
         targetPhone,
         email: email || '',
         initialPayload: service.payloadInfo || undefined,
+        fastFail: service.fastFail || false,
       }),
       signal: controller.signal,
     });
