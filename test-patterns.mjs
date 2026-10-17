@@ -18,7 +18,8 @@ const statusVals = [...content.matchAll(statusRegex)].map(m => m[1]);
 const payloadVals = [...content.matchAll(payloadRegex)].map(m => m[1]);
 
 const endpoints = idVals.map((id, i) => ({
-  id, name: nameVals[i] || '',
+  id,
+  name: nameVals[i] || '',
   url: urlVals[i] || '',
   method: methodVals[i] || 'POST',
   status: statusVals[i] || 'unknown',
@@ -34,53 +35,89 @@ const alternatives = {
   zara: ['https://www.zara.com/tr/api/auth/register/sendOtp', 'https://www.zara.com/tr/api/v1/auth/register/sendOtp'],
   bershka: ['https://www.bershka.com/tr/api/auth/register/sendOtp', 'https://www.bershka.com/itxrest/2/auth/register/send-otp'],
   pull_bear: ['https://www.pullandbear.com/tr/api/auth/register/sendOtp', 'https://www.pullandbear.com/itxrest/2/auth/register/send-otp'],
-  stradivarius: ['https://www.stradivarius.com/tr/api/auth/register/sendOtp', 'https://www.stradivarius.com/itxrest/2/auth/register/send-otp'],
-  
+  stradivarius: [
+    'https://www.stradivarius.com/tr/api/auth/register/sendOtp',
+    'https://www.stradivarius.com/itxrest/2/auth/register/send-otp',
+  ],
+
   // Other fashion
   hm: ['https://www2.hm.com/tr_tr/api/auth/register/sendOtp', 'https://www2.hm.com/tr_tr/api/customer/sendOtpCode'],
   mango: ['https://shop.mango.com/services/user/v1/register/sendOtp', 'https://shop.mango.com/tr/services/user/v1/register/send-otp'],
-  
+
   // e-commerce Market
   carrefour: ['https://www.carrefoursa.com/api/auth/register/send-otp', 'https://www.carrefoursa.com/rest/user-edge/auth/login/otp'],
-  rossmann: ['https://www.rossmann.com.tr/api/v1/auth/register/sendOtp', 'https://www.rossmann.com.tr/api/auth/register/send-otp', 'https://www.rossmann.com.tr/services/user/register/send-otp'],
+  rossmann: [
+    'https://www.rossmann.com.tr/api/v1/auth/register/sendOtp',
+    'https://www.rossmann.com.tr/api/auth/register/send-otp',
+    'https://www.rossmann.com.tr/services/user/register/send-otp',
+  ],
   watsons: ['https://www.watsons.com.tr/api/auth/register/send-otp', 'https://www.watsons.com.tr/rest/user-edge/auth/login/otp'],
   gratis: ['https://www.gratis.com/api/v1/auth/register/send-otp', 'https://www.gratis.com/api/auth/register/sendOtp'],
-  
+
   // Tech
-  mediamarkt: ['https://www.mediamarkt.com.tr/api/v1/auth/register/sendOtp', 'https://www.mediamarkt.com.tr/api/auth/register/send-otp', 'https://www.mediamarkt.com.tr/rest/user-edge/auth/login/otp'],
-  vatan_bilgisayar: ['https://www.vatanbilgisayar.com/api/v1/auth/register/send-otp', 'https://www.vatanbilgisayar.com/api/auth/register/sendOtp'],
+  mediamarkt: [
+    'https://www.mediamarkt.com.tr/api/v1/auth/register/sendOtp',
+    'https://www.mediamarkt.com.tr/api/auth/register/send-otp',
+    'https://www.mediamarkt.com.tr/rest/user-edge/auth/login/otp',
+  ],
+  vatan_bilgisayar: [
+    'https://www.vatanbilgisayar.com/api/v1/auth/register/send-otp',
+    'https://www.vatanbilgisayar.com/api/auth/register/sendOtp',
+  ],
   itopya: ['https://www.itopya.com/api/v1/auth/register/send-otp', 'https://www.itopya.com/api/auth/register/sendOtp'],
   gamegaraj: ['https://www.gamegaraj.com/api/v1/auth/register/send-otp', 'https://www.gamegaraj.com/api/auth/register/sendOtp'],
-  
+
   // Cosmetic
   avon: ['https://www.avon.com.tr/api/v1/auth/register/send-otp', 'https://www.avon.com.tr/api/auth/register/sendOtp'],
   oriflame: ['https://www.oriflame.com.tr/api/v1/auth/register/sendOtp', 'https://www.oriflame.com.tr/api/auth/register/send-otp'],
   farmasi: ['https://www.farmasi.com.tr/api/v1/auth/register/send-otp', 'https://www.farmasi.com.tr/api/auth/register/sendOtp'],
   herbalife: ['https://www.herbalife.com.tr/api/v1/auth/register/send-otp', 'https://www.herbalife.com.tr/api/auth/register/sendOtp'],
   amway: ['https://www.amway.com.tr/api/v1/auth/register/sendOtp', 'https://www.amway.com.tr/api/auth/register/send-otp'],
-  lr: ['https://www.lrworld.com/tr/api/v1/auth/register/send-otp', 'https://www.lrworld.com/api/v1/auth/register/send-otp', 'https://neo.lrworld.com/api/v1/login/cas'],
-  
+  lr: [
+    'https://www.lrworld.com/tr/api/v1/auth/register/send-otp',
+    'https://www.lrworld.com/api/v1/auth/register/send-otp',
+    'https://neo.lrworld.com/api/v1/login/cas',
+  ],
+
   // Food
-  starbucks: ['https://www.starbucks.com.tr/api/v1/auth/register/otp', 'https://www.starbucks.com.tr/api/account/register/sendOtp', 'https://www.starbucks.com.tr/api/v1/auth/register/send-otp'],
-  
+  starbucks: [
+    'https://www.starbucks.com.tr/api/v1/auth/register/otp',
+    'https://www.starbucks.com.tr/api/account/register/sendOtp',
+    'https://www.starbucks.com.tr/api/v1/auth/register/send-otp',
+  ],
+
   // Other
-  penti: ['https://www.penti.com/api/v1/auth/register/sendOtp', 'https://www.penti.com/api/auth/register/send-otp', 'https://www.penti.com/api/member/sendOtp'],
+  penti: [
+    'https://www.penti.com/api/v1/auth/register/sendOtp',
+    'https://www.penti.com/api/auth/register/send-otp',
+    'https://www.penti.com/api/member/sendOtp',
+  ],
   dr: ['https://www.dr.com.tr/api/v1/auth/register/sendOtp', 'https://www.dr.com.tr/api/v1/otp/send'],
-  kitapyurdu: ['https://www.kitapyurdu.com/api/v1/auth/register/sendOtp', 'https://www.kitapyurdu.com/index.php?route=account/register/send-otp'],
+  kitapyurdu: [
+    'https://www.kitapyurdu.com/api/v1/auth/register/sendOtp',
+    'https://www.kitapyurdu.com/index.php?route=account/register/send-otp',
+  ],
   bkm_kitap: ['https://www.bkmkitap.com/api/v1/auth/register/sendOtp', 'https://www.bkmkitap.com/api/v1/otp/send'],
   toyzz_shop: ['https://www.toyzzshop.com/api/v1/auth/register/sendOtp', 'https://www.toyzzshop.com/api/v1/otp/send'],
   alix_avien: ['https://www.alixavien.com.tr/api/v1/auth/register/sendOtp', 'https://www.alixavien.com.tr/api/auth/register/send-otp'],
-  cineverse: ['https://www.paribucineverse.com/api/v1/auth/register/send-otp', 'https://www.paribucineverse.com/api/v1/auth/register/sendOtp'],
+  cineverse: [
+    'https://www.paribucineverse.com/api/v1/auth/register/send-otp',
+    'https://www.paribucineverse.com/api/v1/auth/register/sendOtp',
+  ],
   kuryem_gelsin: ['https://www.kuryemgelsin.com/api/v1/auth/otp/send'],
   hey_scooter: ['https://www.heyscooter.com.tr/api/v1/auth/otp/send'],
-  a101: ['https://www.a101.com.tr/api/v1/auth/register/send-otp', 'https://www.a101.com.tr/api/v1/auth/register/sendOtp', 'https://www.a101.com.tr/api/v1/otp/send'],
+  a101: [
+    'https://www.a101.com.tr/api/v1/auth/register/send-otp',
+    'https://www.a101.com.tr/api/v1/auth/register/sendOtp',
+    'https://www.a101.com.tr/api/v1/otp/send',
+  ],
   kim_gb_ister: ['https://api.kimgbister.com/api/v1/auth/otp/send'],
   decathlon: ['https://www.decathlon.com.tr/api/v1/auth/register/send-otp', 'https://www.decathlon.com.tr/api/auth/register/sendOtp'],
-  
+
   // Retail
   jimmy_key: ['https://www.jimmykey.com/tr/api/member/sendOtp', 'https://www.jimmykey.com/tr/api/v1/auth/register/sendOtp'],
   mothercare: ['https://www.mothercare.com.tr/api/v1/auth/register/sendOtp', 'https://www.mothercare.com.tr/api/member/register/send-otp'],
-  
+
   // Platform
   playstation: ['https://store.playstation.com/tr/api/v1/auth/otp/send', 'https://www.playstation.com/tr/api/v1/auth/otp/send'],
   epic_games: ['https://www.epicgames.com/id/api/v1/auth/otp/send'],
@@ -94,8 +131,20 @@ async function testUrl(url, method = 'POST', payload = '') {
     let body;
     if (payload) {
       try {
-        body = JSON.stringify(JSON.parse(payload.replace(/{{PHONE}}/g, '5321111111').replace(/{{EMAIL}}/g, 'test@test.com').replace(/905XXXXXXXXX/g, '905321111111').replace(/05XXXXXXXXX/g, '05532111111').replace(/5XXXXXXXXX/g, '5321111111').replace(/\+905XXXXXXXXX/g, '+905321111111')));
-      } catch { body = payload; }
+        body = JSON.stringify(
+          JSON.parse(
+            payload
+              .replace(/{{PHONE}}/g, '5321111111')
+              .replace(/{{EMAIL}}/g, 'test@test.com')
+              .replace(/905XXXXXXXXX/g, '905321111111')
+              .replace(/05XXXXXXXXX/g, '05532111111')
+              .replace(/5XXXXXXXXX/g, '5321111111')
+              .replace(/\+905XXXXXXXXX/g, '+905321111111'),
+          ),
+        );
+      } catch {
+        body = payload;
+      }
     }
     const res = await fetch(url, {
       method,
@@ -115,11 +164,11 @@ async function testUrl(url, method = 'POST', payload = '') {
 
 async function main() {
   let found = 0;
-  
+
   for (const [id, urls] of Object.entries(alternatives)) {
     const ep = endpoints.find(e => e.id === id);
     if (!ep || ep.status === 'working') continue;
-    
+
     // First test original URL
     const original = await testUrl(ep.url, ep.method, ep.payload);
     if (original.ok) {
@@ -127,7 +176,7 @@ async function main() {
       found++;
       continue;
     }
-    
+
     // Test alternatives
     for (const altUrl of urls) {
       if (altUrl === ep.url) continue;
@@ -142,7 +191,7 @@ async function main() {
       await new Promise(r => setTimeout(r, 200));
     }
   }
-  
+
   console.log(`\n\nTotal found: ${found}`);
 }
 

@@ -1,5 +1,3 @@
-import { ServiceDefinition } from '../types';
-
 const TARGET_ENDPOINTS = [
   // ✅ ÇALIŞAN SERVİSLER (Test Edildi)
   // --- GİYİM & EV EŞYASI ---
@@ -866,11 +864,4 @@ const TARGET_ENDPOINTS = [
   },
 ];
 
-const INITIAL_STATS = {
-  totalSent: 0,
-  success: 0,
-  failed: 0,
-  rateLimited: 0,
-  sentOpaque: 0,
-};
-module.exports = { TARGET_ENDPOINTS };
+export { TARGET_ENDPOINTS };

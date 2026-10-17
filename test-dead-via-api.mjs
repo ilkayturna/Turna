@@ -35,7 +35,8 @@ function getHeadersForId(id) {
 }
 
 const endpoints = idVals.map((id, i) => ({
-  id, name: nameVals[i] || '',
+  id,
+  name: nameVals[i] || '',
   url: urlVals[i] || '',
   method: methodVals[i] || 'POST',
   status: statusVals[i] || 'unknown',
@@ -48,51 +49,81 @@ const working = endpoints.filter(e => e.status === 'working' || e.status === 'li
 
 // Dedup
 const seen = new Set();
-const uniqueDead = dead.filter(e => { if (seen.has(e.id)) return false; seen.add(e.id); return true; });
+const uniqueDead = dead.filter(e => {
+  if (seen.has(e.id)) return false;
+  seen.add(e.id);
+  return true;
+});
 
 console.log(`Total: ${endpoints.length}, Dead: ${uniqueDead.length}, Working: ${working.length}`);
 
 // Known alternative paths
 const ALT_PATHS = {
   // Sites using known working platforms
-  'decathlon': ['https://www.decathlon.com.tr/api/auth/register/send-otp', 'https://www.decathlon.com.tr/api/v1/auth/register/send-otp'],
-  'mediamarkt': ['https://www.mediamarkt.com.tr/api/v1/auth/register/sendOtp', 'https://www.mediamarkt.com.tr/api/auth/register/send-otp', 'https://www.mediamarkt.com.tr/rest/user-edge/auth/login/otp'],
-  'carrefour': ['https://www.carrefoursa.com/api/auth/register/send-otp', 'https://www.carrefoursa.com/rest/user-edge/auth/login/otp'],
-  'watsons': ['https://www.watsons.com.tr/api/auth/register/send-otp'],
-  'rossmann': ['https://www.rossmann.com.tr/api/v1/auth/register/sendOtp', 'https://www.rossmann.com.tr/api/auth/register/send-otp'],
-  'gratis': ['https://gratis.com/api/v1/auth/register/send-otp', 'https://www.gratis.com/api/v1/auth/register/send-otp'],
-  'avon': ['https://www.avon.com.tr/api/auth/register/send-otp', 'https://www.avon.com.tr/api/v1/auth/register/send-otp'],
-  'oriflame': ['https://www.oriflame.com.tr/api/auth/register/sendOtp', 'https://www.oriflame.com.tr/api/v1/auth/register/sendOtp'],
-  'farmasi': ['https://www.farmasi.com.tr/api/auth/register/send-otp', 'https://www.farmasi.com.tr/api/v1/auth/register/send-otp'],
-  'hm': ['https://www2.hm.com/tr_tr/api/auth/register/sendOtp', 'https://www.hm.com/tr/api/customer/register/sendOtp'],
-  'zara': ['https://www.zara.com/tr/api/auth/register/sendOtp', 'https://www.zara.com/tr/api/v1/auth/register/sendOtp'],
-  'bershka': ['https://www.bershka.com/tr/api/auth/register/sendOtp', 'https://www.bershka.com/itxrest/2/auth/register/send-otp'],
-  'pull_bear': ['https://www.pullandbear.com/tr/api/auth/register/sendOtp', 'https://www.pullandbear.com/itxrest/2/auth/register/send-otp'],
-  'stradivarius': ['https://www.stradivarius.com/tr/api/auth/register/sendOtp'],
-  'massimo_dutti': ['https://www.massimodutti.com/tr/api/auth/register/sendOtp'],
-  'mango': ['https://shop.mango.com/services/user/v1/register/sendOtp'],
-  'decathlon': ['https://www.decathlon.com.tr/api/v1/auth/register/send-otp'],
-  'penti': ['https://www.penti.com/api/v1/auth/register/sendOtp', 'https://www.penti.com/api/auth/register/send-otp', 'https://www.penti.com/api/v1/otp/send'],
-  'a101': ['https://www.a101.com.tr/api/v1/auth/register/send-otp', 'https://www.a101.com.tr/api/v1/auth/register/sendOtp', 'https://www.a101.com.tr/api/v1/otp/send'],
-  'jimmy_key': ['https://www.jimmykey.com/tr/api/member/sendOtp', 'https://www.jimmykey.com/tr/api/v1/auth/register/sendOtp'],
-  'alix_avien': ['https://www.alixavien.com.tr/api/v1/auth/register/sendOtp', 'https://www.alixavien.com.tr/api/auth/register/send-otp'],
-  'kitapyurdu': ['https://www.kitapyurdu.com/api/v1/auth/register/sendOtp', 'https://www.kitapyurdu.com/api/v1/otp/send'],
-  'bkm_kitap': ['https://www.bkmkitap.com/api/v1/auth/register/sendOtp', 'https://www.bkmkitap.com/api/v1/otp/send'],
-  'toyzz_shop': ['https://www.toyzzshop.com/api/v1/auth/register/sendOtp', 'https://www.toyzzshop.com/api/v1/otp/send'],
-  'dr': ['https://www.dr.com.tr/api/v1/auth/register/sendOtp', 'https://www.dr.com.tr/api/v1/otp/send'],
-  'kim_gb_ister': ['https://api.kimgbister.com/api/v1/auth/otp/send'],
-  'starbucks': ['https://www.starbucks.com.tr/api/v1/auth/register/otp', 'https://www.starbucks.com.tr/api/v1/auth/register/send-otp'],
-  'cineverse': ['https://www.paribucineverse.com/api/v1/auth/register/send-otp', 'https://www.paribucineverse.com/api/v1/auth/register/sendOtp'],
-  'marti': ['https://www.marti.tech/api/v1/auth/otp/send', 'https://www.marti.tech/api/auth/otp/send'],
-  'wmf': ['https://wmf.com.tr/users/register/', 'https://www.wmf.com.tr/api/v1/auth/register/sendOtp'],
-  'kuryem_gelsin': ['https://www.kuryemgelsin.com/api/v1/auth/otp/send'],
-  'hey_scooter': ['https://www.heyscooter.com.tr/api/v1/auth/otp/send'],
+  decathlon: ['https://www.decathlon.com.tr/api/auth/register/send-otp', 'https://www.decathlon.com.tr/api/v1/auth/register/send-otp'],
+  mediamarkt: [
+    'https://www.mediamarkt.com.tr/api/v1/auth/register/sendOtp',
+    'https://www.mediamarkt.com.tr/api/auth/register/send-otp',
+    'https://www.mediamarkt.com.tr/rest/user-edge/auth/login/otp',
+  ],
+  carrefour: ['https://www.carrefoursa.com/api/auth/register/send-otp', 'https://www.carrefoursa.com/rest/user-edge/auth/login/otp'],
+  watsons: ['https://www.watsons.com.tr/api/auth/register/send-otp'],
+  rossmann: ['https://www.rossmann.com.tr/api/v1/auth/register/sendOtp', 'https://www.rossmann.com.tr/api/auth/register/send-otp'],
+  gratis: ['https://gratis.com/api/v1/auth/register/send-otp', 'https://www.gratis.com/api/v1/auth/register/send-otp'],
+  avon: ['https://www.avon.com.tr/api/auth/register/send-otp', 'https://www.avon.com.tr/api/v1/auth/register/send-otp'],
+  oriflame: ['https://www.oriflame.com.tr/api/auth/register/sendOtp', 'https://www.oriflame.com.tr/api/v1/auth/register/sendOtp'],
+  farmasi: ['https://www.farmasi.com.tr/api/auth/register/send-otp', 'https://www.farmasi.com.tr/api/v1/auth/register/send-otp'],
+  hm: ['https://www2.hm.com/tr_tr/api/auth/register/sendOtp', 'https://www.hm.com/tr/api/customer/register/sendOtp'],
+  zara: ['https://www.zara.com/tr/api/auth/register/sendOtp', 'https://www.zara.com/tr/api/v1/auth/register/sendOtp'],
+  bershka: ['https://www.bershka.com/tr/api/auth/register/sendOtp', 'https://www.bershka.com/itxrest/2/auth/register/send-otp'],
+  pull_bear: ['https://www.pullandbear.com/tr/api/auth/register/sendOtp', 'https://www.pullandbear.com/itxrest/2/auth/register/send-otp'],
+  stradivarius: ['https://www.stradivarius.com/tr/api/auth/register/sendOtp'],
+  massimo_dutti: ['https://www.massimodutti.com/tr/api/auth/register/sendOtp'],
+  mango: ['https://shop.mango.com/services/user/v1/register/sendOtp'],
+  decathlon: ['https://www.decathlon.com.tr/api/v1/auth/register/send-otp'],
+  penti: [
+    'https://www.penti.com/api/v1/auth/register/sendOtp',
+    'https://www.penti.com/api/auth/register/send-otp',
+    'https://www.penti.com/api/v1/otp/send',
+  ],
+  a101: [
+    'https://www.a101.com.tr/api/v1/auth/register/send-otp',
+    'https://www.a101.com.tr/api/v1/auth/register/sendOtp',
+    'https://www.a101.com.tr/api/v1/otp/send',
+  ],
+  jimmy_key: ['https://www.jimmykey.com/tr/api/member/sendOtp', 'https://www.jimmykey.com/tr/api/v1/auth/register/sendOtp'],
+  alix_avien: ['https://www.alixavien.com.tr/api/v1/auth/register/sendOtp', 'https://www.alixavien.com.tr/api/auth/register/send-otp'],
+  kitapyurdu: ['https://www.kitapyurdu.com/api/v1/auth/register/sendOtp', 'https://www.kitapyurdu.com/api/v1/otp/send'],
+  bkm_kitap: ['https://www.bkmkitap.com/api/v1/auth/register/sendOtp', 'https://www.bkmkitap.com/api/v1/otp/send'],
+  toyzz_shop: ['https://www.toyzzshop.com/api/v1/auth/register/sendOtp', 'https://www.toyzzshop.com/api/v1/otp/send'],
+  dr: ['https://www.dr.com.tr/api/v1/auth/register/sendOtp', 'https://www.dr.com.tr/api/v1/otp/send'],
+  kim_gb_ister: ['https://api.kimgbister.com/api/v1/auth/otp/send'],
+  starbucks: ['https://www.starbucks.com.tr/api/v1/auth/register/otp', 'https://www.starbucks.com.tr/api/v1/auth/register/send-otp'],
+  cineverse: [
+    'https://www.paribucineverse.com/api/v1/auth/register/send-otp',
+    'https://www.paribucineverse.com/api/v1/auth/register/sendOtp',
+  ],
+  marti: ['https://www.marti.tech/api/v1/auth/otp/send', 'https://www.marti.tech/api/auth/otp/send'],
+  wmf: ['https://wmf.com.tr/users/register/', 'https://www.wmf.com.tr/api/v1/auth/register/sendOtp'],
+  kuryem_gelsin: ['https://www.kuryemgelsin.com/api/v1/auth/otp/send'],
+  hey_scooter: ['https://www.heyscooter.com.tr/api/v1/auth/otp/send'],
 };
 
 async function testViaProxy(ep) {
   const proxyUrl = 'http://localhost:3001/api/proxy';
-  
-  const payload = ep.payload ? JSON.parse(ep.payload.replace(/{{PHONE}}/g, '5321111111').replace(/{{EMAIL}}/g, 'test@test.com').replace(/905XXXXXXXXX/g, '905321111111').replace(/05XXXXXXXXX/g, '05532111111').replace(/5XXXXXXXXX/g, '5321111111').replace(/\+90\{\{PHONE\}\}/g, '+905321111111').replace(/\+905XXXXXXXXX/g, '+905321111111')) : { phone: '5321111111' };
+
+  const payload = ep.payload
+    ? JSON.parse(
+        ep.payload
+          .replace(/{{PHONE}}/g, '5321111111')
+          .replace(/{{EMAIL}}/g, 'test@test.com')
+          .replace(/905XXXXXXXXX/g, '905321111111')
+          .replace(/05XXXXXXXXX/g, '05532111111')
+          .replace(/5XXXXXXXXX/g, '5321111111')
+          .replace(/\+90\{\{PHONE\}\}/g, '+905321111111')
+          .replace(/\+905XXXXXXXXX/g, '+905321111111'),
+      )
+    : { phone: '5321111111' };
 
   try {
     const c = new AbortController();
@@ -139,25 +170,75 @@ async function main() {
   // Prioritize sites that are most promising
   const priorityOrder = [
     // E-commerce platforms (likely to have working endpoints with right URL)
-    'decathlon', 'hm', 'zara', 'bershka', 'pull_bear', 'stradivarius', 'massimo_dutti',
-    'mediamarkt', 'vatan_bilgisayar', 'itopya', 'gamegaraj',
-    'carrefour', 'rossmann', 'watsons', 'gratis',
-    'penti', 'a101', 'wmf', 'dr', 'kitapyurdu', 'bkm_kitap', 'toyzz_shop',
-    'avon', 'oriflame', 'farmasi',
-    'starbucks', 'cineverse', 'kuryem_gelsin', 'hey_scooter',
-    'mango', 'marti',
-    'alix_avien', 'jimmy_key',
+    'decathlon',
+    'hm',
+    'zara',
+    'bershka',
+    'pull_bear',
+    'stradivarius',
+    'massimo_dutti',
+    'mediamarkt',
+    'vatan_bilgisayar',
+    'itopya',
+    'gamegaraj',
+    'carrefour',
+    'rossmann',
+    'watsons',
+    'gratis',
+    'penti',
+    'a101',
+    'wmf',
+    'dr',
+    'kitapyurdu',
+    'bkm_kitap',
+    'toyzz_shop',
+    'avon',
+    'oriflame',
+    'farmasi',
+    'starbucks',
+    'cineverse',
+    'kuryem_gelsin',
+    'hey_scooter',
+    'mango',
+    'marti',
+    'alix_avien',
+    'jimmy_key',
     // Harder ones
-    'iste_gelsin', 'tikla_gelsin', 'clickme_live', 'mothercare',
-    'paybol', 'kim_gb_ister', 'ipragaz',
-    'tasimacim', 'hizli_ecza', 'sancaktepe_belediye', 'fatih_belediye',
-    'bayrampasa_belediye', 'bodrum_belediye',
+    'iste_gelsin',
+    'tikla_gelsin',
+    'clickme_live',
+    'mothercare',
+    'paybol',
+    'kim_gb_ister',
+    'ipragaz',
+    'tasimacim',
+    'hizli_ecza',
+    'sancaktepe_belediye',
+    'fatih_belediye',
+    'bayrampasa_belediye',
+    'bodrum_belediye',
     // Platform/Game
-    'playstation', 'xbox', 'nintendo', 'steam', 'epic_games',
+    'playstation',
+    'xbox',
+    'nintendo',
+    'steam',
+    'epic_games',
     // Custom/Complex
-    'joker', 'ido', 'hamidiye', 'tasdelen_su', 'pidem', 'orwi', 'tazi', 'bisu',
-    'naosstars', 'akasya_avm', 'akbati',
-    'herbalife', 'amway', 'forever_living', 'lr',
+    'joker',
+    'ido',
+    'hamidiye',
+    'tasdelen_su',
+    'pidem',
+    'orwi',
+    'tazi',
+    'bisu',
+    'naosstars',
+    'akasya_avm',
+    'akbati',
+    'herbalife',
+    'amway',
+    'forever_living',
+    'lr',
   ];
 
   const toTest = priorityOrder.map(id => uniqueDead.find(e => e.id === id)).filter(Boolean);
@@ -168,9 +249,13 @@ async function main() {
   for (let i = 0; i < toTest.length; i++) {
     const ep = toTest[i];
     const result = {
-      id: ep.id, name: ep.name,
-      directOk: false, directStatus: 0,
-      proxyOk: false, proxyStatus: 0, proxyStrategy: '',
+      id: ep.id,
+      name: ep.name,
+      directOk: false,
+      directStatus: 0,
+      proxyOk: false,
+      proxyStatus: 0,
+      proxyStrategy: '',
       altUrls: [],
     };
 
@@ -201,10 +286,12 @@ async function main() {
 
     // Output
     const directStr = result.directOk ? '✅' : `❌${result.directStatus}`;
-    const proxyStr = result.proxyOk ? `✅ ${result.proxyStrategy}` : (result.proxyStatus ? `❌${result.proxyStatus}` : '❌');
+    const proxyStr = result.proxyOk ? `✅ ${result.proxyStrategy}` : result.proxyStatus ? `❌${result.proxyStatus}` : '❌';
     const altStr = result.altUrls.some(a => a.ok) ? ' ✅ alt' : '';
-    
-    console.log(`${result.proxyOk ? '✅' : result.altUrls.some(a => a.ok) ? '🔄' : '❌'} ${ep.name.padEnd(20)} direct=${directStr}  proxy=${proxyStr}${altStr}`);
+
+    console.log(
+      `${result.proxyOk ? '✅' : result.altUrls.some(a => a.ok) ? '🔄' : '❌'} ${ep.name.padEnd(20)} direct=${directStr}  proxy=${proxyStr}${altStr}`,
+    );
 
     results.push(result);
 
@@ -214,7 +301,7 @@ async function main() {
 
   const workingViaProxy = results.filter(r => r.proxyOk);
   const workingViaAlt = results.filter(r => !r.proxyOk && r.altUrls.some(a => a.ok));
-  
+
   console.log(`\n\n=== SUMMARY ===`);
   console.log(`Tested: ${results.length}`);
   console.log(`Working via proxy: ${workingViaProxy.length}`);

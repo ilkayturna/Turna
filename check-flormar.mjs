@@ -1,6 +1,6 @@
 // Check Flormar registration page
 const r = await fetch('https://www.flormar.com.tr/uye-kayit', {
-  headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+  headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
 });
 const html = await r.text();
 console.log('Status:', r.status);

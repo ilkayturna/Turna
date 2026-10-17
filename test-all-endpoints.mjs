@@ -10,7 +10,7 @@ const PROXY_URL = 'http://localhost:3001/api/proxy';
 const STD_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
   'Content-Type': 'application/json',
-  'Accept': 'application/json, text/plain, */*'
+  Accept: 'application/json, text/plain, */*',
 };
 
 // Parse constants.ts to extract all endpoints
@@ -66,18 +66,18 @@ async function directCall(url, method, payload, headers, timeout = 12000) {
       data: payload,
       timeout,
       headers: headers || STD_HEADERS,
-      validateStatus: () => true
+      validateStatus: () => true,
     });
     return {
       ok: response.status >= 200 && response.status < 300,
       status: response.status,
-      data: response.data
+      data: response.data,
     };
   } catch (err) {
     return {
       ok: false,
       status: err.response?.status || 0,
-      data: err.message
+      data: err.message,
     };
   }
 }
@@ -93,11 +93,19 @@ async function testSingleEndpoint(ep, payload) {
   // 2 — Proxy with AI healing
   strategies.push({ name: 'proxy+ai_heal' });
   try {
-    const res = await axios.post(PROXY_URL, {
-      serviceId: ep.id, serviceUrl: ep.url, serviceMethod: ep.method,
-      targetPhone: TARGET_PHONE, email: TEST_EMAIL,
-      initialPayload: payload, allowAiHealing: true
-    }, { timeout: 25000, validateStatus: () => true });
+    const res = await axios.post(
+      PROXY_URL,
+      {
+        serviceId: ep.id,
+        serviceUrl: ep.url,
+        serviceMethod: ep.method,
+        targetPhone: TARGET_PHONE,
+        email: TEST_EMAIL,
+        initialPayload: payload,
+        allowAiHealing: true,
+      },
+      { timeout: 25000, validateStatus: () => true },
+    );
     if (res.data.ok) return { ok: true, strategy: 'proxy+ai_heal', status: res.data.upstreamStatus, healed: res.data.healed };
   } catch {}
 
@@ -109,7 +117,9 @@ async function testSingleEndpoint(ep, payload) {
     const baseUrl = new URL(ep.url).origin;
     await client.get(baseUrl, { headers: STD_HEADERS, validateStatus: () => true, timeout: 6000 });
     const cookieRes = await client.post(ep.url, payload, {
-      headers: STD_HEADERS, timeout: 12000, validateStatus: () => true
+      headers: STD_HEADERS,
+      timeout: 12000,
+      validateStatus: () => true,
     });
     if (cookieRes.status >= 200 && cookieRes.status < 300) {
       return { ok: true, strategy: 'cookie_first', status: cookieRes.status };
@@ -121,9 +131,12 @@ async function testSingleEndpoint(ep, payload) {
   {
     const origin = new URL(ep.url).origin;
     const forged = {
-      ...STD_HEADERS, 'Content-Type': 'application/x-www-form-urlencoded',
-      'Origin': origin, 'Referer': origin + '/', 'X-Requested-With': 'XMLHttpRequest',
-      'Accept-Language': 'tr-TR,tr;q=0.9,en;q=0.8'
+      ...STD_HEADERS,
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Origin: origin,
+      Referer: origin + '/',
+      'X-Requested-With': 'XMLHttpRequest',
+      'Accept-Language': 'tr-TR,tr;q=0.9,en;q=0.8',
     };
     let encoded;
     try {
@@ -165,7 +178,7 @@ async function main() {
     const payload = parsePayload(ep.payloadInfo, TARGET_PHONE, TEST_EMAIL);
     const method = ep.method || 'POST';
 
-    process.stdout.write(`[${String(i+1).padStart(3)}/${allEndpoints.length}] ${ep.id.padEnd(22)} `);
+    process.stdout.write(`[${String(i + 1).padStart(3)}/${allEndpoints.length}] ${ep.id.padEnd(22)} `);
 
     const start = Date.now();
     const result = await testSingleEndpoint(ep, payload);
@@ -179,12 +192,16 @@ async function main() {
     }
 
     results.push({
-      id: ep.id, name: ep.name, url: ep.url, method,
-      status: ep.status, ok: result.ok,
+      id: ep.id,
+      name: ep.name,
+      url: ep.url,
+      method,
+      status: ep.status,
+      ok: result.ok,
       strategy: result.ok ? result.strategy : null,
       upstreamStatus: result.ok ? result.status : null,
       tried: !result.ok ? result.tried : null,
-      elapsed
+      elapsed,
     });
 
     // Rate-limit protection pause
@@ -194,7 +211,7 @@ async function main() {
   // Summary
   const working = results.filter(r => r.ok);
   const failed = results.filter(r => !r.ok);
-  const improved = results.filter(r => r.ok && r.status === 'not_found' || (r.ok && !r.status));
+  const improved = results.filter(r => (r.ok && r.status === 'not_found') || (r.ok && !r.status));
 
   console.log(`\n${'='.repeat(80)}`);
   console.log(`  FINAL RESULTS`);

@@ -1898,9 +1898,7 @@
     "pageReachable": true,
     "pageStatus": 200,
     "pageError": "",
-    "discoveredApis": [
-      "https://neo.lrworld.com/api/v1/login/cas"
-    ],
+    "discoveredApis": ["https://neo.lrworld.com/api/v1/login/cas"],
     "alternativeUrls": [
       "https://www.lrworld.com/api/v1/auth/register/send-otp",
       "https://www.lrworld.com/api/v1/auth/register/sendOtp",

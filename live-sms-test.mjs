@@ -43,13 +43,7 @@ const ACCEPT_LANGS = [
   'tr-TR,tr;q=0.9',
 ];
 
-const SEC_CH_UA_PLATFORMS = [
-  '"Windows"',
-  '"macOS"',
-  '"Linux"',
-  '"iOS"',
-  '"Android"',
-];
+const SEC_CH_UA_PLATFORMS = ['"Windows"', '"macOS"', '"Linux"', '"iOS"', '"Android"'];
 
 const ORIGINS = [
   '', // no origin
@@ -67,24 +61,26 @@ const REFERERS = [
   'https://www.youtube.com/',
 ];
 
-function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
 
 function buildHeaders(endpointUrl) {
   const origin = endpointUrl ? new URL(endpointUrl).origin : '';
   return {
     'User-Agent': pick(USER_AGENTS),
-    'Accept': pick(ACCEPTS),
+    Accept: pick(ACCEPTS),
     'Accept-Language': pick(ACCEPT_LANGS),
     'Accept-Encoding': 'gzip, deflate, br',
     'Content-Type': Math.random() > 0.3 ? 'application/json' : 'application/x-www-form-urlencoded',
     'Cache-Control': Math.random() > 0.5 ? 'no-cache' : 'max-age=0',
-    'Pragma': Math.random() > 0.7 ? 'no-cache' : '',
-    'Origin': Math.random() > 0.4 ? origin : pick(ORIGINS),
-    'Referer': Math.random() > 0.4 ? origin + '/' : pick(REFERERS),
+    Pragma: Math.random() > 0.7 ? 'no-cache' : '',
+    Origin: Math.random() > 0.4 ? origin : pick(ORIGINS),
+    Referer: Math.random() > 0.4 ? origin + '/' : pick(REFERERS),
     'Sec-Fetch-Site': pick(['same-origin', 'cross-site', 'same-site', 'none']),
     'Sec-Fetch-Mode': pick(['cors', 'navigate', 'no-cors']),
     'Sec-Fetch-Dest': pick(['empty', 'document', 'font']),
-    'Connection': 'keep-alive',
+    Connection: 'keep-alive',
   };
 }
 
@@ -123,11 +119,14 @@ function getHeadersForId(id) {
   if (!hMatch) return {};
   try {
     return JSON.parse(hMatch[1].replace(/(\w+):/g, '"$1":').replace(/'/g, '"'));
-  } catch { return {}; }
+  } catch {
+    return {};
+  }
 }
 
 const endpoints = idVals.map((id, i) => ({
-  id, name: nameVals[i] || '',
+  id,
+  name: nameVals[i] || '',
   url: urlVals[i] || '',
   method: methodVals[i] || 'POST',
   status: statusVals[i] || 'unknown',
@@ -179,16 +178,20 @@ async function callEndpoint(ep, viaProxy = false) {
 
   const method = ep.id === 'sportive' ? 'GET' : 'POST';
 
-  const body = viaProxy ? JSON.stringify({
-    serviceId: ep.id,
-    serviceUrl: ep.url,
-    serviceMethod: method,
-    serviceHeaders: ep.headers,
-    targetPhone: USER_PHONE,
-    email: uniqueEmail(ep.id),
-    initialPayload: payload,
-    allowAiHealing: true,
-  }) : (method === 'POST' ? JSON.stringify(payload) : undefined);
+  const body = viaProxy
+    ? JSON.stringify({
+        serviceId: ep.id,
+        serviceUrl: ep.url,
+        serviceMethod: method,
+        serviceHeaders: ep.headers,
+        targetPhone: USER_PHONE,
+        email: uniqueEmail(ep.id),
+        initialPayload: payload,
+        allowAiHealing: true,
+      })
+    : method === 'POST'
+      ? JSON.stringify(payload)
+      : undefined;
 
   const c = new AbortController();
   const t = setTimeout(() => c.abort(), 15000);
@@ -204,7 +207,11 @@ async function callEndpoint(ep, viaProxy = false) {
     clearTimeout(t);
     const ms = Date.now() - start;
     let data;
-    try { data = await res.json(); } catch { data = await res.text().catch(() => ''); }
+    try {
+      data = await res.json();
+    } catch {
+      data = await res.text().catch(() => '');
+    }
     return { ok: res.ok || res.status === 202, status: res.status, ms, data, viaProxy };
   } catch (err) {
     clearTimeout(t);
@@ -221,7 +228,12 @@ async function ensureProxy() {
     const test = await fetch('http://localhost:3001/api/proxy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ serviceId: 'test', serviceUrl: 'https://httpbin.org/post', targetPhone: '5321111111', initialPayload: { phone: '5321111111' } }),
+      body: JSON.stringify({
+        serviceId: 'test',
+        serviceUrl: 'https://httpbin.org/post',
+        targetPhone: '5321111111',
+        initialPayload: { phone: '5321111111' },
+      }),
       signal: AbortSignal.timeout(3000),
     });
     console.log('Proxy already running on :3001\n');
@@ -230,8 +242,8 @@ async function ensureProxy() {
     console.log('Starting proxy on :3001...');
   }
 
-  return new Promise((resolve) => {
-    proxyProcess = spawn('node', ['local-dev.mjs'], {
+  return new Promise(resolve => {
+    proxyProcess = spawn('npx', ['tsx', 'local-dev.ts'], {
       stdio: 'ignore',
       env: { ...process.env, PORT: '3001' },
     });
@@ -260,7 +272,7 @@ async function main() {
     prevResults.push(...JSON.parse(saved));
   } catch {}
   const failedIds = new Set(prevResults.filter(r => !r.ok).map(r => r.id));
-  
+
   // Shuffle endpoints so order is random
   const queue = shuffle(working);
   const results = [];
@@ -296,7 +308,8 @@ async function main() {
     }
 
     const icon = result.ok ? '✅' : '❌';
-    if (result.ok) successCount++; else failCount++;
+    if (result.ok) successCount++;
+    else failCount++;
 
     let detail = '';
     if (result.viaProxy) detail = ` [proxy: ${result.data?.strategy || ''}]`;

@@ -1,6 +1,10 @@
 // Try different approaches for Flormar
 const PHONE = '5343622375';
-const AGENT = { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 'Content-Type': 'application/json', 'X-App-Type': 'akinon-mobile' };
+const AGENT = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+  'Content-Type': 'application/json',
+  'X-App-Type': 'akinon-mobile',
+};
 
 async function t(url, body) {
   const r = await fetch(url, { method: 'POST', headers: AGENT, body: JSON.stringify(body) });

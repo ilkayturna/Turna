@@ -20,7 +20,8 @@ const statusVals = [...content.matchAll(statusRegex)].map(m => m[1]);
 const payloadVals = [...content.matchAll(payloadRegex)].map(m => m[1]);
 
 const endpoints = idVals.map((id, i) => ({
-  id, name: nameVals[i] || '',
+  id,
+  name: nameVals[i] || '',
   url: urlVals[i] || '',
   method: methodVals[i] || 'POST',
   status: statusVals[i] || 'unknown',
@@ -30,13 +31,17 @@ const endpoints = idVals.map((id, i) => ({
 const dead = endpoints.filter(e => e.status === 'dead');
 // Deduplicate
 const seen = new Set();
-const uniqueDead = dead.filter(e => { if (seen.has(e.id)) return false; seen.add(e.id); return true; });
+const uniqueDead = dead.filter(e => {
+  if (seen.has(e.id)) return false;
+  seen.add(e.id);
+  return true;
+});
 
 console.log(`Total: ${endpoints.length}, Dead: ${uniqueDead.length}\n`);
 
 const BROWSER_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+  Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
   'Accept-Language': 'tr-TR,tr;q=0.9,en;q=0.8',
   'Accept-Encoding': 'gzip, deflate, br',
   'Sec-Fetch-Dest': 'document',
@@ -77,7 +82,10 @@ function findApiUrls(html, baseUrl) {
       if (path.startsWith('//')) path = 'https:' + path;
       else if (path.startsWith('/')) path = new URL(baseUrl).origin + path;
       else if (!path.startsWith('http')) path = new URL(baseUrl).origin + '/' + path;
-      try { new URL(path); results.add(path); } catch {}
+      try {
+        new URL(path);
+        results.add(path);
+      } catch {}
     }
   }
   return [...results];
@@ -125,21 +133,27 @@ function generateAltUrls(endpoint) {
 
 async function main() {
   const results = [];
-  
+
   for (let i = 0; i < uniqueDead.length; i++) {
     const ep = uniqueDead[i];
     const origin = new URL(ep.url).origin;
     const result = {
-      id: ep.id, name: ep.name, url: ep.url,
-      pageReachable: false, pageStatus: 0, pageError: '',
-      discoveredApis: [], alternativeUrls: [], workingUrl: '',
+      id: ep.id,
+      name: ep.name,
+      url: ep.url,
+      pageReachable: false,
+      pageStatus: 0,
+      pageError: '',
+      discoveredApis: [],
+      alternativeUrls: [],
+      workingUrl: '',
     };
 
     // Try fetching the homepage
     const page = await fetchWithTimeout(origin);
     result.pageReachable = page.ok;
     result.pageStatus = page.status;
-    
+
     if (page.ok) {
       const apis = findApiUrls(page.body, page.finalUrl);
       result.discoveredApis = apis.slice(0, 5);
@@ -160,7 +174,7 @@ async function main() {
     }
 
     results.push(result);
-    
+
     // Rate limit: 500ms between requests
     if (i < uniqueDead.length - 1) await new Promise(r => setTimeout(r, 500));
   }
@@ -171,7 +185,7 @@ async function main() {
   console.log(`\n\n=== SUMMARY ===`);
   console.log(`Reachable pages: ${reachable.length}/${results.length}`);
   console.log(`Pages with discoverable APIs: ${withApis.length}/${results.length}`);
-  
+
   if (withApis.length > 0) {
     console.log(`\nSites with discovered API endpoints:`);
     for (const r of withApis) {

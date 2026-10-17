@@ -104,7 +104,7 @@ function getDomain(url) {
 }
 
 function resolveDns(hostname) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     dns.resolve(hostname, (err, addresses) => {
       resolve(err ? null : addresses);
     });
@@ -116,22 +116,28 @@ async function quickCheck(url) {
   const ips = await resolveDns(domain);
   if (!ips) return { url, domain, dns: false, status: 'DNS_FAIL' };
 
-  return new Promise((resolve) => {
-    const req = https.get(url, {
-      timeout: 5000,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'application/json, text/plain, */*'
+  return new Promise(resolve => {
+    const req = https.get(
+      url,
+      {
+        timeout: 5000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          Accept: 'application/json, text/plain, */*',
+        },
+        rejectUnauthorized: false,
       },
-      rejectUnauthorized: false
-    }, (res) => {
-      let body = '';
-      res.on('data', (chunk) => { body += chunk; });
-      res.on('end', () => {
-        resolve({ url, domain, dns: true, status: res.statusCode, body: body.substring(0, 100) });
-      });
-    });
-    req.on('error', (err) => {
+      res => {
+        let body = '';
+        res.on('data', chunk => {
+          body += chunk;
+        });
+        res.on('end', () => {
+          resolve({ url, domain, dns: true, status: res.statusCode, body: body.substring(0, 100) });
+        });
+      },
+    );
+    req.on('error', err => {
       resolve({ url, domain, dns: true, status: 'ERR', error: err.code || err.message.substring(0, 30) });
     });
     req.on('timeout', () => {

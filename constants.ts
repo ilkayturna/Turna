@@ -1,97 +1,67 @@
 import { ServiceDefinition } from './types';
 
-export const TARGET_ENDPOINTS: ServiceDefinition[] = [
-  // ===== CONFIRMED WORKING - SMS GÖNDERİYOR (9 endpoint) =====
-  {
-    id: 'file_market',
-    name: 'File Market',
-    url: 'https://api.filemarket.com.tr/v1/otp/send',
-    method: 'POST',
-    headers: { 'X-Os': 'IOS', 'X-Version': '1.7' },
-    payloadInfo: '{"mobilePhoneNumber": "905XXXXXXXXX"}',
-    status: 'working',
-    category: 'Market',
-  },
-  {
-    id: 'yapp',
-    name: 'Yapp',
-    url: 'https://yapp.com.tr/api/mobile/v1/register',
-    method: 'POST',
-    headers: { 'Authorization': 'Bearer ', 'X-Content-Language': 'en' },
-    payloadInfo: '{"phone_number": "05XXXXXXXXX", "email": "{{EMAIL}}", "firstname": "Test", "lastname": "Test", "device_type": "I", "device_name": "Test", "device_model": "iPhone8,5", "device_version": "15.8.3", "app_version": "1.1.5", "language_id": "2", "is_allow_to_communication": "1", "sms_code": ""}',
-    status: 'working',
-    category: 'Dijital Hizmetler',
-  },
-  {
-    id: 'macrocenter',
-    name: 'Macrocenter',
-    url: 'https://www.macrocenter.com.tr/rest/user-edge/auth/login/otp',
-    method: 'POST',
-    payloadInfo: '{"phoneNumber": "5XXXXXXXXX", "channel": "WEB"}',
-    status: 'working',
-    category: 'Market',
-  },
-  {
-    id: 'koton',
-    name: 'Koton',
-    url: 'https://www.koton.com/users/register/',
-    method: 'POST',
-    headers: { 'X-App-Type': 'akinon-mobile', 'X-App-Device': 'ios', 'X-Project-Name': 'rn-env', 'X-Requested-With': 'XMLHttpRequest', 'Cache-Control': 'no-store' },
-    payloadInfo: '{"phone": "05XXXXXXXXX", "first_name": "Test", "last_name": "User", "email": "{{EMAIL}}", "password": "Test123!", "confirm": true, "sms_allowed": true, "email_allowed": true, "date_of_birth": "1993-07-02", "call_allowed": true, "gender": ""}',
-    status: 'working',
-    category: 'Giyim & Ev Eşyası',
-  },
-  {
-    id: 'kahve_dunyasi',
-    name: 'Kahve Dünyası',
-    url: 'https://api.kahvedunyasi.com/api/v1/auth/account/register/phone-number',
-    method: 'POST',
-    headers: { 'X-Language-Id': 'tr-TR', 'X-Client-Platform': 'web' },
-    payloadInfo: '{"countryCode": "90", "phoneNumber": "5XXXXXXXXX"}',
-    status: 'working',
-    category: 'Yemek',
-  },
-  {
-    id: 'intersport',
-    name: 'Intersport',
-    url: 'https://www.intersport.com.tr/users/register/',
-    method: 'POST',
-    headers: { 'X-App-Type': 'akinon-mobile', 'X-App-Device': 'ios' },
-    payloadInfo: '{"phone": "05XXXXXXXXX", "first_name": "Test", "last_name": "User", "email": "{{EMAIL}}", "password": "Test123!", "confirm": true}',
-    status: 'working',
-    category: 'Spor',
-  },
-  {
-    id: 'dominos',
-    name: "Domino's",
-    url: 'https://frontend.dominos.com.tr/api/customer/sendOtpCode',
-    method: 'POST',
-    headers: { 'Servicetype': 'CarryOut', 'Locationcode': 'undefined', 'Appversion': 'IOS-7.1.0' },
-    payloadInfo: '{"mobilePhone": "5XXXXXXXXX", "email": "{{EMAIL}}", "isSure": false}',
-    status: 'working',
-    category: 'Yemek',
-  },
-  {
-    id: 'evidea',
-    name: 'Evidea',
-    url: 'https://www.evidea.com/users/register/',
-    method: 'POST',
-    headers: { 'X-App-Type': 'akinon-mobile', 'X-App-Device': 'ios', 'X-Project-Name': 'undefined', 'X-Requested-With': 'XMLHttpRequest', 'Cache-Control': 'no-store' },
-    payloadInfo: '{"phone": "05XXXXXXXXX", "first_name": "Test", "last_name": "User", "email": "{{EMAIL}}", "password": "Test123!", "confirm": true, "sms_allowed": true, "email_allowed": false}',
-    status: 'working',
-    category: 'Giyim & Ev Eşyası',
-  },
-  {
-    id: 'suiste',
-    name: 'Suiste',
-    url: 'https://suiste.com/api/auth/code',
-    method: 'POST',
-    headers: { 'X-Mobillium-Device-Brand': 'Apple', 'X-Mobillium-Os-Type': 'iOS', 'X-Mobillium-Device-Model': 'iPhone', 'X-Mobillium-Device-Id': '2390ED28-075E-465A-96DA-DFE8F84EB330', 'X-Mobillium-App-Build-Number': '1469', 'X-Mobillium-Os-Version': '15.8.3', 'X-Mobillium-App-Version': '1.7.11' },
-    payloadInfo: '{"gsm": "05XXXXXXXXX", "action": "register", "full_name": "Test User", "password": "Test123!", "is_advertisement": "1", "is_contract": "1", "device_id": "2390ED28-075E-465A-96DA-DFE8F84EB330"}',
-    status: 'working',
-    category: 'Dijital Hizmetler',
-  },
+/**
+ * OTP SMOKE TEST — yetkili uç noktalar
+ *
+ * Bu araç, bir OTP/SMS uç noktasının "beklendiği gibi davranıp davranmadığını"
+ * ölçen bir QA aracıdır: TEK GEÇİŞ, SIRALI, uç nokta başına TAM OLARAK BİR istek.
+ * Döngü, paralel flood ve proxy rotasyonu yoktur.
+ *
+ * Buraya SADECE şu iki durumda kayıt eklenir:
+ *   1) Uç nokta size ait (kendi ürününüz / kendi servisiniz), veya
+ *   2) Test için yazılı izniniz ya da geçerli bir bug-bounty kapsamı var.
+ *
+ * Üçüncü taraflara ait uç noktaları buraya ekleyip istek atmak yetkisiz testtir;
+ * aracın amacı bu değildir ve bu liste o yüzden boş gelir.
+ */
+export const AUTHORIZED_ENDPOINTS: ServiceDefinition[] = [
+  // Örnek — KENDİ servisiniz:
+  // {
+  //   id: 'kendi-servisim',
+  //   name: 'Kendi Servisim',
+  //   url: 'https://api.sirketim.example/v1/auth/otp',
+  //   method: 'POST',
+  //   headers: { 'X-Client-Platform': 'web' },
+  //   payloadInfo: '{"phoneNumber": "5XXXXXXXXX"}',
+  // },
 ];
+
+/**
+ * @deprecated Eski ad. Artık yetkili listeye işaret eder; varsayılan olarak boştur.
+ * Yeni kod `AUTHORIZED_ENDPOINTS` kullanmalı.
+ */
+export const TARGET_ENDPOINTS: ServiceDefinition[] = AUTHORIZED_ENDPOINTS;
+
+const env = (import.meta as unknown as { env?: Record<string, string | undefined> }).env ?? {};
+
+/** 10 haneli ulusal forma indirger: 905XXXXXXXXX / 05XXXXXXXXX -> 5XXXXXXXXX */
+function normalizePhone(raw: string): string {
+  let digits = raw.replace(/\D/g, '');
+  if (digits.length === 12 && digits.startsWith('90')) digits = digits.slice(2);
+  if (digits.length === 11 && digits.startsWith('0')) digits = digits.slice(1);
+  return digits;
+}
+
+/**
+ * Test edilebilecek numaralar: yalnızca kendinize ait, doğrulanmış numaralar.
+ * `.env` içinde virgülle ayrılmış olarak tanımlanır:
+ *   VITE_AUTHORIZED_PHONE_NUMBERS=5XXXXXXXXX
+ *
+ * Serbest metin girişi yoktur; araç listede olmayan bir numaraya istek atmayı reddeder.
+ */
+export const AUTHORIZED_PHONE_NUMBERS: string[] = (env.VITE_AUTHORIZED_PHONE_NUMBERS ?? '')
+  .split(',')
+  .map(normalizePhone)
+  .filter(n => n.length === 10);
+
+/** İki smoke test çalıştırması arasındaki minimum süre. */
+export const RUN_COOLDOWN_MS = 60_000;
+
+/** Uç noktalar arası bekleme (sıralı çalıştırma). */
+export const STEP_DELAY_MS = 1_500;
+
+/** Tek istek için zaman aşımı. */
+export const REQUEST_TIMEOUT_MS = 10_000;
 
 export const INITIAL_STATS = {
   totalSent: 0,

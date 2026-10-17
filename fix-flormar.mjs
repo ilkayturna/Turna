@@ -11,12 +11,16 @@ async function tryFlormar() {
   ];
   for (const email of emails) {
     const r = await fetch('https://www.flormar.com.tr/users/register/', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','X-App-Type':'akinon-mobile','User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'},
-      body:JSON.stringify({phone:PHONE,first_name:'Ali',last_name:'Yılmaz',email,password:'Test123!'})
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-App-Type': 'akinon-mobile',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      },
+      body: JSON.stringify({ phone: PHONE, first_name: 'Ali', last_name: 'Yılmaz', email, password: 'Test123!' }),
     });
     const body = await r.text();
-    console.log(email.padEnd(40), r.status, body.substring(0,120));
+    console.log(email.padEnd(40), r.status, body.substring(0, 120));
   }
 }
 tryFlormar().catch(console.error);

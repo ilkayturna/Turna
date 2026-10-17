@@ -4,7 +4,7 @@ import { SimulationStats, EndpointHealth } from '../types';
 interface StatsBoardProps {
   stats: SimulationStats;
   endpointHealth?: EndpointHealth[];
-  localProxyAvailable?: boolean | null;
+  lastRunAt?: number | null;
 }
 
 interface StatCardProps {
@@ -31,39 +31,36 @@ const StatCard = ({ title, value, type = 'default', subtitle }: StatCardProps) =
   );
 };
 
-export const StatsBoard: React.FC<StatsBoardProps> = ({ stats, endpointHealth, localProxyAvailable }) => {
+export const StatsBoard: React.FC<StatsBoardProps> = ({ stats, endpointHealth, lastRunAt }) => {
   const working = endpointHealth?.filter(h => h.status === 'working').length || 0;
   const dead = endpointHealth?.filter(h => h.status === 'dead').length || 0;
   const limited = endpointHealth?.filter(h => h.status === 'limited').length || 0;
-  const unknown = endpointHealth?.filter(h => h.status === 'unknown').length || 0;
   const total = endpointHealth?.length || 0;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
-      <StatCard title="Total Requests" value={stats.totalSent} />
+    <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+      <StatCard title="Requests" value={stats.totalSent} subtitle="uç nokta başına 1" />
 
-      <StatCard title="Successful" value={stats.success} type="success" subtitle={total > 0 ? `/ ${total} endpoints` : undefined} />
+      <StatCard title="2xx" value={stats.success} type="success" subtitle={total > 0 ? `/ ${total} uç nokta` : undefined} />
 
       <StatCard title="Failed" value={stats.failed} type="error" />
-
-      <StatCard title="Opaque" value={stats.sentOpaque} type="warning" />
 
       <StatCard title="Rate Limited" value={stats.rateLimited} type="warning" />
 
       {total > 0 && (
         <StatCard
           title="Endpoint Health"
-          value={total - dead - unknown}
+          value={total - dead}
           type="info"
-          subtitle={dead > 0 ? `${dead} dead, ${limited} limited` : `${working} working`}
+          subtitle={dead > 0 ? `${working} working, ${limited} limited, ${dead} dead` : `${working} working`}
         />
       )}
 
       <StatCard
-        title="Proxy Mode"
-        value={localProxyAvailable === true ? 'Local' : localProxyAvailable === false ? 'Vercel' : '...'}
-        type={localProxyAvailable === true ? 'success' : 'warning'}
-        subtitle={localProxyAvailable === true ? 'your IP' : localProxyAvailable === false ? 'datacenter IP' : 'detecting'}
+        title="Mode"
+        value="Tek geçiş"
+        type="success"
+        subtitle={lastRunAt ? `son: ${new Date(lastRunAt).toLocaleTimeString()}` : 'proxy yok · döngü yok'}
       />
     </div>
   );
