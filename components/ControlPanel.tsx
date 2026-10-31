@@ -16,7 +16,7 @@ interface ControlPanelProps {
   localProxyAvailable: boolean | null;
 }
 
-const InputField = ({ label, ...props }: any) => (
+const InputField = ({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) => (
   <div>
     <label className="block text-zinc-400 text-xs font-medium mb-2">{label}</label>
     <input
@@ -38,7 +38,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   setLimit,
   isTesting,
   onBulkTest,
-  localProxyAvailable
+  localProxyAvailable,
 }) => {
   return (
     <div className="bg-zinc-900/30 p-6 rounded-xl border border-zinc-800">
@@ -46,51 +46,54 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         <Settings size={16} className="text-zinc-400" />
         <h2 className="text-sm font-semibold text-white">Configuration</h2>
       </div>
-      
+
       <div className="space-y-5">
-        
         {/* Inputs */}
         <div className="space-y-4">
-           <InputField 
-             label="Target Phone Number" 
-             value={target}
-             onChange={(e: any) => setTarget(e.target.value)}
-             disabled={isRunning}
-             placeholder="555..."
-           />
-           <InputField 
-             label="Target Email (Optional)" 
-             type="email"
-             value={email}
-             onChange={(e: any) => setEmail(e.target.value)}
-             disabled={isRunning}
-             placeholder="user@example.com"
-           />
+          <InputField
+            label="Target Phone Number"
+            value={target}
+            onChange={e => setTarget(e.target.value)}
+            disabled={isRunning}
+            placeholder="555..."
+          />
+          <InputField
+            label="Target Email (Optional)"
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            disabled={isRunning}
+            placeholder="user@example.com"
+          />
         </div>
 
         {/* Request Limit */}
-        <InputField 
-           label="Request Limit" 
-           type="number"
-           value={limit || ''}
-           onChange={(e: any) => {
-              const val = parseInt(e.target.value);
-              setLimit(isNaN(val) || val <= 0 ? null : val);
-           }}
-           disabled={isRunning}
-           placeholder="∞"
-         />
+        <InputField
+          label="Request Limit"
+          type="number"
+          value={limit || ''}
+          onChange={e => {
+            const val = parseInt(e.target.value);
+            setLimit(isNaN(val) || val <= 0 ? null : val);
+          }}
+          disabled={isRunning}
+          placeholder="∞"
+        />
 
         {/* Local Proxy Status */}
         <div className="flex items-center gap-2 bg-zinc-900/50 rounded-lg px-3 py-2.5 border border-zinc-800">
           <Monitor size={14} className="text-zinc-500" />
           <span className="text-xs text-zinc-400">Local Proxy:</span>
-          <span className={`flex items-center gap-1.5 ml-auto text-xs font-mono ${
-            localProxyAvailable === true ? 'text-emerald-400' : localProxyAvailable === false ? 'text-red-400' : 'text-zinc-500'
-          }`}>
-            <span className={`w-2 h-2 rounded-full ${
-              localProxyAvailable === true ? 'bg-emerald-500' : localProxyAvailable === false ? 'bg-red-500' : 'bg-zinc-600 animate-pulse'
-            }`} />
+          <span
+            className={`flex items-center gap-1.5 ml-auto text-xs font-mono ${
+              localProxyAvailable === true ? 'text-emerald-400' : localProxyAvailable === false ? 'text-red-400' : 'text-zinc-500'
+            }`}
+          >
+            <span
+              className={`w-2 h-2 rounded-full ${
+                localProxyAvailable === true ? 'bg-emerald-500' : localProxyAvailable === false ? 'bg-red-500' : 'bg-zinc-600 animate-pulse'
+              }`}
+            />
             {localProxyAvailable === null ? 'Detecting...' : localProxyAvailable === true ? 'Connected (your IP)' : 'Vercel Proxy'}
           </span>
         </div>

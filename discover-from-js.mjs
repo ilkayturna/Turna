@@ -15,7 +15,7 @@ const endpoints = idVals.map((id, i) => ({ id, name: nameVals[i] || '', url: url
 
 const BROWSER_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+  Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
   'Accept-Language': 'tr-TR,tr;q=0.9,en;q=0.8',
 };
 
@@ -35,7 +35,7 @@ async function fetchWithTimeout(url, timeout = 10000) {
 function extractJsUrls(html, baseUrl) {
   const origin = new URL(baseUrl).origin;
   const jsUrls = new Set();
-  
+
   // Script src tags
   const scriptRegex = /<script[^>]*src=["']([^"']+\.(?:js|mjs)[^"']*)["']/gi;
   let m;
@@ -44,25 +44,31 @@ function extractJsUrls(html, baseUrl) {
     if (url.startsWith('//')) url = 'https:' + url;
     else if (url.startsWith('/')) url = origin + url;
     else if (!url.startsWith('http')) url = baseUrl.endsWith('/') ? baseUrl + url : baseUrl + '/' + url;
-    try { new URL(url); jsUrls.add(url); } catch {}
+    try {
+      new URL(url);
+      jsUrls.add(url);
+    } catch {}
   }
-  
+
   // Also look for data-main or require.js patterns
   const mainRegex = /data-main=["']([^"']+)["']/gi;
   while ((m = mainRegex.exec(html)) !== null) {
     let url = m[1];
     if (!url.endsWith('.js')) url += '.js';
     if (url.startsWith('/')) url = origin + url;
-    try { new URL(url); jsUrls.add(url); } catch {}
+    try {
+      new URL(url);
+      jsUrls.add(url);
+    } catch {}
   }
-  
+
   return [...jsUrls];
 }
 
 function findApiEndpointsInJs(jsContent, baseUrl) {
   const urls = new Set();
   const origin = new URL(baseUrl).origin;
-  
+
   // Look for API endpoint patterns in JS
   const patterns = [
     /["'](https?:\/\/[^"']*(?:\/api\/|\/rest\/|\/gateway\/)[^"']*(?:otp|sms|send|code|register|login|phone|auth)[^"']*)["']/gi,
@@ -76,7 +82,7 @@ function findApiEndpointsInJs(jsContent, baseUrl) {
     /(?:axios|fetch|ajax)\(["']([^"']+)["']/gi,
     /url:\s*["']([^"']+)["']/gi,
   ];
-  
+
   for (const pattern of patterns) {
     const matches = jsContent.matchAll(pattern);
     for (const match of matches) {
@@ -86,38 +92,71 @@ function findApiEndpointsInJs(jsContent, baseUrl) {
         else if (path.startsWith('/')) path = origin + path;
         else path = origin + '/' + path;
       }
-      try { new URL(path); urls.add(path); } catch {}
+      try {
+        new URL(path);
+        urls.add(path);
+      } catch {}
     }
   }
-  
-  return [...urls].filter(u => 
-    u.includes('otp') || u.includes('sms') || u.includes('send') || 
-    u.includes('code') || u.includes('register') || u.includes('login') ||
-    u.includes('phone') || u.includes('auth') || u.includes('member')
+
+  return [...urls].filter(
+    u =>
+      u.includes('otp') ||
+      u.includes('sms') ||
+      u.includes('send') ||
+      u.includes('code') ||
+      u.includes('register') ||
+      u.includes('login') ||
+      u.includes('phone') ||
+      u.includes('auth') ||
+      u.includes('member'),
   );
 }
 
 // Sites with 404 errors - most likely to have working endpoints with correct URL
 const targetIds = [
-  'zara', 'bershka', 'pull_bear', 'stradivarius',
-  'hm', 'mango', 'penti', 'decathlon',
-  'rossmann', 'watsons', 'gratis', 'avon', 'oriflame', 'farmasi',
-  'mediamarkt', 'vatan_bilgisayar', 'itopya',
-  'dr', 'kitapyurdu', 'toyzz_shop', 'alix_avien',
-  'starbucks', 'cineverse', 'a101', 'kuryem_gelsin', 'hey_scooter',
-  'jimmy_key', 'bkm_kitap', 'amway', 'herbalife',
+  'zara',
+  'bershka',
+  'pull_bear',
+  'stradivarius',
+  'hm',
+  'mango',
+  'penti',
+  'decathlon',
+  'rossmann',
+  'watsons',
+  'gratis',
+  'avon',
+  'oriflame',
+  'farmasi',
+  'mediamarkt',
+  'vatan_bilgisayar',
+  'itopya',
+  'dr',
+  'kitapyurdu',
+  'toyzz_shop',
+  'alix_avien',
+  'starbucks',
+  'cineverse',
+  'a101',
+  'kuryem_gelsin',
+  'hey_scooter',
+  'jimmy_key',
+  'bkm_kitap',
+  'amway',
+  'herbalife',
 ];
 
 async function main() {
   const results = [];
-  
+
   for (const id of targetIds) {
     const ep = endpoints.find(e => e.id === id);
     if (!ep) continue;
-    
+
     const origin = new URL(ep.url).origin;
     console.log(`\n=== ${ep.name} (${origin}) ===`);
-    
+
     // Fetch homepage
     const page = await fetchWithTimeout(origin);
     if (!page.ok) {
@@ -126,11 +165,11 @@ async function main() {
       continue;
     }
     console.log(`  Page: ✅ ${page.status} (${page.body.length} bytes)`);
-    
+
     // Extract JS bundle URLs
     const jsUrls = extractJsUrls(page.body, page.finalUrl);
     console.log(`  JS bundles found: ${jsUrls.length}`);
-    
+
     // Fetch each JS bundle and search for API endpoints
     let allApiEndpoints = [];
     for (let i = 0; i < Math.min(jsUrls.length, 5); i++) {
@@ -146,14 +185,14 @@ async function main() {
         console.log(`    ❌ ${js.status} ${js.error || ''}`);
       }
     }
-    
+
     results.push({ id, name: ep.name, pageReachable: true, pageStatus: page.status, jsUrls, apiUrls: allApiEndpoints.slice(0, 20) });
-    
+
     await new Promise(r => setTimeout(r, 1000));
   }
-  
+
   writeFileSync('js-discovery-results.json', JSON.stringify(results, null, 2));
-  
+
   console.log('\n\n=== SUMMARY ===');
   const withApis = results.filter(r => r.apiUrls.length > 0);
   console.log(`Sites with discoverable APIs in JS: ${withApis.length}/${results.length}`);

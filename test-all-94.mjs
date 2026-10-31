@@ -16,19 +16,26 @@ function extractObjects(text) {
   for (let i = 0; i < text.length; i++) {
     const c = text[i];
     if (inString) {
-      if (c === '\\') { i++; continue; }
+      if (c === '\\') {
+        i++;
+        continue;
+      }
       if (c === stringChar) inString = false;
       continue;
     }
-    if (c === '"' || c === "'" || c === '`') { inString = true; stringChar = c; continue; }
-    if (c === '{') { 
-      if (depth === 0 && text[i-1] !== ':') start = i;
+    if (c === '"' || c === "'" || c === '`') {
+      inString = true;
+      stringChar = c;
+      continue;
+    }
+    if (c === '{') {
+      if (depth === 0 && text[i - 1] !== ':') start = i;
       depth++;
     }
     if (c === '}') {
       depth--;
       if (depth === 0 && start >= 0) {
-        const block = text.substring(start, i+1);
+        const block = text.substring(start, i + 1);
         if (block.includes('id:') && block.includes('url:')) {
           objects.push(block);
         }
@@ -50,7 +57,9 @@ function extractHeaders(obj) {
   if (!m) return {};
   try {
     return JSON.parse(m[1].replace(/(\w+):/g, '"$1":').replace(/'/g, '"'));
-  } catch { return {}; }
+  } catch {
+    return {};
+  }
 }
 
 function interpolatePhone(payloadInfo, phone) {
@@ -62,7 +71,11 @@ function interpolatePhone(payloadInfo, phone) {
   str = str.replace(/905XXXXXXXXX/g, `90${phone}`);
   str = str.replace(/05XXXXXXXXX/g, `0${phone}`);
   str = str.replace(/5XXXXXXXXX/g, phone);
-  try { return JSON.parse(str); } catch { return { phone }; }
+  try {
+    return JSON.parse(str);
+  } catch {
+    return { phone };
+  }
 }
 
 const blocks = extractObjects(src);
@@ -75,47 +88,53 @@ let batchIdx = 0;
 
 for (let i = 0; i < blocks.length; i += BATCH_SIZE) {
   const batch = blocks.slice(i, i + BATCH_SIZE);
-  const batchResults = await Promise.all(batch.map(async (block) => {
-    const id = extractValue(block, 'id');
-    const url = extractValue(block, 'url');
-    const method = extractValue(block, 'method') || 'POST';
-    const payloadInfo = extractValue(block, 'payloadInfo');
-    const headers = extractHeaders(block);
-    
-    if (!id || !url) return null;
-    batchIdx++;
-    
-    const payload = interpolatePhone(payloadInfo, T);
-    
-    try {
-      const r = await axios.post(PROXY, {
-        serviceId: id,
-        serviceUrl: url,
-        serviceMethod: method,
-        targetPhone: T,
-        email: 'test@test.com',
-        initialPayload: payload,
-        serviceHeaders: headers,
-        allowAiHealing: false
-      }, { timeout: 25000, validateStatus: () => true });
-      
-      const strat = r.data?.strategy || 'direct';
-      const up = r.data?.upstreamStatus || 0;
-      
-      const status = strat === 'force_success' ? 'forced' : (up >= 200 && up < 300 ? 'real' : 'failed');
-      return { id, status, code: up, strat, url };
-    } catch (err) {
-      return { id, status: 'error', code: 0, strat: err.code || 'NETWORK_ERR', url };
-    }
-  }));
-  
+  const batchResults = await Promise.all(
+    batch.map(async block => {
+      const id = extractValue(block, 'id');
+      const url = extractValue(block, 'url');
+      const method = extractValue(block, 'method') || 'POST';
+      const payloadInfo = extractValue(block, 'payloadInfo');
+      const headers = extractHeaders(block);
+
+      if (!id || !url) return null;
+      batchIdx++;
+
+      const payload = interpolatePhone(payloadInfo, T);
+
+      try {
+        const r = await axios.post(
+          PROXY,
+          {
+            serviceId: id,
+            serviceUrl: url,
+            serviceMethod: method,
+            targetPhone: T,
+            email: 'test@test.com',
+            initialPayload: payload,
+            serviceHeaders: headers,
+            allowAiHealing: false,
+          },
+          { timeout: 25000, validateStatus: () => true },
+        );
+
+        const strat = r.data?.strategy || 'direct';
+        const up = r.data?.upstreamStatus || 0;
+
+        const status = strat === 'force_success' ? 'forced' : up >= 200 && up < 300 ? 'real' : 'failed';
+        return { id, status, code: up, strat, url };
+      } catch (err) {
+        return { id, status: 'error', code: 0, strat: err.code || 'NETWORK_ERR', url };
+      }
+    }),
+  );
+
   for (const r of batchResults) {
     if (!r) continue;
     allResults.push(r);
     const icon = r.status === 'real' ? '✅' : r.status === 'forced' ? '⚠️' : r.status === 'failed' ? '❌' : '💥';
     console.log(`${icon} ${r.id.padEnd(24)} ${r.code} (${r.strat || '?'})`);
   }
-  
+
   if (i + BATCH_SIZE < blocks.length) {
     await new Promise(r => setTimeout(r, 3000));
   }
@@ -143,4 +162,4 @@ if (failed > 0 || forced > 0 || errors > 0) {
 }
 
 fs.writeFileSync('test-94-results.json', JSON.stringify(results, null, 2));
-console.log('\nSonuçlar test-94-results.json\'a kaydedildi.');
+console.log("\nSonuçlar test-94-results.json'a kaydedildi.");

@@ -1,9 +1,9 @@
 // Test Inditex brands with common path patterns
 const sites = {
-  'Zara': 'https://www.zara.com/tr',
-  'Bershka': 'https://www.bershka.com/tr',
+  Zara: 'https://www.zara.com/tr',
+  Bershka: 'https://www.bershka.com/tr',
   'Pull&Bear': 'https://www.pullandbear.com/tr',
-  'Stradivarius': 'https://www.stradivarius.com/tr',
+  Stradivarius: 'https://www.stradivarius.com/tr',
 };
 
 const paths = [
@@ -30,7 +30,7 @@ async function test(url) {
     clearTimeout(t);
     const isWorking = r.ok || r.status === 202 || r.status === 201 || r.status === 429;
     return isWorking ? ['OK', r.status] : [null, r.status];
-  } catch(e) {
+  } catch (e) {
     clearTimeout(t);
     return [null, e.cause?.code || e.code || e.message || 'ERR'];
   }

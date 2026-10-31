@@ -25,11 +25,14 @@ function getHeadersForId(id) {
   if (!hMatch) return {};
   try {
     return JSON.parse(hMatch[1].replace(/(\w+):/g, '"$1":').replace(/'/g, '"'));
-  } catch { return {}; }
+  } catch {
+    return {};
+  }
 }
 
 const endpoints = idVals.map((id, i) => ({
-  id, name: nameVals[i] || '',
+  id,
+  name: nameVals[i] || '',
   url: urlVals[i] || '',
   method: methodVals[i] || 'POST',
   status: statusVals[i] || 'unknown',
@@ -38,13 +41,24 @@ const endpoints = idVals.map((id, i) => ({
 }));
 
 // These endpoints return 500/401 but are reachable - payload might be fixable
-const promising = endpoints.filter(e => e.status === 'dead' && (
-  e.id === 'herbalife' || e.id === 'bkm_kitap' || e.id === 'fatih_belediye' ||
-  e.id === 'bayrampasa_belediye' || e.id === 'sancaktepe_belediye' ||
-  e.id === 'bodrum_belediye' || e.id === 'orwi' || e.id === 'bisu' ||
-  e.id === 'kim_gb_ister' || e.id === 'joker' || e.id === 'ido' ||
-  e.id === 'tasdelen_su' || e.id === 'pidem' || e.id === 'tazi'
-));
+const promising = endpoints.filter(
+  e =>
+    e.status === 'dead' &&
+    (e.id === 'herbalife' ||
+      e.id === 'bkm_kitap' ||
+      e.id === 'fatih_belediye' ||
+      e.id === 'bayrampasa_belediye' ||
+      e.id === 'sancaktepe_belediye' ||
+      e.id === 'bodrum_belediye' ||
+      e.id === 'orwi' ||
+      e.id === 'bisu' ||
+      e.id === 'kim_gb_ister' ||
+      e.id === 'joker' ||
+      e.id === 'ido' ||
+      e.id === 'tasdelen_su' ||
+      e.id === 'pidem' ||
+      e.id === 'tazi'),
+);
 
 const PROXY = 'http://localhost:3001/api/proxy';
 
@@ -59,7 +73,11 @@ function interpolatePayload(payloadStr, phone = '5321111111', email = 'test@test
   str = str.replace(/05XXXXXXXXX/g, `0${phone}`);
   str = str.replace(/5XXXXXXXXX/g, phone);
   str = str.replace(/\+90\{\{PHONE\}\}/g, `+90${phone}`);
-  try { return JSON.parse(str); } catch { return { phone }; }
+  try {
+    return JSON.parse(str);
+  } catch {
+    return { phone };
+  }
 }
 
 async function testViaProxy(ep) {
@@ -84,7 +102,13 @@ async function testViaProxy(ep) {
     });
     clearTimeout(t);
     const data = await res.json();
-    return { ok: data.ok, upstreamStatus: data.upstreamStatus, strategy: data.strategy, error: data.error, healedPayload: data.healedPayload };
+    return {
+      ok: data.ok,
+      upstreamStatus: data.upstreamStatus,
+      strategy: data.strategy,
+      error: data.error,
+      healedPayload: data.healedPayload,
+    };
   } catch (e) {
     return { ok: false, upstreamStatus: 0, strategy: 'error', error: e.message };
   }

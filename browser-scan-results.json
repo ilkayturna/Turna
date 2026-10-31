@@ -547,9 +547,7 @@
         "homepage": "https://www.englishhome.com"
       }
     ],
-    "apis": [
-      "GET https://www.englishhome.com/api/cart/GetMemberCart?c=trtry0000&v=80555116-3979-4926-80dc-0eb492a9a47c&ProductType=0"
-    ]
+    "apis": ["GET https://www.englishhome.com/api/cart/GetMemberCart?c=trtry0000&v=80555116-3979-4926-80dc-0eb492a9a47c&ProductType=0"]
   },
   {
     "origin": "https://api.joker.com.tr",

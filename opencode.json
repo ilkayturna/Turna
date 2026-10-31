@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "ruflo": {
+      "type": "local",
+      "command": ["ruflo", "mcp", "start"],
+      "enabled": true
+    }
+  }
+}

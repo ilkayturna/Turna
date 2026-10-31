@@ -42,7 +42,7 @@ const foundApis = [];
 
 async function scanSiteJs(page, site, registerUrl) {
   const apis = new Set();
-  
+
   console.log(`\n=== ${site.name} ===`);
 
   try {
@@ -74,7 +74,7 @@ async function scanSiteJs(page, site, registerUrl) {
       try {
         const res = await page.request.get(jsUrl, { timeout: 10000 });
         const js = await res.text();
-        
+
         // Find API URLs in JS
         const patterns = [
           /["']((?:https?:)?\/\/[^"']*\/api\/[^"']*(?:otp|sms|send|register|kayit|signup|auth|member|user)[^"']*)["']/gi,
@@ -95,19 +95,25 @@ async function scanSiteJs(page, site, registerUrl) {
               // Remove the regex wrapper
               url = url.replace(/^["']/, '').replace(/["']$/, '');
               // Remove fetch(, axios.get( etc prefixes
-              url = url.replace(/^fetch\(/, '').replace(/^axios\.(?:get|post|put)\(/, '').replace(/^ajax\(/, '').replace(/^url:\s*/, '');
+              url = url
+                .replace(/^fetch\(/, '')
+                .replace(/^axios\.(?:get|post|put)\(/, '')
+                .replace(/^ajax\(/, '')
+                .replace(/^url:\s*/, '');
               url = url.replace(/["']$/, '').replace(/^["']/, '');
               url = url.replace(/\\\//g, '/');
-              
+
               // Resolve relative URLs
               if (url.startsWith('//')) {
                 url = 'https:' + url;
               } else if (url.startsWith('/')) {
-                try { url = new URL(url, site.url).href; } catch {}
+                try {
+                  url = new URL(url, site.url).href;
+                } catch {}
               } else if (!url.startsWith('http')) {
                 continue;
               }
-              
+
               apis.add(url);
             }
           }
@@ -119,10 +125,16 @@ async function scanSiteJs(page, site, registerUrl) {
 
     // Also try to find the SMS API by submitting the phone form
     const phoneSelectors = [
-      'input[type="tel"]', 'input[name*="phone"]', 'input[name*="tel"]', 
-      'input[name*="gsm"]', 'input[name*="cep"]', 'input[name*="mobile"]',
-      'input[placeholder*="telefon"]', 'input[placeholder*="cep"]',
-      'input[id*="phone"]', 'input[id*="telefon"]',
+      'input[type="tel"]',
+      'input[name*="phone"]',
+      'input[name*="tel"]',
+      'input[name*="gsm"]',
+      'input[name*="cep"]',
+      'input[name*="mobile"]',
+      'input[placeholder*="telefon"]',
+      'input[placeholder*="cep"]',
+      'input[id*="phone"]',
+      'input[id*="telefon"]',
     ];
 
     for (const sel of phoneSelectors) {
@@ -149,7 +161,6 @@ async function scanSiteJs(page, site, registerUrl) {
         break;
       }
     }
-
   } catch (e) {
     console.log(`  Error: ${e.message.substring(0, 100)}`);
   }
@@ -159,112 +170,140 @@ async function scanSiteJs(page, site, registerUrl) {
 
 async function main() {
   console.log('Launching Chrome...');
-  
-  return await chromium.launchPersistentContext(TEMP_PROFILE, {
-    executablePath: CHROME_PATH,
-    headless: false,
-    args: [
-      '--no-sandbox',
-      '--disable-blink-features=AutomationControlled',
-      '--disable-web-security',
-    ],
-    viewport: { width: 1280, height: 800 },
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-    locale: 'tr-TR',
-    timezoneId: 'Europe/Istanbul',
-  }).then(async (context) => {
-    const page = await context.newPage();
-    
-    await page.addInitScript(() => {
-      Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-    });
 
-    // Monitor network requests
-    const allRequests = new Set();
-    page.on('request', req => {
-      const url = req.url();
-      if (!url.includes('.css') && !url.includes('.png') && !url.includes('.jpg') && 
-          !url.includes('.woff') && !url.includes('.ico') && !url.includes('.svg')) {
-        if (url.includes('/api/') || url.includes('otp') || url.includes('sms') || 
-            url.includes('send') || url.includes('register') || url.includes('auth')) {
-          allRequests.add(`${req.method()} ${url}`);
-        }
-      }
-    });
+  return await chromium
+    .launchPersistentContext(TEMP_PROFILE, {
+      executablePath: CHROME_PATH,
+      headless: false,
+      args: ['--no-sandbox', '--disable-blink-features=AutomationControlled', '--disable-web-security'],
+      viewport: { width: 1280, height: 800 },
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+      locale: 'tr-TR',
+      timezoneId: 'Europe/Istanbul',
+    })
+    .then(async context => {
+      const page = await context.newPage();
 
-    for (const site of SITES) {
-      // First go to homepage, find register link
-      try {
-        await page.goto(site.url, { waitUntil: 'networkidle', timeout: 20000 });
-        await page.waitForTimeout(2000);
-      } catch {
-        try { await page.goto(site.url, { timeout: 10000 }); } catch {}
-      }
-
-      // Find register URL
-      let registerUrl = site.url;
-      const links = await page.evaluate(() => {
-        const allUrls = [];
-        document.querySelectorAll('a').forEach(a => {
-          const href = a.href || '';
-          const text = (a.textContent || '').toLowerCase().trim().substring(0, 30);
-          if (href && (text.includes('uye ol') || text.includes('kayit') || text.includes('üye ol') || text.includes('sign up') || text.includes('register') || text.includes('hesap oluştur'))) {
-            if (href !== '#' && !href.startsWith('javascript:')) allUrls.push(href);
-          }
-        });
-        return allUrls.slice(0, 3);
+      await page.addInitScript(() => {
+        Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
       });
 
-      if (links.length > 0) {
-        registerUrl = links[0];
-      } else {
-        // Try common paths
-        for (const path of ['/uye-ol', '/kayit-ol', '/register', '/signup', '/users/auth/register', '/auth/register', '/giris-yap']) {
+      // Monitor network requests
+      const allRequests = new Set();
+      page.on('request', req => {
+        const url = req.url();
+        if (
+          !url.includes('.css') &&
+          !url.includes('.png') &&
+          !url.includes('.jpg') &&
+          !url.includes('.woff') &&
+          !url.includes('.ico') &&
+          !url.includes('.svg')
+        ) {
+          if (
+            url.includes('/api/') ||
+            url.includes('otp') ||
+            url.includes('sms') ||
+            url.includes('send') ||
+            url.includes('register') ||
+            url.includes('auth')
+          ) {
+            allRequests.add(`${req.method()} ${url}`);
+          }
+        }
+      });
+
+      for (const site of SITES) {
+        // First go to homepage, find register link
+        try {
+          await page.goto(site.url, { waitUntil: 'networkidle', timeout: 20000 });
+          await page.waitForTimeout(2000);
+        } catch {
           try {
-            await page.goto(site.url.replace(/\/+$/, '') + path, { waitUntil: 'domcontentloaded', timeout: 8000 });
-            await page.waitForTimeout(1000);
-            registerUrl = page.url();
-            break;
+            await page.goto(site.url, { timeout: 10000 });
           } catch {}
         }
+
+        // Find register URL
+        let registerUrl = site.url;
+        const links = await page.evaluate(() => {
+          const allUrls = [];
+          document.querySelectorAll('a').forEach(a => {
+            const href = a.href || '';
+            const text = (a.textContent || '').toLowerCase().trim().substring(0, 30);
+            if (
+              href &&
+              (text.includes('uye ol') ||
+                text.includes('kayit') ||
+                text.includes('üye ol') ||
+                text.includes('sign up') ||
+                text.includes('register') ||
+                text.includes('hesap oluştur'))
+            ) {
+              if (href !== '#' && !href.startsWith('javascript:')) allUrls.push(href);
+            }
+          });
+          return allUrls.slice(0, 3);
+        });
+
+        if (links.length > 0) {
+          registerUrl = links[0];
+        } else {
+          // Try common paths
+          for (const path of ['/uye-ol', '/kayit-ol', '/register', '/signup', '/users/auth/register', '/auth/register', '/giris-yap']) {
+            try {
+              await page.goto(site.url.replace(/\/+$/, '') + path, { waitUntil: 'domcontentloaded', timeout: 8000 });
+              await page.waitForTimeout(1000);
+              registerUrl = page.url();
+              break;
+            } catch {}
+          }
+        }
+
+        const apis = await scanSiteJs(page, site, registerUrl);
+
+        // Filter for interesting APIs
+        const interesting = [...apis].filter(
+          u =>
+            u.includes('/api/') ||
+            u.includes('otp') ||
+            u.includes('sms') ||
+            u.includes('send') ||
+            u.includes('register') ||
+            u.includes('kayit'),
+        );
+
+        console.log(`  Found ${interesting.length} interesting API URLs:`);
+        interesting.forEach(u => console.log(`    ${u.substring(0, 120)}`));
+
+        foundApis.push({ site: site.name, url: site.url, registerUrl, apis: interesting, allRequests: [...allRequests] });
+
+        // Clear request log for next site
+        allRequests.clear();
       }
 
-      const apis = await scanSiteJs(page, site, registerUrl);
-      
-      // Filter for interesting APIs
-      const interesting = [...apis].filter(u => 
-        u.includes('/api/') || u.includes('otp') || u.includes('sms') || 
-        u.includes('send') || u.includes('register') || u.includes('kayit')
-      );
+      await context.close();
 
-      console.log(`  Found ${interesting.length} interesting API URLs:`);
-      interesting.forEach(u => console.log(`    ${u.substring(0, 120)}`));
+      // Save results
+      writeFileSync('browser-scan-results.json', JSON.stringify(foundApis, null, 2));
 
-      foundApis.push({ site: site.name, url: site.url, registerUrl, apis: interesting, allRequests: [...allRequests] });
-      
-      // Clear request log for next site
-      allRequests.clear();
-    }
-
-    await context.close();
-
-    // Save results
-    writeFileSync('browser-scan-results.json', JSON.stringify(foundApis, null, 2));
-    
-    console.log('\n\n=== ALL DISCOVERED API ENDPOINTS ===');
-    let total = 0;
-    for (const r of foundApis) {
-      if (r.apis.length > 0) {
-        console.log(`\n${r.site} (${r.registerUrl}):`);
-        r.apis.forEach(a => { console.log(`  ${a}`); total++; });
+      console.log('\n\n=== ALL DISCOVERED API ENDPOINTS ===');
+      let total = 0;
+      for (const r of foundApis) {
+        if (r.apis.length > 0) {
+          console.log(`\n${r.site} (${r.registerUrl}):`);
+          r.apis.forEach(a => {
+            console.log(`  ${a}`);
+            total++;
+          });
+        }
+        if (r.allRequests.length > 0) {
+          console.log(`  Network requests:`);
+          r.allRequests.forEach(a => console.log(`    ${a}`));
+        }
       }
-      if (r.allRequests.length > 0) {
-        console.log(`  Network requests:`);
-        r.allRequests.forEach(a => console.log(`    ${a}`));
-      }
-    }
-    console.log(`\nTotal: ${total} new endpoints`);
-  });
+      console.log(`\nTotal: ${total} new endpoints`);
+    });
 }
 
 main().catch(e => {

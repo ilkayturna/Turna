@@ -26,16 +26,44 @@ const TARGETS = [
 ];
 
 const API_PATTERNS = [
-  /\/api\//, /\/rest\//, /\/v[12]\//, /\/graphql/, /\/otp/, /\/send-?[Oo][Tt][Pp]/,
-  /\/register/, /\/login/, /\/signup/, /\/sms/, /\/auth/, /\/member/,
-  /\/user/, /\/customer/, /\/phone/, /\/mobile/, /\/sms-?[Gg]onder/,
-  /verify/, /confirmation/, /sendCode/, /requestOtp/, /sendOtp/
+  /\/api\//,
+  /\/rest\//,
+  /\/v[12]\//,
+  /\/graphql/,
+  /\/otp/,
+  /\/send-?[Oo][Tt][Pp]/,
+  /\/register/,
+  /\/login/,
+  /\/signup/,
+  /\/sms/,
+  /\/auth/,
+  /\/member/,
+  /\/user/,
+  /\/customer/,
+  /\/phone/,
+  /\/mobile/,
+  /\/sms-?[Gg]onder/,
+  /verify/,
+  /confirmation/,
+  /sendCode/,
+  /requestOtp/,
+  /sendOtp/,
 ];
 
 const EXCLUDE = [
-  /google-analytics/, /googletagmanager/, /facebook\.com/, /doubleclick/,
-  /hotjar/, /optimize/, /cdn-cgi/, /challenges/, /\.(png|jpg|jpeg|gif|svg|ico|woff2?|ttf|eot|css)$/i,
-  /recaptcha/, /gstatic\.com/, /gtm\.js/, /analytics/
+  /google-analytics/,
+  /googletagmanager/,
+  /facebook\.com/,
+  /doubleclick/,
+  /hotjar/,
+  /optimize/,
+  /cdn-cgi/,
+  /challenges/,
+  /\.(png|jpg|jpeg|gif|svg|ico|woff2?|ttf|eot|css)$/i,
+  /recaptcha/,
+  /gstatic\.com/,
+  /gtm\.js/,
+  /analytics/,
 ];
 
 async function findEndpointsInJs(jsContent) {
@@ -56,7 +84,7 @@ async function findEndpointsInJs(jsContent) {
 
 const browser = await puppeteer.launch({
   headless: true,
-  args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-web-security']
+  args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-web-security'],
 });
 
 const page = await browser.newPage();
@@ -78,10 +106,10 @@ for (const target of TARGETS) {
   try {
     await page.goto(target.url, { waitUntil: 'networkidle0', timeout: 25000 });
     const html = await page.content();
-    
+
     // Check HTML for API endpoints
     const htmlEndpoints = await findEndpointsInJs(html);
-    
+
     // Extract form actions
     const formActions = [];
     const formMatches = html.match(/<form[^>]*action=["']([^"']+)["'][^>]*>/gi);
@@ -123,12 +151,12 @@ for (const target of TARGETS) {
 
     console.log(`  HTML'de bulunan API endpoint'leri:`);
     for (const ep of htmlEndpoints) console.log(`    ${ep}`);
-    
+
     if (formActions.length) {
       console.log(`  Form action'ları:`);
       for (const fa of formActions) console.log(`    ${fa}`);
     }
-    
+
     if (apiRequests.length) {
       console.log(`  Network istekleri (${apiRequests.length}):`);
       for (const r of apiRequests.slice(0, 15)) {
@@ -141,7 +169,6 @@ for (const target of TARGETS) {
       console.log(`  JavaScript bundle'larında bulunan:`);
       for (const ep of [...new Set(jsApiEndpoints)].slice(0, 10)) console.log(`    ${ep}`);
     }
-
   } catch (err) {
     console.log(`  HATA: ${err.message.substring(0, 100)}`);
   }

@@ -12,5 +12,5 @@ echo.
 echo  Press CTRL+C to stop
 echo.
 cd /d "%~dp0"
-node local-dev.mjs
+npx tsx local-dev.ts
 pause

@@ -10,18 +10,22 @@ function buildHeaders() {
   ];
   return {
     'User-Agent': agents[Math.floor(Math.random() * agents.length)],
-    'Accept': 'application/json, text/plain, */*',
+    Accept: 'application/json, text/plain, */*',
     'Accept-Language': 'tr-TR,tr;q=0.9,en;q=0.8',
     'Content-Type': 'application/json',
     'Cache-Control': 'no-cache',
-    'Origin': 'https://www.google.com',
-    'Referer': 'https://www.google.com/',
+    Origin: 'https://www.google.com',
+    Referer: 'https://www.google.com/',
     'Sec-Fetch-Site': 'cross-site',
   };
 }
 
-function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-function rdelay() { return delay(1000 + Math.random() * 2000); }
+function delay(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+function rdelay() {
+  return delay(1000 + Math.random() * 2000);
+}
 
 // Fix 1: Sportive - GET method
 async function fixSportive() {
@@ -121,7 +125,9 @@ async function fixBambi() {
     });
     const data = await r.json();
     console.log(`  Proxy: ${JSON.stringify(data).substring(0, 150)}`);
-    return data.ok ? { name: 'Bambi', url: 'https://www.bambi.com.tr/api/v1/auth/register/send-otp', ok: true, status: data.upstreamStatus } : null;
+    return data.ok
+      ? { name: 'Bambi', url: 'https://www.bambi.com.tr/api/v1/auth/register/send-otp', ok: true, status: data.upstreamStatus }
+      : null;
   } catch (e) {
     console.log(`  ❌ ${e.message}`);
     return null;
@@ -134,11 +140,16 @@ async function main() {
   const results = [];
 
   // Try each with delays
-  results.push(await fixSportive()); await rdelay();
-  results.push(await fixKoton()); await rdelay();
-  results.push(await fixFlormar()); await rdelay();
-  results.push(await fixEvidea()); await rdelay();
-  results.push(await fixDominos()); await rdelay();
+  results.push(await fixSportive());
+  await rdelay();
+  results.push(await fixKoton());
+  await rdelay();
+  results.push(await fixFlormar());
+  await rdelay();
+  results.push(await fixEvidea());
+  await rdelay();
+  results.push(await fixDominos());
+  await rdelay();
   results.push(await fixBambi());
 
   const fixed = results.filter(Boolean);
